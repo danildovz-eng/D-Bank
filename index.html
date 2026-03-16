@@ -433,9 +433,14 @@
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
     let db = { users: {} };
-    try { let saved = localStorage.getItem('DBank_Store_FINAL'); if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } } catch(e) {}
 
-    function saveDB() { try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {} if(currentUserKey && db.users[currentUserKey]) { localStorage.setItem('DBank_User_Key', currentUserKey); database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{}); } }
+    function saveDB() {
+        if(currentUserKey && db.users[currentUserKey]) {
+            localStorage.setItem('DBank_User_Key', currentUserKey);
+            try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {}
+            database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{});
+        }
+    }
     function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
 
     let globalNews = []; try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
@@ -485,24 +490,75 @@
     ];
 
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
-    function sendVerificationCode() { tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify'); }
+    
+    function sendVerificationCode() { 
+        tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
+        if(!tempRegEmail.includes('@')) { showToast("Невірний email!", "error"); return; }
+        const emailKey = tempRegEmail.replace(/\./g, ',');
+        
+        database.ref('users/' + emailKey).once('value').then(snapshot => {
+            if(snapshot.exists()) { showToast("Акаунт вже існує!", "error"); return; }
+            tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
+            showToast("Код: " + tempRegCode, "success"); 
+            switchAuthScreen('screen-verify');
+        }).catch(() => showToast("Помилка підключення", "error"));
+    }
+    
     function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Невірний код!", "error"); }
     
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value;
         const emailKey = tempRegEmail.replace(/\./g, ',');
-        db.users[emailKey] = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', deposits: [], credit: {active: false}, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, prestigeMultiplier: 1, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false } };
-        currentUserKey = emailKey; saveDB(); showToast("Акаунт створено!", "success"); startApp();
+        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', deposits: [], credit: {active: false}, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, prestigeMultiplier: 1, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false } };
+        
+        database.ref('users/' + emailKey).set(newUser).then(() => {
+            db.users[emailKey] = newUser;
+            currentUserKey = emailKey;
+            localStorage.setItem('DBank_User_Key', currentUserKey);
+            showToast("Акаунт створено!", "success");
+            startApp();
+        });
     }
 
     function processLogin() {
         const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value; const emailKey = email.replace(/\./g, ',');
-        if(db.users[emailKey] && db.users[emailKey].password === pass) { currentUserKey = emailKey; saveDB(); showAppPinScreen(); } else { showToast("Невірна пошта або пароль!", "error"); }
+        
+        database.ref('users/' + emailKey).once('value').then((snapshot) => {
+            if(snapshot.exists() && snapshot.val().password === pass) {
+                db.users[emailKey] = snapshot.val();
+                currentUserKey = emailKey;
+                localStorage.setItem('DBank_User_Key', currentUserKey);
+                showAppPinScreen();
+            } else {
+                showToast("Невірна пошта або пароль!", "error");
+            }
+        }).catch(() => showToast("Помилка з'єднання з БД", "error"));
     }
 
-    function checkAuthState() { if(currentUserKey && db.users[currentUserKey]) showAppPinScreen(); else switchAuthScreen('screen-login'); }
+    function checkAuthState() { 
+        if(currentUserKey) {
+            database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
+                if(snapshot.exists()) {
+                    db.users[currentUserKey] = snapshot.val();
+                    showAppPinScreen();
+                } else {
+                    logout();
+                }
+            }).catch(() => {
+                if(db.users[currentUserKey]) showAppPinScreen(); else switchAuthScreen('screen-login');
+            });
+        } else {
+            switchAuthScreen('screen-login');
+        }
+    }
+    
     function logout() { currentUserKey = null; localStorage.removeItem('DBank_User_Key'); document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
-    function deleteAccount() { if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
+    function deleteAccount() { 
+        if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } 
+        database.ref('users/' + currentUserKey).remove();
+        delete db.users[currentUserKey]; 
+        logout(); deleteConfirm = false; 
+    }
 
     function showAppPinScreen() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); }
     function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
@@ -536,9 +592,9 @@
         if(q.done) { container.innerHTML = '<div style="color:var(--success); font-weight:bold; text-align:center;">Всі квести виконані!</div>'; return; }
         let cProg = Math.min(q.clicks, 100); let sProg = Math.min(q.stocks, 5); let dProg = Math.min(q.deposits, 1);
         container.innerHTML = `<div style="font-size:12px; margin-bottom:5px;">🖱 Зробити 100 кліків (${cProg}/100)</div><div style="font-size:12px; margin-bottom:5px;">📈 Купити 5 активів на біржі (${sProg}/5)</div><div style="font-size:12px; margin-bottom:10px;">🌾 Відкрити 1 депозит (${dProg}/1)</div>`;
-        if(cProg >= 100 && sProg >= 5 && dProg >= 1) { container.innerHTML += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (5000 ₴)</button>`; }
+        if(cProg >= 100 && sProg >= 5 && dProg >= 1) { container.innerHTML += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (250 ₴)</button>`; }
     }
-    function claimQuests() { const user = getState(); user.quests.done = true; let win = 5000 * (user.prestigeMultiplier || 1); user.balance += win; addTransaction("Квести виконано", win, '🎯'); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); showPush("Квести", `Отримано ${win} ₴`, "🎯"); }
+    function claimQuests() { const user = getState(); user.quests.done = true; let win = 250 * (user.prestigeMultiplier || 1); user.balance += win; addTransaction("Квести виконано", win, '🎯'); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); showPush("Квести", `Отримано ${win} ₴`, "🎯"); }
 
     // --- PRESTIGE --- //
     function doPrestige() {
@@ -577,7 +633,7 @@
     function submitHack() {
         if(document.getElementById('hack-input').value === currentHackPin) {
             clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active');
-            let win = 2000 + Math.floor(Math.random() * 8000);
+            let win = 500 + Math.floor(Math.random() * 701);
             const user = getState(); user.balance += win; saveDB();
             addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet();
             showPush("Взлом", `Ви вкрали ${win} ₴!`, "💻");
@@ -653,7 +709,30 @@
     function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
     function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
-    function executeTransfer() { const sender = getState(); const amount = parseFloat(document.getElementById('transfer-amount').value); sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ`, date: new Date().toLocaleString(), amount: -amount, type: 'minus' }); showPush("Офлайн переказ", `Сума: <b>${amount} ₴</b>`, "💸"); saveDB(); updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); }
+    function executeTransfer() { 
+        const sender = getState(); const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value);
+        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; }
+        
+        database.ref('users').once('value').then(snapshot => {
+            let allUsers = snapshot.val() || {}; let receiverKey = null;
+            for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
+            
+            sender.balance -= amount;
+            if(receiverKey) {
+                let receiver = allUsers[receiverKey]; if(!receiver.history) receiver.history = [];
+                receiver.balance += amount;
+                receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString(), amount: amount, type: 'plus' });
+                sender.history.unshift({ icon: '💸', title: `Переказ ${receiver.name}`, date: new Date().toLocaleString(), amount: -amount, type: 'minus' });
+                database.ref('users/' + receiverKey).set(receiver).catch(()=>{});
+                showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
+            } else {
+                sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString(), amount: -amount, type: 'minus' });
+                showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸");
+            }
+            saveDB(); document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
+            updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+        }).catch(err => { showToast("Помилка БД", "error"); });
+    }
     
     function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
     function payMobile() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } const amount = parseFloat(document.getElementById('mobile-amount').value); if(!amount || amount <= 0 || amount > getState().balance) { showToast("Некоректна сума!", "error"); return; } getState().balance = parseFloat((getState().balance - amount).toFixed(2)); saveDB(); addTransaction("Мобільний", -amount, '📱'); updateBalanceDisplayQuiet(); document.getElementById('mobile-modal').classList.remove('active'); document.getElementById('mobile-amount').value = ''; showPush("Оплата", `Рахунок поповнено на <b>${amount} ₴</b>`, "📱"); }
