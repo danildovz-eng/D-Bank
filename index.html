@@ -569,7 +569,13 @@
     function startApp() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState();
-        if(!user.prestigeMultiplier) user.prestigeMultiplier = 1; if(!user.businesses) user.businesses = {}; checkQuests();
+        if(!user.prestigeMultiplier) user.prestigeMultiplier = 1;
+        if(!user.businesses) user.businesses = {};
+        if(!user.deposits) user.deposits = [];
+        if(!user.credit) user.credit = { active: false };
+        if(!user.portfolio) user.portfolio = {};
+        if(!user.history) user.history = [];
+        checkQuests();
         saveDB();
 
         document.getElementById('profile-name').innerText = user.name || "Користувач"; 
@@ -633,7 +639,7 @@
     function submitHack() {
         if(document.getElementById('hack-input').value === currentHackPin) {
             clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active');
-            let win = 500 + Math.floor(Math.random() * 701);
+            let win = 500 + Math.floor(Math.random() * 701); // От 500 до 1200
             const user = getState(); user.balance += win; saveDB();
             addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet();
             showPush("Взлом", `Ви вкрали ${win} ₴!`, "💻");
@@ -757,16 +763,19 @@
 
     function openProducts(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-products', navElement); renderProductsFull(); renderBusinesses(); }
     function renderProductsFull() {
-        const user = getState(); const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); if(user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); const cLimit = user.creditLimit; const cReturn = Math.floor(cLimit * 1.10);
-        if(user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cLimit} ₴ на 5 хвилин. Повернути треба ${cReturn} ₴. Банкрутство при несплаті!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cLimit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } renderProductsTimersOnly();
+        const user = getState(); const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); 
+        if(user.deposits && user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } 
+        const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); const cLimit = user.creditLimit || 1000; const cReturn = Math.floor(cLimit * 1.10);
+        if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cLimit} ₴ на 5 хвилин. Повернути треба ${cReturn} ₴. Банкрутство при несплаті!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cLimit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } renderProductsTimersOnly();
     }
     function renderProductsTimersOnly() {
-        const user = getState(); if(user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; }
-        if(user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; const cReturn = Math.floor(user.creditLimit * 1.10); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cReturn} ₴)</button>`; }
+        const user = getState(); 
+        if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; }
+        if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; const cReturn = Math.floor((user.creditLimit||1000) * 1.10); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cReturn} ₴)</button>`; }
     }
     function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderProductsFull(); showToast("Депозит відкрито!", "success"); }
-    function takeCredit() { const user = getState(); const cLimit = user.creditLimit; user.balance += cLimit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cLimit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cLimit} ₴. Поверніть за 5 хв!`, "🚨", true); }
-    function payCredit() { const user = getState(); const cReturn = Math.floor(user.creditLimit * 1.10); if(user.balance < cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cReturn; user.credit = { active: false }; saveDB(); addTransaction("Погашення кредиту", -cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено!", "success"); }
+    function takeCredit() { const user = getState(); const cLimit = user.creditLimit || 1000; user.balance += cLimit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cLimit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cLimit} ₴. Поверніть за 5 хв!`, "🚨", true); }
+    function payCredit() { const user = getState(); const cReturn = Math.floor((user.creditLimit || 1000) * 1.10); if(user.balance < cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cReturn; user.credit = { active: false }; saveDB(); addTransaction("Погашення кредиту", -cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено!", "success"); }
 
     setInterval(() => {
         try {
