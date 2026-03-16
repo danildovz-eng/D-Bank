@@ -255,7 +255,7 @@
     <div id="screen-payments" class="screen">
         <header><div class="greeting"><h1>Переказ на картку</h1></div></header>
         <div class="form-group"><label>З картки</label><input type="text" id="from-card-input" disabled style="background: var(--bg-main);"></div>
-        <div class="form-group"><label>Номер картки отримувача</label><input type="text" id="transfer-card" placeholder="0000 0000 0000 0000" maxlength="19" oninput="checkTransferForm()"></div>
+        <div class="form-group"><label>Номер картки отримувача</label><input type="text" id="transfer-card" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)"></div>
         <div class="form-group"><label>Сума переказу (₴)</label><input type="number" id="transfer-amount" placeholder="0.00" oninput="checkTransferForm()"></div>
         <button type="button" class="btn-main" id="btn-transfer" disabled onclick="executeTransfer()">Надіслати</button>
     </div>
@@ -455,7 +455,6 @@
         <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профіль</span></div>
     </nav>
 </div>
-
 <script>
     try {
         const manifest = { name: "D-Bank", short_name: "D-Bank", start_url: location.href, display: "standalone", background_color: "#161B22", theme_color: "#0047AB", icons: [{ src: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Crect width='512' height='512' rx='100' fill='%230047AB'/%3E%3Ctext x='50%25' y='55%25' font-size='250' fill='%23FFF' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%8F%A6%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }] };
@@ -504,7 +503,6 @@
 
     function saveDBLocal() { try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {} }
     
-    // МГНОВЕННОЕ СОХРАНЕНИЕ БЕЗ ТАЙМЕРОВ!
     function saveDB() {
         saveDBLocal();
         if(currentUserKey && db.users[currentUserKey]) {
@@ -685,15 +683,14 @@
                 receiver.balance = parseFloat((receiver.balance + amount).toFixed(2));
                 receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: txDate, amount: amount, type: 'plus' });
                 
-                database.ref('users/' + receiverKey).set(receiver); // Миттєве оновлення у отримувача
+                database.ref('users/' + receiverKey).set(receiver); 
                 
-                // Оновлюємо історію відправника з правильним ім'ям
                 sender.history[0].title = `Переказ користувачу ${receiver.name}`;
                 showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
             }
             addXP(15); saveDB(); 
         }).catch(err => {
-            saveDB(); // Якщо офлайн - збереже локально та відправить при підключенні
+            saveDB(); 
         });
 
         document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false;
@@ -705,7 +702,6 @@
     function openStocks(navElement) { const user = getState(); if(!user) return; if(user.isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
     
-    // ФУНКЦІЯ-БРОНЯ: Більше ніяких чорних екранів
     function renderStocks() {
         try {
             const user = getState(); if(!user) return; const container = document.getElementById('stocks-container'); if(!container) return; container.innerHTML = '';
