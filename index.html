@@ -190,7 +190,7 @@
         </div>
     </div>
 
-    <div id="screen-login" class="screen auth-screen">
+    <div id="screen-login" class="screen auth-screen active">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
         <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
@@ -282,6 +282,7 @@
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🌾</div><div style="font-weight:bold;">Депозит 5%</div></div>
                 <div style="font-size:12px; color:var(--text-muted);">На 5 хвилин</div>
             </div>
+            
             <div id="deposit-input-area">
                 <div class="form-group"><input type="number" id="deposit-amount" placeholder="Сума (мінімум 10 ₴)" style="width:100%;"></div>
                 <button type="button" class="btn-main" onclick="openDeposit()">Відкрити депозит</button>
@@ -338,6 +339,7 @@
                 <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.2);" onclick="buySkin('skin-glass', 250000)">Скляна — 250 000 ₴</button>
             </div>
         </div>
+
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 10px;">
             <button type="button" class="btn-main btn-danger" id="btn-lock" onclick="toggleLockCard()">Блокувати картку 🔒</button>
         </div>
@@ -346,7 +348,7 @@
     <div id="screen-profile" class="screen">
         <header><div class="greeting"><h1>Профіль</h1></div></header>
         <div style="background:var(--bg-surface); border-radius:16px; padding:20px; margin-bottom:20px; text-align:center;">
-            <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 10px;">👤</div>
+            <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 10px;" id="profile-avatar-main">👤</div>
             <h2 id="profile-name">Ім'я</h2>
             <p id="profile-email" style="color:var(--text-muted); font-size:14px; margin-bottom: 15px;">email</p>
             
@@ -464,13 +466,14 @@
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
     // ==========================================
-    // 2. БАЗА ДАНИХ (DBank_Store_FINAL - Більше не міняється)
+    // 2. БАЗА ДАНИХ
     // ==========================================
     let db = { users: {}, currentUser: null };
     try { 
-        let saved = localStorage.getItem('DBank_Store_FINAL') || localStorage.getItem('IdealBankDB') || localStorage.getItem('bankDB_v14'); 
+        let saved = localStorage.getItem('DBank_Store_FINAL'); 
         if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
     } catch(e) {}
+
     function saveDB() { try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {} }
     function getState() { return db.users[db.currentUser]; }
 
@@ -546,7 +549,6 @@
         
         tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
         
-        // Сповіщення без грубощів
         showToast("Код: " + tempRegCode, "success");
         document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show');
         setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
@@ -574,25 +576,16 @@
     function processLogin() {
         const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value;
         if(db.users[email] && db.users[email].password === pass) {
-            db.currentUser = email;
-            let u = getState();
-            if(!u.appPin) u.appPin = "0000"; if(u.clickTier === undefined) u.clickTier = 0; if(u.clickPower === undefined) u.clickPower = 0.10;
-            if(u.clickUpgradePrice === undefined) u.clickUpgradePrice = 500; if(u.autoClicker === undefined) u.autoClicker = 0; if(u.autoUpgradePrice === undefined) u.autoUpgradePrice = 5000;
-            if(!u.skin) u.skin = 'default'; if(!u.deposits) u.deposits = []; if(!u.credit) u.credit = {active: false};
-            if(!u.creditLimit) u.creditLimit = calculateCreditLimit(); if(!u.settings) u.settings = { sounds: true, notifications: true, newsNotifications: true };
-            
-            saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
+            db.currentUser = email; saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
             showAppPinScreen();
         } else showToast("Помилка входу!", "error");
     }
 
-    // Головна перевірка при запуску
     function checkAuthState() { 
         if(db.currentUser && db.users[db.currentUser]) {
-            if(!db.users[db.currentUser].appPin) { db.users[db.currentUser].appPin = "0000"; saveDB(); }
             showAppPinScreen();
-        } else {
-            switchAuthScreen('screen-login');
+        } else { 
+            switchAuthScreen('screen-login'); 
         }
     }
 
@@ -602,7 +595,8 @@
     function showAppPinScreen() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.remove('active');
         const user = getState();
-        document.getElementById('pin-name').innerText = user.name; document.getElementById('pin-avatar').innerText = user.name.charAt(0).toUpperCase();
+        document.getElementById('pin-name').innerText = user.name || "Користувач"; 
+        document.getElementById('pin-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
         currentPinInput = ""; updatePinDots();
         document.getElementById('screen-app-pin').classList.add('active');
     }
@@ -618,7 +612,7 @@
 
     function checkAppPin() {
         const user = getState();
-        if(currentPinInput === user.appPin) { startApp(); } 
+        if(currentPinInput === (user.appPin || "0000")) { startApp(); } 
         else {
             showToast("Невірний PIN!", "error"); currentPinInput = ""; updatePinDots();
             const dotsContainer = document.getElementById('pin-dots');
@@ -630,9 +624,26 @@
     function startApp() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState();
-        document.getElementById('profile-name').innerText = user.name; document.getElementById('profile-email').innerText = db.currentUser; document.getElementById('dashboard-avatar').innerText = user.name.charAt(0).toUpperCase();
-        const formattedCard = user.cardNumber.match(/.{1,4}/g).join(' ');
-        document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + user.cvv;
+        
+        // Захист-міграція від старих збережень
+        if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true };
+        if(!user.portfolio) user.portfolio = {};
+        if(!user.deposits) user.deposits = [];
+        if(!user.credit) user.credit = { active: false };
+        if(!user.history) user.history = [];
+        if(user.clickTier === undefined) user.clickTier = 0;
+        if(!user.clickPower) user.clickPower = 0.10;
+        if(!user.clickUpgradePrice) user.clickUpgradePrice = 500;
+        if(user.autoClicker === undefined) user.autoClicker = 0;
+        if(!user.autoUpgradePrice) user.autoUpgradePrice = 5000;
+        if(!user.skin) user.skin = 'default';
+        if(!user.appPin) user.appPin = "0000";
+        if(!user.creditLimit) user.creditLimit = calculateCreditLimit();
+        saveDB();
+
+        document.getElementById('profile-name').innerText = user.name || "Користувач"; document.getElementById('profile-email').innerText = db.currentUser; document.getElementById('dashboard-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
+        const formattedCard = user.cardNumber ? user.cardNumber.match(/.{1,4}/g).join(' ') : "0000 0000 0000 0000";
+        document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + (user.cvv || "000");
         document.getElementById('btn-earn').innerText = `+ Заробити ${user.clickPower.toFixed(2)} ₴`;
         document.getElementById('set-sounds').checked = user.settings.sounds; document.getElementById('set-notifs').checked = user.settings.notifications; document.getElementById('set-news').checked = user.settings.newsNotifications;
 
@@ -651,9 +662,9 @@
 
     function updateProfileNetWorth() {
         const user = getState(); if(!user) return;
-        let netWorth = user.balance; const allAssets = [...stocksMarket, ...cryptoMarket];
+        let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
         for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
-        document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
     }
 
     // --- 3D СВАЙП ТА КЛІК ---
@@ -713,7 +724,7 @@
         const btn = document.getElementById('btn-transfer'); 
 
         if(cardInput === sender.cardNumber) {
-            showToast("Не можна переказати самому собі!", "error"); return;
+            showToast("Неможливо переказати кошти на свою ж картку", "error"); return;
         }
 
         btn.innerText = "⏳ Обробка..."; btn.disabled = true;
@@ -730,7 +741,7 @@
                 const receiver = db.users[receiverEmail];
                 receiver.balance = parseFloat((receiver.balance + amount).toFixed(2));
                 receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
-                sender.history.unshift({ icon: '💸', title: `Переказ ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                sender.history.unshift({ icon: '💸', title: `Переказ користувачу ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
                 showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
             } else {
                 sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
@@ -740,7 +751,7 @@
             saveDB(); 
             document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
             updateBalanceDisplayQuiet(); 
-            renderHistory(); // <--- Виправлення: тепер список операцій одразу оновлюється
+            renderHistory(); 
             switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
         }, 800);
     }
@@ -945,6 +956,8 @@
         if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) openStockModal(currentStockId, false);
     }, 5000);
 
+    // Запуск перевірки при завантаженні
+    checkAuthState();
 </script>
 
 </body>
