@@ -10,6 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="D-Bank">
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -190,7 +193,7 @@
         </div>
     </div>
 
-    <div id="screen-login" class="screen auth-screen active">
+    <div id="screen-login" class="screen auth-screen">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
         <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
@@ -210,7 +213,7 @@
     <div id="screen-verify" class="screen auth-screen">
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 5px; font-weight: 700;">Код підтвердження</div>
         <div style="text-align:center; font-size:14px; margin-bottom:20px; color:var(--text-muted)">Ми надіслали код на вашу пошту</div>
-        <div class="form-group"><label>Введіть 4-значний код з Push-сповіщення</label><input type="number" id="reg-code" placeholder="0000"></div>
+        <div class="form-group"><label>Введіть 4-значний код</label><input type="number" id="reg-code" placeholder="0000"></div>
         <button type="button" class="btn-main" onclick="verifyCode()">Підтвердити</button>
         <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);"><span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Скасувати</span></div>
     </div>
@@ -455,29 +458,57 @@
     window.addEventListener('load', checkPWA);
 
     // ==========================================
-    // 1. ГЛОБАЛЬНІ ЗМІННІ
+    // 1. ІНІЦІАЛІЗАЦІЯ FIREBASE ТА ГЛОБАЛЬНІ ЗМІННІ
     // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU",
+      authDomain: "dbank-2b218.firebaseapp.com",
+      databaseURL: "https://dbank-2b218-default-rtdb.firebaseio.com",
+      projectId: "dbank-2b218",
+      storageBucket: "dbank-2b218.firebasestorage.app",
+      messagingSenderId: "1092545286683",
+      appId: "1:1092545286683:web:e0ea2eb48d3cf9fe8adebe"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     let tempRegEmail = ""; let tempRegCode = "";
     let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H';
     let activeNews = null; let deleteConfirm = false; let toastTimeout;
     let isPinVisible = false; let isFlipped = false; let touchstartX = 0;
     let currentPinInput = "";
+    let currentUserKey = localStorage.getItem('DBank_User_Key') || null;
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
-    // ==========================================
-    // 2. БАЗА ДАНИХ
-    // ==========================================
-    let db = { users: {}, currentUser: null };
-    try { 
-        let saved = localStorage.getItem('DBank_Store_FINAL'); 
-        if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
-    } catch(e) {}
-
-    function saveDB() { try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {} }
-    function getState() { return db.users[db.currentUser]; }
-
+    let db = { users: {} };
     let globalNews = [];
+
+    // Слухач бази даних у реальному часі
+    database.ref('users').on('value', (snapshot) => {
+        db.users = snapshot.val() || {};
+        
+        // Якщо користувач авторизований, оновлюємо інтерфейс без перезавантаження
+        if (currentUserKey && db.users[currentUserKey] && document.getElementById('screen-dashboard').classList.contains('active')) {
+            updateBalanceDisplayQuiet();
+            renderHistory();
+            updateProfileNetWorth();
+        }
+    });
+
+    function saveDB() {
+        if (currentUserKey && db.users[currentUserKey]) {
+            database.ref('users/' + currentUserKey).set(db.users[currentUserKey]);
+            localStorage.setItem('DBank_User_Key', currentUserKey);
+        }
+    }
+
+    function getState() { 
+        return currentUserKey ? db.users[currentUserKey] : null; 
+    }
+
+    // Локальна історія новин ринку
     try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
     function saveNews() { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); }
 
@@ -545,10 +576,11 @@
         const emailInput = document.getElementById('reg-email');
         if(!emailInput) return; const email = emailInput.value.trim().toLowerCase();
         if(!email.includes('@')) { showToast("Невірний email!", "error"); return; }
-        if(db.users[email]) { showToast("Акаунт існує!", "error"); return; }
+        
+        const emailKey = email.replace(/\./g, ',');
+        if(db.users[emailKey]) { showToast("Акаунт вже існує!", "error"); return; }
         
         tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
-        
         showToast("Код: " + tempRegCode, "success");
         document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show');
         setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
@@ -559,10 +591,12 @@
 
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value;
-        if(name.length < 2 || pass.length < 4) { showToast("Заповніть поля!", "error"); return; }
+        if(name.length < 2 || pass.length < 4) { showToast("Заповніть усі поля!", "error"); return; }
         if(appPin.length !== 4) { showToast("Введіть 4 цифри PIN!", "error"); return; }
         
-        db.users[tempRegEmail] = { 
+        const emailKey = tempRegEmail.replace(/\./g, ',');
+        
+        db.users[emailKey] = { 
             name: name, password: pass, appPin: appPin, balance: 0.00, 
             cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3),
             isLocked: false, lastTopUpTime: 0, history: [], portfolio: {},
@@ -570,31 +604,77 @@
             skin: 'default', deposits: [], credit: {active: false}, creditLimit: calculateCreditLimit(),
             settings: { sounds: true, notifications: true, newsNotifications: true }
         };
-        db.currentUser = tempRegEmail; saveDB(); showToast("Акаунт створено!", "success"); startApp();
+        
+        currentUserKey = emailKey; 
+        saveDB(); 
+        showToast("Акаунт успішно створено!", "success"); 
+        startApp();
     }
 
     function processLogin() {
-        const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value;
-        if(db.users[email] && db.users[email].password === pass) {
-            db.currentUser = email; saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
-            showAppPinScreen();
-        } else showToast("Помилка входу!", "error");
+        const email = document.getElementById('login-email').value.trim().toLowerCase(); 
+        const pass = document.getElementById('login-pass').value;
+        const emailKey = email.replace(/\./g, ',');
+
+        database.ref('users/' + emailKey).once('value').then((snapshot) => {
+            if(snapshot.exists() && snapshot.val().password === pass) {
+                db.users[emailKey] = snapshot.val();
+                currentUserKey = emailKey;
+                
+                // Міграція старих профілів при необхідності
+                let u = db.users[currentUserKey];
+                if(!u.appPin) u.appPin = "0000"; if(u.clickTier === undefined) u.clickTier = 0; if(u.clickPower === undefined) u.clickPower = 0.10;
+                if(u.clickUpgradePrice === undefined) u.clickUpgradePrice = 500; if(u.autoClicker === undefined) u.autoClicker = 0; if(u.autoUpgradePrice === undefined) u.autoUpgradePrice = 5000;
+                if(!u.skin) u.skin = 'default'; if(!u.deposits) u.deposits = []; if(!u.credit) u.credit = {active: false};
+                if(!u.creditLimit) u.creditLimit = calculateCreditLimit(); if(!u.settings) u.settings = { sounds: true, notifications: true, newsNotifications: true };
+                
+                saveDB(); 
+                document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = '';
+                showAppPinScreen();
+            } else {
+                showToast("Помилка входу або невірний пароль!", "error");
+            }
+        }).catch(() => {
+            showToast("Помилка з'єднання з базою", "error");
+        });
     }
 
     function checkAuthState() { 
-        if(db.currentUser && db.users[db.currentUser]) {
-            showAppPinScreen();
-        } else { 
-            switchAuthScreen('screen-login'); 
+        if(currentUserKey) {
+            database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
+                if(snapshot.exists()) {
+                    db.users[currentUserKey] = snapshot.val();
+                    showAppPinScreen();
+                } else {
+                    logout();
+                }
+            }).catch(() => {
+                showAppPinScreen(); // Якщо офлайн, пробуємо зайти локально
+            });
+        } else {
+            switchAuthScreen('screen-login');
         }
     }
 
-    function logout() { db.currentUser = null; saveDB(); document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
-    function deleteAccount() { if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } delete db.users[db.currentUser]; logout(); deleteConfirm = false; }
+    function logout() { 
+        currentUserKey = null; 
+        localStorage.removeItem('DBank_User_Key'); 
+        document.getElementById('main-nav').classList.remove('active'); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        switchAuthScreen('screen-login'); 
+    }
+
+    function deleteAccount() { 
+        if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } 
+        database.ref('users/' + currentUserKey).remove();
+        logout(); 
+        deleteConfirm = false; 
+    }
 
     function showAppPinScreen() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.remove('active');
-        const user = getState();
+        
+        const user = getState() || {name: "Користувач"};
         document.getElementById('pin-name').innerText = user.name || "Користувач"; 
         document.getElementById('pin-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
         currentPinInput = ""; updatePinDots();
@@ -625,23 +705,14 @@
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState();
         
-        // Захист-міграція від старих збережень
         if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true };
-        if(!user.portfolio) user.portfolio = {};
-        if(!user.deposits) user.deposits = [];
-        if(!user.credit) user.credit = { active: false };
-        if(!user.history) user.history = [];
-        if(user.clickTier === undefined) user.clickTier = 0;
-        if(!user.clickPower) user.clickPower = 0.10;
-        if(!user.clickUpgradePrice) user.clickUpgradePrice = 500;
-        if(user.autoClicker === undefined) user.autoClicker = 0;
-        if(!user.autoUpgradePrice) user.autoUpgradePrice = 5000;
-        if(!user.skin) user.skin = 'default';
-        if(!user.appPin) user.appPin = "0000";
-        if(!user.creditLimit) user.creditLimit = calculateCreditLimit();
+        if(!user.portfolio) user.portfolio = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.history) user.history = [];
         saveDB();
 
-        document.getElementById('profile-name').innerText = user.name || "Користувач"; document.getElementById('profile-email').innerText = db.currentUser; document.getElementById('dashboard-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
+        // Відображення налаштувань профілю, пошти вже немає у ключі, тому використовуємо email з логіна якщо є, або порожньо.
+        const displayEmail = tempRegEmail || (currentUserKey ? currentUserKey.replace(/,/g, '.') : "");
+
+        document.getElementById('profile-name').innerText = user.name || "Користувач"; document.getElementById('profile-email').innerText = displayEmail; document.getElementById('dashboard-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
         const formattedCard = user.cardNumber ? user.cardNumber.match(/.{1,4}/g).join(' ') : "0000 0000 0000 0000";
         document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + (user.cvv || "000");
         document.getElementById('btn-earn').innerText = `+ Заробити ${user.clickPower.toFixed(2)} ₴`;
@@ -708,8 +779,19 @@
 
     function earnMoney() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } getState().balance = parseFloat((getState().balance + getState().clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); }
     function updateBalanceDisplayQuiet() { const user = getState(); const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${user.cardNumber.slice(-4)} (${formatted})`; checkTransferForm(); }
-    function addTransaction(title, amount, icon) { getState().history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); saveDB(); renderHistory(); }
-    function renderHistory() { const user = getState(); const container = document.getElementById('history-container'); container.innerHTML = ''; if(user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас ще немає операцій.</div>'; return; } user.history.slice(0, 15).forEach(t => { const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} ₴` : `- ${Math.abs(t.amount).toFixed(2)} ₴`; container.innerHTML += `<div class="transaction"><div class="t-left"><div class="t-icon">${t.icon}</div><div><div class="t-title">${t.title}</div><div class="t-date">${t.date}</div></div></div><div class="t-amount ${t.type}">${amountStr}</div></div>`; }); }
+    
+    function addTransaction(title, amount, icon) { 
+        const user = getState();
+        if(!user.history) user.history = [];
+        user.history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); 
+        saveDB(); renderHistory(); 
+    }
+    
+    function renderHistory() { 
+        const user = getState(); const container = document.getElementById('history-container'); container.innerHTML = ''; 
+        if(!user || !user.history || user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас ще немає операцій.</div>'; return; } 
+        user.history.slice(0, 15).forEach(t => { const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} ₴` : `- ${Math.abs(t.amount).toFixed(2)} ₴`; container.innerHTML += `<div class="transaction"><div class="t-left"><div class="t-icon">${t.icon}</div><div><div class="t-title">${t.title}</div><div class="t-date">${t.date}</div></div></div><div class="t-amount ${t.type}">${amountStr}</div></div>`; }); 
+    }
 
     function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
     function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
@@ -724,24 +806,30 @@
         const btn = document.getElementById('btn-transfer'); 
 
         if(cardInput === sender.cardNumber) {
-            showToast("Неможливо переказати кошти на свою ж картку", "error"); return;
+            showToast("Переказ на свою картку неможливий.", "error"); return;
         }
 
         btn.innerText = "⏳ Обробка..."; btn.disabled = true;
         
         setTimeout(() => {
-            let receiverEmail = null;
-            for(let email in db.users) {
-                if(db.users[email].cardNumber === cardInput) { receiverEmail = email; break; }
+            let receiverKey = null;
+            for(let key in db.users) {
+                if(db.users[key].cardNumber === cardInput) { receiverKey = key; break; }
             }
 
             sender.balance = parseFloat((sender.balance - amount).toFixed(2)); 
             
-            if(receiverEmail) {
-                const receiver = db.users[receiverEmail];
+            if(receiverKey) {
+                const receiver = db.users[receiverKey];
+                if(!receiver.history) receiver.history = [];
+                
                 receiver.balance = parseFloat((receiver.balance + amount).toFixed(2));
                 receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
                 sender.history.unshift({ icon: '💸', title: `Переказ користувачу ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                
+                // Зберігаємо отримувача безпосередньо у Firebase
+                database.ref('users/' + receiverKey).set(receiver);
+                
                 showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
             } else {
                 sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
