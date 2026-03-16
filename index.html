@@ -154,9 +154,9 @@
     <div class="modal-overlay" id="pwa-prompt">
         <div class="modal-content" style="text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">📱</div>
-            <h3 style="margin-bottom:10px;">Встановіть додаток!</h3>
+            <h3 style="margin-bottom:10px;">Встановіть додаток</h3>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">
-                Щоб гра зберігала дані та працювала коректно, її потрібно додати на головний екран:<br><br>
+                Щоб гра зберігала дані надійно, її потрібно додати на головний екран:<br><br>
                 <b>🍎 iOS:</b> Натисніть «Поділитися» (квадратик зі стрілкою) ➔ «На екран Домой».<br><br>
                 <b>🤖 Android:</b> Меню браузера (3 крапки) ➔ «Встановити додаток».
             </p>
@@ -193,7 +193,7 @@
         </div>
     </div>
 
-    <div id="screen-login" class="screen auth-screen">
+    <div id="screen-login" class="screen auth-screen active">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
         <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
@@ -213,7 +213,7 @@
     <div id="screen-verify" class="screen auth-screen">
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 5px; font-weight: 700;">Код підтвердження</div>
         <div style="text-align:center; font-size:14px; margin-bottom:20px; color:var(--text-muted)">Ми надіслали код на вашу пошту</div>
-        <div class="form-group"><label>Введіть 4-значний код</label><input type="number" id="reg-code" placeholder="0000"></div>
+        <div class="form-group"><label>Введіть 4-значний код з Push-сповіщення</label><input type="number" id="reg-code" placeholder="0000"></div>
         <button type="button" class="btn-main" onclick="verifyCode()">Підтвердити</button>
         <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);"><span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Скасувати</span></div>
     </div>
@@ -458,7 +458,7 @@
     window.addEventListener('load', checkPWA);
 
     // ==========================================
-    // 1. ІНІЦІАЛІЗАЦІЯ FIREBASE ТА ГЛОБАЛЬНІ ЗМІННІ
+    // 1. ІНІЦІАЛІЗАЦІЯ FIREBASE ТА ЗМІННІ
     // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU",
@@ -482,35 +482,27 @@
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
+    // Локальна база - Пріоритет №1
     let db = { users: {} };
-    let globalNews = [];
+    try { 
+        let saved = localStorage.getItem('DBank_Store_Local'); 
+        if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
+    } catch(e) {}
 
-    // Слухач бази даних у реальному часі
-    database.ref('users').on('value', (snapshot) => {
-        db.users = snapshot.val() || {};
-        
-        // Якщо користувач авторизований, оновлюємо інтерфейс без перезавантаження
-        if (currentUserKey && db.users[currentUserKey] && document.getElementById('screen-dashboard').classList.contains('active')) {
-            updateBalanceDisplayQuiet();
-            renderHistory();
-            updateProfileNetWorth();
-        }
-    });
-
-    function saveDB() {
-        if (currentUserKey && db.users[currentUserKey]) {
-            database.ref('users/' + currentUserKey).set(db.users[currentUserKey]);
+    // Головна функція збереження (Завжди спочатку в пам'ять телефону, потім в хмару)
+    function saveDB() { 
+        try { localStorage.setItem('DBank_Store_Local', JSON.stringify(db)); } catch(e) {}
+        if(currentUserKey && db.users[currentUserKey]) {
             localStorage.setItem('DBank_User_Key', currentUserKey);
+            database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(err => console.warn("Firebase save error", err));
         }
     }
 
-    function getState() { 
-        return currentUserKey ? db.users[currentUserKey] : null; 
-    }
+    function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
 
-    // Локальна історія новин ринку
-    try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
-    function saveNews() { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); }
+    let globalNews = [];
+    try { let nSaved = localStorage.getItem('DBank_News_Local'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
+    function saveNews() { localStorage.setItem('DBank_News_Local', JSON.stringify(globalNews)); }
 
     // ==========================================
     // 3. ЗВУК ТА PUSH
@@ -578,13 +570,17 @@
         if(!email.includes('@')) { showToast("Невірний email!", "error"); return; }
         
         const emailKey = email.replace(/\./g, ',');
-        if(db.users[emailKey]) { showToast("Акаунт вже існує!", "error"); return; }
         
-        tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
-        showToast("Код: " + tempRegCode, "success");
-        document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show');
-        setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
-        switchAuthScreen('screen-verify');
+        // Перевірка наявності в хмарі
+        database.ref('users/' + emailKey).once('value').then(snapshot => {
+            if(snapshot.exists() || db.users[emailKey]) { showToast("Акаунт вже існує!", "error"); return; }
+            
+            tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
+            showToast("Код: " + tempRegCode, "success");
+            document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show');
+            setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
+            switchAuthScreen('screen-verify');
+        });
     }
 
     function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Невірний код!", "error"); }
@@ -635,21 +631,29 @@
                 showToast("Помилка входу або невірний пароль!", "error");
             }
         }).catch(() => {
-            showToast("Помилка з'єднання з базою", "error");
+            // Якщо Firebase заблокований, пробуємо зайти локально
+            if(db.users[emailKey] && db.users[emailKey].password === pass) {
+                currentUserKey = emailKey; saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = ''; showAppPinScreen();
+            } else {
+                showToast("Помилка з'єднання", "error");
+            }
         });
     }
 
     function checkAuthState() { 
         if(currentUserKey) {
+            // Спочатку перевіряємо хмару
             database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
                 if(snapshot.exists()) {
                     db.users[currentUserKey] = snapshot.val();
+                    saveDB();
                     showAppPinScreen();
                 } else {
-                    logout();
+                    if(db.users[currentUserKey]) showAppPinScreen(); else logout();
                 }
             }).catch(() => {
-                showAppPinScreen(); // Якщо офлайн, пробуємо зайти локально
+                // Офлайн режим
+                if(db.users[currentUserKey]) showAppPinScreen(); else logout();
             });
         } else {
             switchAuthScreen('screen-login');
@@ -667,6 +671,7 @@
     function deleteAccount() { 
         if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } 
         database.ref('users/' + currentUserKey).remove();
+        delete db.users[currentUserKey];
         logout(); 
         deleteConfirm = false; 
     }
@@ -709,7 +714,6 @@
         if(!user.portfolio) user.portfolio = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.history) user.history = [];
         saveDB();
 
-        // Відображення налаштувань профілю, пошти вже немає у ключі, тому використовуємо email з логіна якщо є, або порожньо.
         const displayEmail = tempRegEmail || (currentUserKey ? currentUserKey.replace(/,/g, '.') : "");
 
         document.getElementById('profile-name').innerText = user.name || "Користувач"; document.getElementById('profile-email').innerText = displayEmail; document.getElementById('dashboard-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
@@ -811,24 +815,29 @@
 
         btn.innerText = "⏳ Обробка..."; btn.disabled = true;
         
-        setTimeout(() => {
+        // Спочатку шукаємо в базі (в хмарі та локально)
+        database.ref('users').once('value').then(snapshot => {
+            let allUsers = snapshot.val() || {};
             let receiverKey = null;
-            for(let key in db.users) {
-                if(db.users[key].cardNumber === cardInput) { receiverKey = key; break; }
-            }
+
+            // Пошук в хмарі
+            for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
+            // Пошук локально (якщо офлайн)
+            if(!receiverKey) { for(let key in db.users) { if(db.users[key].cardNumber === cardInput) { receiverKey = key; break; } } }
 
             sender.balance = parseFloat((sender.balance - amount).toFixed(2)); 
             
             if(receiverKey) {
-                const receiver = db.users[receiverKey];
+                let receiver = allUsers[receiverKey] || db.users[receiverKey];
                 if(!receiver.history) receiver.history = [];
                 
                 receiver.balance = parseFloat((receiver.balance + amount).toFixed(2));
                 receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
                 sender.history.unshift({ icon: '💸', title: `Переказ користувачу ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
                 
-                // Зберігаємо отримувача безпосередньо у Firebase
-                database.ref('users/' + receiverKey).set(receiver);
+                // Зберігаємо отримувача в хмарі та локально
+                database.ref('users/' + receiverKey).set(receiver).catch(()=>{});
+                db.users[receiverKey] = receiver;
                 
                 showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
             } else {
@@ -836,12 +845,21 @@
                 showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸");
             }
             
-            saveDB(); 
+            saveDB(); // Зберігає відправника локально та в хмару
             document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
             updateBalanceDisplayQuiet(); 
             renderHistory(); 
             switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
-        }, 800);
+            
+        }).catch(err => {
+            // Фолбек для офлайн режиму
+            sender.balance = parseFloat((sender.balance - amount).toFixed(2)); 
+            sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+            showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> (Офлайн)`, "💸");
+            saveDB();
+            document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
+            updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+        });
     }
     
     function simulateTopUp() {
@@ -1045,7 +1063,7 @@
     }, 5000);
 
     // Запуск перевірки при завантаженні
-    checkAuthState();
+    window.addEventListener('load', checkAuthState);
 </script>
 
 </body>
