@@ -54,7 +54,7 @@
         .pin-container { background: white; color: black; margin: 20px; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .pin-text { font-family: monospace; font-size: 18px; font-weight: bold; letter-spacing: 5px; }
         .iron-shield { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #444 0%, #111 100%); border: 4px solid #666; border-radius: 20px; z-index: 10; display:flex; justify-content:center; align-items:center; flex-direction:column; opacity: 0; pointer-events: none; transition: 0.5s; transform: scale(1.05); color: white;}
-        .iron-shield.active { opacity: 1; pointer-events: auto; transform: scale(1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .iron-shield.active { opacity: 1; transform: scale(1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px;}
         .btn-main:active { transform: scale(0.97); }
         .btn-main:disabled { background: var(--border); color: #888; cursor: not-allowed; opacity: 0.7; }
@@ -96,7 +96,7 @@
         .tab-btn.active { background: var(--primary); color: #fff; }
         .chart-tab { flex: 1; text-align: center; padding: 6px 0; font-size: 12px; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
         .chart-tab.active { background: var(--primary); color: #fff; }
-        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
+        .quick-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 30px; }
         .action-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; background: none; cursor: pointer; }
         .action-icon { width: 50px; height: 50px; background: var(--bg-surface); color: #fff; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .action-text { font-size: 11px; color: var(--text-dark); font-weight: 500; text-align: center; }
@@ -196,9 +196,9 @@
             <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
         </header>
 
-        <div class="flip-card" id="flip-card-main">
+        <div class="flip-card" id="flip-card-main" onclick="openCardDetails()">
             <div class="flip-card-inner" id="flip-card-inner-main">
-                <div class="flip-card-front" onclick="openCardDetails()">
+                <div class="flip-card-front">
                     <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
                     <div><div class="balance-label">Доступно</div><div class="balance-value" id="dashboard-balance">0.00 ₴</div></div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px;"><span id="dashboard-card-num">**** **** **** ****</span><span>12/28</span></div>
@@ -217,6 +217,7 @@
             <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
             <button type="button" class="action-btn" onclick="openModal('mobile-modal')"><div class="action-icon">📱</div><div class="action-text">Мобільний</div></button>
             <button type="button" class="action-btn" onclick="showToast('У розробці', 'info')"><div class="action-icon">📷</div><div class="action-text">Мій QR</div></button>
+            <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
         </div>
 
         <div style="background:var(--bg-surface); padding:15px; border-radius:16px; margin-bottom:20px;">
@@ -393,8 +394,20 @@
     <div class="modal-overlay" id="topup-modal" onclick="closeModal(event, 'topup-modal')">
         <div class="modal-content"><h3>Термінал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз на 5 годин.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 ₴</button></div>
     </div>
+    
     <div class="modal-overlay" id="mobile-modal" onclick="closeModal(event, 'mobile-modal')">
         <div class="modal-content"><h3>Поповнення мобільного</h3><input type="number" id="mobile-amount" placeholder="Сума (₴)" style="width:100%; padding:10px; margin: 15px 0; border:1px solid var(--border); border-radius:8px;"><button type="button" class="btn-main" onclick="payMobile()">Поповнити</button></div>
+    </div>
+
+    <div class="modal-overlay" id="hack-modal">
+        <div class="modal-content" style="text-align:center;">
+            <h3>Злам системи 💻</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10% і блок картки!</p>
+            <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
+            <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
+            <div class="form-group"><input type="number" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
+            <button type="button" class="btn-main" onclick="submitHack()">Зламати</button>
+        </div>
     </div>
 
     <nav class="bottom-nav" id="main-nav">
@@ -414,6 +427,7 @@
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
     let tempRegEmail = ""; let tempRegCode = ""; let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H'; let activeNews = null; let deleteConfirm = false; let toastTimeout; let isPinVisible = false; let isFlipped = false; let touchstartX = 0; let currentPinInput = "";
+    let hackInterval; let currentHackPin = "";
     let currentUserKey = localStorage.getItem('DBank_User_Key') || null;
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
@@ -444,11 +458,34 @@
     function showToast(msg, type = "success") { const toast = document.getElementById('toast'); toast.className = `toast show ${type}`; toast.innerText = msg; clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 
     function genHist(base, len, vol) { let arr = [base]; for(let i=1; i<len; i++) { arr.push(arr[i-1] * (1 + (Math.random() * vol * 2) - vol)); } return arr; }
-    const stocksMarket = [ { id: 'pear', name: 'Pear Inc.', icon: '🍐', hist1H: genHist(1500, 15, 0.005), hist1D: genHist(1450, 15, 0.02), hist1W: genHist(1300, 15, 0.05), hist1M: genHist(1000, 15, 0.1) }, { id: 'boogle', name: 'Boogle', icon: '👓', hist1H: genHist(2800, 15, 0.005), hist1D: genHist(2750, 15, 0.02), hist1W: genHist(2600, 15, 0.05), hist1M: genHist(2400, 15, 0.1) }, { id: 'microhard', name: 'MicroHard', icon: '🪟', hist1H: genHist(3100, 15, 0.005), hist1D: genHist(3050, 15, 0.02), hist1W: genHist(2900, 15, 0.05), hist1M: genHist(2500, 15, 0.1) }, { id: 'tuskla', name: 'Tuskla Motors', icon: '🚗', hist1H: genHist(2200, 15, 0.01), hist1D: genHist(2100, 15, 0.03), hist1W: genHist(1800, 15, 0.08), hist1M: genHist(1500, 15, 0.15) } ];
-    const cryptoMarket = [ { id: 'bite', name: 'BiteCoin', icon: '₿', hist1H: genHist(60000, 15, 0.05), hist1D: genHist(58000, 15, 0.1), hist1W: genHist(50000, 15, 0.2), hist1M: genHist(40000, 15, 0.4) }, { id: 'eth', name: 'Etherium', icon: '💠', hist1H: genHist(3000, 15, 0.04), hist1D: genHist(2900, 15, 0.08), hist1W: genHist(2500, 15, 0.15), hist1M: genHist(2000, 15, 0.3) } ];
+    const stocksMarket = [ 
+        { id: 'pear', name: 'Pear Inc.', icon: '🍐', hist1H: genHist(1500, 15, 0.005), hist1D: genHist(1450, 15, 0.02), hist1W: genHist(1300, 15, 0.05), hist1M: genHist(1000, 15, 0.1) }, 
+        { id: 'boogle', name: 'Boogle', icon: '👓', hist1H: genHist(2800, 15, 0.005), hist1D: genHist(2750, 15, 0.02), hist1W: genHist(2600, 15, 0.05), hist1M: genHist(2400, 15, 0.1) }, 
+        { id: 'microhard', name: 'MicroHard', icon: '🪟', hist1H: genHist(3100, 15, 0.005), hist1D: genHist(3050, 15, 0.02), hist1W: genHist(2900, 15, 0.05), hist1M: genHist(2500, 15, 0.1) }, 
+        { id: 'tuskla', name: 'Tuskla Motors', icon: '🚗', hist1H: genHist(2200, 15, 0.01), hist1D: genHist(2100, 15, 0.03), hist1W: genHist(1800, 15, 0.08), hist1M: genHist(1500, 15, 0.15) },
+        { id: 'amazin', name: 'Amazin', icon: '📦', hist1H: genHist(3300, 15, 0.005), hist1D: genHist(3250, 15, 0.02), hist1W: genHist(3100, 15, 0.05), hist1M: genHist(2800, 15, 0.1) },
+        { id: 'facelook', name: 'FaceLook', icon: '📘', hist1H: genHist(330, 15, 0.005), hist1D: genHist(320, 15, 0.02), hist1W: genHist(300, 15, 0.05), hist1M: genHist(250, 15, 0.1) },
+        { id: 'netflick', name: 'NetFlick', icon: '🍿', hist1H: genHist(400, 15, 0.008), hist1D: genHist(390, 15, 0.02), hist1W: genHist(350, 15, 0.06), hist1M: genHist(300, 15, 0.12) },
+        { id: 'spotifly', name: 'Spotifly', icon: '🎧', hist1H: genHist(250, 15, 0.005), hist1D: genHist(245, 15, 0.02), hist1W: genHist(230, 15, 0.05), hist1M: genHist(180, 15, 0.1) },
+        { id: 'samsong', name: 'SamSong', icon: '📱', hist1H: genHist(700, 15, 0.005), hist1D: genHist(690, 15, 0.02), hist1W: genHist(650, 15, 0.05), hist1M: genHist(600, 15, 0.1) },
+        { id: 'nvidea', name: 'En-Videa', icon: '🎮', hist1H: genHist(8000, 15, 0.01), hist1D: genHist(7800, 15, 0.03), hist1W: genHist(6500, 15, 0.08), hist1M: genHist(5000, 15, 0.15) },
+        { id: 'intel', name: 'Intell', icon: '💾', hist1H: genHist(45, 15, 0.01), hist1D: genHist(44, 15, 0.03), hist1W: genHist(40, 15, 0.08), hist1M: genHist(35, 15, 0.15) },
+        { id: 'amd', name: 'Advanced Micro', icon: '💽', hist1H: genHist(180, 15, 0.01), hist1D: genHist(175, 15, 0.03), hist1W: genHist(150, 15, 0.08), hist1M: genHist(100, 15, 0.15) },
+        { id: 'burger', name: 'McBurgers', icon: '🍔', hist1H: genHist(290, 15, 0.005), hist1D: genHist(285, 15, 0.02), hist1W: genHist(270, 15, 0.05), hist1M: genHist(250, 15, 0.1) }
+    ];
+    const cryptoMarket = [ 
+        { id: 'bite', name: 'BiteCoin', icon: '₿', hist1H: genHist(60000, 15, 0.05), hist1D: genHist(58000, 15, 0.1), hist1W: genHist(50000, 15, 0.2), hist1M: genHist(40000, 15, 0.4) }, 
+        { id: 'eth', name: 'Etherium', icon: '💠', hist1H: genHist(3000, 15, 0.04), hist1D: genHist(2900, 15, 0.08), hist1W: genHist(2500, 15, 0.15), hist1M: genHist(2000, 15, 0.3) },
+        { id: 'solario', name: 'Solario', icon: '☀️', hist1H: genHist(150, 15, 0.06), hist1D: genHist(140, 15, 0.12), hist1W: genHist(100, 15, 0.25), hist1M: genHist(50, 15, 0.5) },
+        { id: 'bnn', name: 'BNN Coin', icon: '🟡', hist1H: genHist(400, 15, 0.04), hist1D: genHist(380, 15, 0.08), hist1W: genHist(300, 15, 0.15), hist1M: genHist(200, 15, 0.3) },
+        { id: 'doge', name: 'DogeMeme', icon: '🐕', hist1H: genHist(5, 15, 0.08), hist1D: genHist(4.5, 15, 0.15), hist1W: genHist(3, 15, 0.3), hist1M: genHist(1, 15, 0.6) },
+        { id: 'ton', name: 'TON Coin', icon: '💎', hist1H: genHist(7, 15, 0.06), hist1D: genHist(6.5, 15, 0.12), hist1W: genHist(5, 15, 0.25), hist1M: genHist(3, 15, 0.5) },
+        { id: 'ripple', name: 'Ripple', icon: '🌊', hist1H: genHist(0.6, 15, 0.05), hist1D: genHist(0.55, 15, 0.1), hist1W: genHist(0.4, 15, 0.2), hist1M: genHist(0.3, 15, 0.4) },
+        { id: 'shiba', name: 'Shiba Inu', icon: '🐾', hist1H: genHist(0.00002, 15, 0.1), hist1D: genHist(0.000018, 15, 0.2), hist1W: genHist(0.00001, 15, 0.4), hist1M: genHist(0.000005, 15, 0.8) }
+    ];
 
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
-    function sendVerificationCode() { /* Логіка без змін, скорочено для ліміту символів */ tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify'); }
+    function sendVerificationCode() { tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify'); }
     function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Невірний код!", "error"); }
     
     function completeRegistration() {
@@ -492,12 +529,8 @@
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
 
-    // --- NEW MECHANICS LOGIC --- //
-
-    function checkQuests() {
-        const user = getState(); const today = new Date().toLocaleDateString();
-        if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; }
-    }
+    // --- QUESTS --- //
+    function checkQuests() { const user = getState(); const today = new Date().toLocaleDateString(); if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; } }
     function renderQuests() {
         const user = getState(); if(!user) return; checkQuests(); const q = user.quests; const container = document.getElementById('quest-container'); if(!container) return;
         if(q.done) { container.innerHTML = '<div style="color:var(--success); font-weight:bold; text-align:center;">Всі квести виконані!</div>'; return; }
@@ -505,19 +538,13 @@
         container.innerHTML = `<div style="font-size:12px; margin-bottom:5px;">🖱 Зробити 100 кліків (${cProg}/100)</div><div style="font-size:12px; margin-bottom:5px;">📈 Купити 5 активів на біржі (${sProg}/5)</div><div style="font-size:12px; margin-bottom:10px;">🌾 Відкрити 1 депозит (${dProg}/1)</div>`;
         if(cProg >= 100 && sProg >= 5 && dProg >= 1) { container.innerHTML += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (5000 ₴)</button>`; }
     }
-    function claimQuests() {
-        const user = getState(); user.quests.done = true; let win = 5000 * (user.prestigeMultiplier || 1);
-        user.balance += win; addTransaction("Квести виконано", win, '🎯'); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); showPush("Квести", `Отримано ${win} ₴`, "🎯");
-    }
+    function claimQuests() { const user = getState(); user.quests.done = true; let win = 5000 * (user.prestigeMultiplier || 1); user.balance += win; addTransaction("Квести виконано", win, '🎯'); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); showPush("Квести", `Отримано ${win} ₴`, "🎯"); }
 
+    // --- PRESTIGE --- //
     function doPrestige() {
-        const user = getState();
-        if(user.balance < 1000000) { showToast("Треба 1 000 000 ₴", "error"); return; }
-        user.prestigeMultiplier = (user.prestigeMultiplier || 1) + 1;
-        user.balance = 0; user.portfolio = {}; user.deposits = []; user.credit = {active: false};
-        user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500;
-        user.autoClicker = 0; user.autoUpgradePrice = 5000; user.businesses = {};
-        user.quests = { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false };
+        const user = getState(); if(user.balance < 1000000) { showToast("Треба 1 000 000 ₴", "error"); return; }
+        user.prestigeMultiplier = (user.prestigeMultiplier || 1) + 1; user.balance = 0; user.portfolio = {}; user.deposits = []; user.credit = {active: false};
+        user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.businesses = {}; user.quests = { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false };
         saveDB(); showPush("Коронація!", "Ви здобули престиж! Заробіток х" + user.prestigeMultiplier, "👑", false); startApp(); showToast("Прогрес скинуто! Множник збільшено.", "success");
     }
     function renderPrestige() {
@@ -527,13 +554,49 @@
         html += `</div>`; area.innerHTML = html;
     }
 
+    // --- HACK MINI-GAME --- //
+    function openHackMiniGame() {
+        const user = getState();
+        if(user.isLocked) { showToast("Спочатку зніміть щит з картки!", "error"); return; }
+        if(user.balance < 500) { showToast("Немає 500 ₴ для входу", "error"); return; }
+        user.balance -= 500; saveDB(); updateBalanceDisplayQuiet();
+        document.getElementById('hack-modal').classList.add('active');
+        currentHackPin = generateRandomNum(6);
+        document.getElementById('hack-pin-display').innerText = currentHackPin;
+        document.getElementById('hack-input').value = '';
+        document.getElementById('hack-input').focus();
+        let timeLeft = 5;
+        document.getElementById('hack-timer').innerText = timeLeft;
+        clearInterval(hackInterval);
+        hackInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('hack-timer').innerText = timeLeft;
+            if(timeLeft <= 0) { clearInterval(hackInterval); failHack(); }
+        }, 1000);
+    }
+    function submitHack() {
+        if(document.getElementById('hack-input').value === currentHackPin) {
+            clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active');
+            let win = 2000 + Math.floor(Math.random() * 8000);
+            const user = getState(); user.balance += win; saveDB();
+            addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet();
+            showPush("Взлом", `Ви вкрали ${win} ₴!`, "💻");
+        } else { failHack(); }
+    }
+    function failHack() {
+        clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active');
+        const user = getState(); user.isLocked = true;
+        let penalty = Math.floor(user.balance * 0.1); 
+        user.balance -= penalty; saveDB(); applyLockStatusVisually(); updateBalanceDisplayQuiet();
+        addTransaction("Провал зламу (Штраф)", -penalty, '🚨');
+        showPush("Провал!", "Вас засікли! Штраф 10% і блокування картки.", "🚨", true);
+    }
+
+    // --- OTHER FUNCS --- //
     function openSafe() {
         const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; }
         user.balance -= 10000; const rand = Math.random(); let win = 0; let msg = ""; let icon = "📦";
-        if(rand < 0.60) { win = 1; msg = "Тобі випала 1 ₴. Не щастить."; icon = "🗑️"; }
-        else if(rand < 0.85) { win = 15000; msg = "Непогано! 15 000 ₴."; icon = "💵"; }
-        else if(rand < 0.98) { win = 50000; msg = "Крупний куш! 50 000 ₴."; icon = "💰"; }
-        else { win = 100000; msg = "ДЖЕКПОТ! 100 000 ₴!"; icon = "💎"; }
+        if(rand < 0.60) { win = 1; msg = "Тобі випала 1 ₴. Не щастить."; icon = "🗑️"; } else if(rand < 0.85) { win = 15000; msg = "Непогано! 15 000 ₴."; icon = "💵"; } else if(rand < 0.98) { win = 50000; msg = "Крупний куш! 50 000 ₴."; icon = "💰"; } else { win = 100000; msg = "ДЖЕКПОТ! 100 000 ₴!"; icon = "💎"; }
         user.balance += win; addTransaction("Секретний сейф", win - 10000, icon); saveDB(); updateBalanceDisplayQuiet(); showPush("Сейф", msg, icon);
     }
 
@@ -555,6 +618,13 @@
         for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
         if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
     }
+
+    function openCardDetails() { switchTab('screen-card-details', document.querySelectorAll('.nav-item')[0]); flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; }
+    
+    const flipCardInner = document.getElementById('flip-card-inner'); const flipCard = document.getElementById('flip-card');
+    function triggerFlip(direction) { if (!isFlipped) { flipCardInner.style.transform = direction === 'left' ? 'rotateY(-180deg)' : 'rotateY(180deg)'; isFlipped = true; } else { flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; isPinVisible = false; document.getElementById('card-pin-display').innerText = "****"; } }
+    flipCard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }); flipCard.addEventListener('touchend', e => { let diff = e.changedTouches[0].screenX - touchstartX; if (Math.abs(diff) > 40) triggerFlip(diff > 0 ? 'right' : 'left'); }); flipCard.addEventListener('click', e => { if(e.target.innerText === '👁') return; triggerFlip('right'); });
+    function togglePin(event) { if(event) event.stopPropagation(); isPinVisible = !isPinVisible; document.getElementById('card-pin-display').innerText = isPinVisible ? getState().pin : "****"; }
 
     function toggleLockCard() { const user = getState(); user.isLocked = !user.isLocked; saveDB(); applyLockStatusVisually(); showPush("Безпека", user.isLocked ? "Картку під щитом" : "Картку розблоковано", user.isLocked ? "🔒" : "🔓"); }
     function applyLockStatusVisually() { const user = getState(); const mainShield = document.getElementById('main-iron-shield'); const detailShield = document.getElementById('detail-iron-shield'); const btnLock = document.getElementById('btn-lock'); if(user.isLocked) { mainShield.classList.add('active'); detailShield.classList.add('active'); btnLock.innerText = "Розблокувати картку 🔓"; btnLock.classList.remove('btn-danger'); btnLock.style.background = "var(--success)"; } else { mainShield.classList.remove('active'); detailShield.classList.remove('active'); btnLock.innerText = "Блокувати картку 🔒"; btnLock.classList.add('btn-danger'); btnLock.style.background = ""; } }
@@ -583,18 +653,19 @@
     function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
     function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
-    function executeTransfer() { /* Скорочено */ const sender = getState(); const amount = parseFloat(document.getElementById('transfer-amount').value); sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ`, date: new Date().toLocaleString(), amount: -amount, type: 'minus' }); showPush("Офлайн переказ", `Сума: <b>${amount} ₴</b>`, "💸"); saveDB(); updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); }
+    function executeTransfer() { const sender = getState(); const amount = parseFloat(document.getElementById('transfer-amount').value); sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ`, date: new Date().toLocaleString(), amount: -amount, type: 'minus' }); showPush("Офлайн переказ", `Сума: <b>${amount} ₴</b>`, "💸"); saveDB(); updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); }
     
     function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
     function payMobile() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } const amount = parseFloat(document.getElementById('mobile-amount').value); if(!amount || amount <= 0 || amount > getState().balance) { showToast("Некоректна сума!", "error"); return; } getState().balance = parseFloat((getState().balance - amount).toFixed(2)); saveDB(); addTransaction("Мобільний", -amount, '📱'); updateBalanceDisplayQuiet(); document.getElementById('mobile-modal').classList.remove('active'); document.getElementById('mobile-amount').value = ''; showPush("Оплата", `Рахунок поповнено на <b>${amount} ₴</b>`, "📱"); }
 
     function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
-    function renderStocks() { /* Рендер ринку - логіка та сама */ const user = getState(); const container = document.getElementById('stocks-container'); if (!user || !container) return; try { container.innerHTML = ''; if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; } let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; marketData.forEach(s => { const currentPrice = s.hist1H[s.hist1H.length-1] || 0; const prevPrice = s.hist1H[s.hist1H.length-2] || currentPrice; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; } const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; }); document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; } catch (e) { console.error(e); } }
+    function renderStocks() { const user = getState(); const container = document.getElementById('stocks-container'); if (!user || !container) return; try { container.innerHTML = ''; if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; } let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; marketData.forEach(s => { const currentPrice = s.hist1H[s.hist1H.length-1] || 0; const prevPrice = s.hist1H[s.hist1H.length-2] || currentPrice; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; } const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; }); document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; } catch (e) { console.error(e); } }
     function setChartTab(tabId, el) { currentChartTab = tabId; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); openStockModal(currentStockId, false); }
     function openStockModal(stockId, resetTab = false) { if(resetTab) { currentChartTab = '1H'; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.chart-tab')[0].classList.add('active'); } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === stockId); const user = getState(); currentStockId = stockId; const currentPrice = stock.hist1H[stock.hist1H.length-1]; const portfolioData = user.portfolio[stockId] || {qty: 0, avgPrice: 0}; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; const step = currentMarketTab === 'crypto' ? '0.01' : '0.1'; document.getElementById('stock-qty').step = step; document.getElementById('stock-qty').min = step; if(resetTab) document.getElementById('stock-qty').value = step; document.getElementById('modal-stock-icon').innerText = stock.icon; document.getElementById('modal-stock-name').innerText = stock.name; document.getElementById('modal-stock-price').innerText = currentPrice.toFixed(2) + ' ₴'; document.getElementById('modal-user-owned').innerText = qtyDisplay; drawChart(stock['hist' + currentChartTab], portfolioData.avgPrice, portfolioData.qty > 0); updateStockCalc(); document.getElementById('stock-modal').classList.add('active'); }
     function drawChart(pts, avgPrice, ownsStock) { const svg = document.getElementById('stock-chart-svg'); const min = Math.min(...pts) * 0.99; const max = Math.max(...pts) * 1.01; const width = 100; const height = 100; const stepX = width / (pts.length - 1); let strokeColor = '#10B981'; if (pts[pts.length-1] < pts[pts.length-2]) strokeColor = '#EF4444'; else if (pts[pts.length-1] === pts[pts.length-2]) strokeColor = '#F59E0B'; let d = `M 0 ${height - ((pts[0] - min)/(max - min) * height)}`; for(let i=1; i<pts.length; i++) { d += ` L ${i * stepX} ${height - ((pts[i] - min)/(max - min) * height)}`; } let html = `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="2" vector-effect="non-scaling-stroke"/>`; if(ownsStock && avgPrice > 0) { let yPos = height - ((avgPrice - min)/(max - min) * height); if(yPos >= 0 && yPos <= 100) { html += `<line x1="0" y1="${yPos}" x2="100" y2="${yPos}" stroke="#8792A2" stroke-width="1" stroke-dasharray="2,2" vector-effect="non-scaling-stroke"/><text x="2" y="${yPos - 2}" font-size="4" fill="#8792A2" style="font-family:sans-serif;">Куплено: ${avgPrice.toFixed(2)}</text>`; } } svg.innerHTML = html; }
     function updateStockCalc() { const qty = parseFloat(document.getElementById('stock-qty').value) || 0; const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); document.getElementById('stock-calc-total').innerText = `Разом: ${(qty * stock.hist1H[stock.hist1H.length-1]).toFixed(2)} ₴`; }
+    
     function executeBuyStock() {
         const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const cost = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); if(user.balance < cost) { showToast("Недостатньо коштів!", "error"); return; }
         checkQuests(); user.quests.stocks++; renderQuests();
@@ -626,7 +697,6 @@
             if(document.getElementById('screen-profile').classList.contains('active')) { updateProfileNetWorth(); renderPrestige(); }
             
             const now = Date.now();
-
             let mult = user.prestigeMultiplier || 1;
             let passive = 0;
             if(user.autoClicker > 0) passive += user.autoClicker * mult;
