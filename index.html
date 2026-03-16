@@ -582,7 +582,7 @@
     }
 
     function earnMoney() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } getState().balance = parseFloat((getState().balance + getState().clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); }
-    function updateBalanceDisplayQuiet() { const user = getState(); const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${user.cardNumber.slice(-4)} (${formatted})`; checkTransferForm(); }
+    function updateBalanceDisplayQuiet() { const user = getState(); if(!user) return; const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${user.cardNumber.slice(-4)} (${formatted})`; checkTransferForm(); }
     
     function addTransaction(title, amount, icon) { const user = getState(); if(!user.history) user.history = []; user.history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); saveDB(); renderHistory(); }
     function renderHistory() { const user = getState(); const container = document.getElementById('history-container'); container.innerHTML = ''; if(!user || !user.history || user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас ще немає операцій.</div>'; return; } user.history.slice(0, 15).forEach(t => { const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} ₴` : `- ${Math.abs(t.amount).toFixed(2)} ₴`; container.innerHTML += `<div class="transaction"><div class="t-left"><div class="t-icon">${t.icon}</div><div><div class="t-title">${t.title}</div><div class="t-date">${t.date}</div></div></div><div class="t-amount ${t.type}">${amountStr}</div></div>`; }); }
@@ -633,17 +633,44 @@
 
     function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
+    
     function renderStocks() {
-        const user = getState(); const container = document.getElementById('stocks-container'); container.innerHTML = '';
-        if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; }
-        let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket;
-        marketData.forEach(s => {
-            const currentPrice = s.hist1H[s.hist1H.length-1]; const prevPrice = s.hist1H[s.hist1H.length-2]; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; }
-            const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0;
-            container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`;
-        });
-        document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+        const user = getState(); 
+        const container = document.getElementById('stocks-container'); 
+        if (!user || !container) return; // ЖЕСТКАЯ ЗАЩИТА ОТ ПУСТЫХ СЕССИЙ
+        
+        try {
+            container.innerHTML = '';
+            if(currentMarketTab === 'news') { 
+                if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } 
+                globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); 
+                return; 
+            }
+            
+            let totalPortfolioValue = 0; 
+            const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket;
+            
+            marketData.forEach(s => {
+                const currentPrice = s.hist1H[s.hist1H.length-1] || 0; 
+                const prevPrice = s.hist1H[s.hist1H.length-2] || currentPrice; 
+                let trendClass = 'trend-flat'; let trendIcon = '−'; 
+                if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } 
+                else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; }
+                
+                const diff = Math.abs(currentPrice - prevPrice).toFixed(2); 
+                const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; 
+                totalPortfolioValue += portfolioData.qty * currentPrice; 
+                let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0;
+                
+                container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`;
+            });
+            document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+        } catch (e) {
+            console.error("Помилка завантаження ринку: ", e);
+            container.innerHTML = `<div style="text-align:center; color:var(--danger); margin-top:20px;">Помилка рендера. Спробуйте оновити.</div>`;
+        }
     }
+
     function setChartTab(tabId, el) { currentChartTab = tabId; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); openStockModal(currentStockId, false); }
     function openStockModal(stockId, resetTab = false) {
         if(resetTab) { currentChartTab = '1H'; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.chart-tab')[0].classList.add('active'); }
@@ -677,8 +704,10 @@
     function payCredit() { const user = getState(); const cReturn = Math.floor(user.creditLimit * 1.10); if(user.balance < cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cReturn; user.credit = { active: false }; saveDB(); addTransaction("Погашення кредиту", -cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено!", "success"); }
 
     setInterval(() => {
-        let needsUpdate = false; const user = getState();
-        if(user) {
+        try {
+            let needsUpdate = false; const user = getState();
+            if(!user) return; // ЗАЩИТА ОТ КРАША ТАЙМЕРА
+            
             if(document.getElementById('screen-profile').classList.contains('active')) updateProfileNetWorth();
             const now = Date.now();
             if(user.deposits && user.deposits.length > 0) {
@@ -699,18 +728,55 @@
             }
             if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-products').classList.contains('active')) renderProductsFull(); } 
             else { if(document.getElementById('screen-products').classList.contains('active')) renderProductsTimersOnly(); }
+        } catch (e) {
+            console.error("Помилка основного таймера: ", e);
         }
     }, 1000);
 
     setInterval(() => {
-        if(Math.random() < 0.08 && !activeNews) { const allAssets = [...stocksMarket, ...cryptoMarket]; const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; const isGood = Math.random() < 0.5; let title = isGood ? `🚀 Прорив ${asset.name}` : `💥 Падіння ${asset.name}`; let desc = isGood ? `Активи летять у космос!` : `Стрімкий обвал ціни!`; if(db.currentUser) showPush(title, desc, asset.icon, !isGood, true); globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); if(globalNews.length > 10) globalNews.pop(); saveNews(); activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; }
-        const updateAsset = (s, isCrypto) => { let vol = isCrypto ? 0.05 : 0.005; let changePercent = (Math.random() * vol * 2) - vol; if (!isCrypto && Math.random() < 0.25) changePercent = 0; if(activeNews && activeNews.id === s.id) { changePercent = activeNews.isGood ? (Math.random() * 0.1 + 0.05) : -(Math.random() * 0.1 + 0.05); activeNews.ticksLeft--; if(activeNews.ticksLeft <= 0) activeNews = null; } let newPrice = s.hist1H[s.hist1H.length-1] * (1 + changePercent); s.hist1H.push(parseFloat(newPrice.toFixed(2))); if(s.hist1H.length > 15) s.hist1H.shift(); };
-        stocksMarket.forEach(s => updateAsset(s, false)); cryptoMarket.forEach(s => updateAsset(s, true));
-        if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks();
-        if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) openStockModal(currentStockId, false);
+        try {
+            const user = getState();
+            if(!user) return; // ЗАЩИТА РЫНКА ДЛЯ НЕЗАЛОГИНЕННЫХ
+            
+            if(Math.random() < 0.08 && !activeNews) { 
+                const allAssets = [...stocksMarket, ...cryptoMarket]; 
+                const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; 
+                const isGood = Math.random() < 0.5; 
+                let title = isGood ? `🚀 Прорив ${asset.name}` : `💥 Падіння ${asset.name}`; 
+                let desc = isGood ? `Активи летять у космос!` : `Стрімкий обвал ціни!`; 
+                showPush(title, desc, asset.icon, !isGood, true); 
+                globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); 
+                if(globalNews.length > 10) globalNews.pop(); 
+                saveNews(); 
+                activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; 
+            }
+            
+            const updateAsset = (s, isCrypto) => { 
+                let vol = isCrypto ? 0.05 : 0.005; 
+                let changePercent = (Math.random() * vol * 2) - vol; 
+                if (!isCrypto && Math.random() < 0.25) changePercent = 0; 
+                if(activeNews && activeNews.id === s.id) { 
+                    changePercent = activeNews.isGood ? (Math.random() * 0.1 + 0.05) : -(Math.random() * 0.1 + 0.05); 
+                    activeNews.ticksLeft--; 
+                    if(activeNews.ticksLeft <= 0) activeNews = null; 
+                } 
+                let newPrice = s.hist1H[s.hist1H.length-1] * (1 + changePercent); 
+                s.hist1H.push(parseFloat(newPrice.toFixed(2))); 
+                if(s.hist1H.length > 15) s.hist1H.shift(); 
+            };
+            
+            stocksMarket.forEach(s => updateAsset(s, false)); 
+            cryptoMarket.forEach(s => updateAsset(s, true));
+            
+            if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks();
+            if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) openStockModal(currentStockId, false);
+        } catch (e) {
+            console.error("Помилка оновлення ринку: ", e);
+        }
     }, 5000);
 
     window.addEventListener('load', checkAuthState);
 </script>
 
 </body>
+</html>
