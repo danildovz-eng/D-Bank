@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>D-Bank Pro</title>
+    <title>D-Bank</title>
     <meta name="theme-color" content="#161B22">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="D-Bank">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -16,72 +17,103 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; display: flex; justify-content: center; height: 100vh; overflow: hidden; color: #fff; }
         .app-container { width: 100%; max-width: 400px; height: 100%; background: var(--bg-main); position: relative; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(0,0,0,0.5); overflow: hidden; }
-        
-        /* UI Elements */
         .push-notif { position: absolute; top: -100px; left: 5%; width: 90%; background: rgba(35, 42, 56, 0.98); backdrop-filter: blur(10px); padding: 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 2000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 15px; color: var(--text-dark); border-left: 4px solid var(--primary); }
         .push-notif.show { top: 20px; }
         .push-icon { background: var(--primary); color: #fff; width: 40px; height: 40px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 1000; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 350px; opacity: 0; visibility: hidden; transition: 0.3s; }
         .toast.show { opacity: 1; visibility: visible; top: 30px; }
-        
+        .toast.error { background: var(--danger); color: white; }
+        .toast.success { background: var(--success); color: white; }
         .screen { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
         .screen.active { display: block; animation: slideUp 0.3s ease; }
-        .auth-screen { flex-direction: column; justify-content: center; height: 100%; }
-        .auth-screen.active { display: flex; }
-        
+        .screen.auth-screen { padding-bottom: 20px; display: none; background: var(--bg-main); flex-direction: column; justify-content: center; height: 100%; }
+        .screen.auth-screen.active { display: flex; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .greeting h1 { font-size: 20px; color: var(--text-dark); }
         .greeting p { font-size: 13px; color: var(--text-muted); }
-        
         .avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-        
-        /* Cards */
-        .flip-card { perspective: 1000px; margin-bottom: 20px; cursor: pointer; }
-        .flip-card-inner { position: relative; width: 100%; height: 180px; transition: transform 0.6s; transform-style: preserve-3d; }
-        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; padding: 20px; color: white; }
-        .flip-card-front { background: linear-gradient(135deg, #0047AB 0%, #002D6E 100%); display: flex; flex-direction: column; justify-content: space-between; }
-        .flip-card-back { background: #111; transform: rotateY(180deg); border: 1px solid #333; }
-        
+        .bank-card { background: linear-gradient(135deg, #0047AB 0%, #002D6E 100%); border-radius: 20px; padding: 20px; color: white; box-shadow: 0 10px 20px rgba(0, 71, 171, 0.2); position: relative; overflow: hidden; margin-bottom: 20px; cursor: pointer; transition: transform 0.2s; }
+        .bank-card:active { transform: scale(0.98); }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .balance-label { font-size: 13px; opacity: 0.8; }
         .balance-value { font-size: 28px; font-weight: 700; margin-top: 5px; }
-        .iron-shield { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); border-radius: 20px; z-index: 10; display:none; justify-content:center; align-items:center; flex-direction:column; }
-        .iron-shield.active { display: flex; }
-
-        /* Buttons & Inputs */
-        .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.95); }
-        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+        .card-bottom { display: flex; justify-content: space-between; font-family: monospace; font-size: 16px; margin-top: 20px; letter-spacing: 1px; }
+        .skin-gold .bank-card, .skin-gold .flip-card-front, .skin-gold .flip-card-back { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: #111; box-shadow: 0 10px 20px rgba(218, 165, 32, 0.3); border: 1px solid #FFF8DC; }
+        .skin-gold .pin-container { background: #111; color: #FFD700; }
+        .skin-neon .bank-card, .skin-neon .flip-card-front, .skin-neon .flip-card-back { background: #000; color: #0f0; box-shadow: 0 0 15px #0f0; border: 2px solid #0f0; }
+        .skin-neon .pin-container { background: #0f0; color: #000; }
+        .skin-glass .bank-card, .skin-glass .flip-card-front, .skin-glass .flip-card-back { background: rgba(255,255,255,0.05); color: #fff; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .flip-card { background-color: transparent; perspective: 1000px; margin-bottom: 20px; cursor: grab; }
+        .flip-card:active { cursor: grabbing; }
+        .flip-card-inner { position: relative; width: 100%; height: 180px; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; }
+        .flip-card-front { background: linear-gradient(135deg, #0047AB 0%, #002D6E 100%); padding: 20px; color: white; display: flex; flex-direction: column; justify-content: space-between;}
+        .flip-card-back { background: linear-gradient(135deg, #111 0%, #000 100%); transform: rotateY(180deg); color: white; padding: 20px 0; display: flex; flex-direction: column; border: 1px solid #333;}
+        .magnetic-stripe { width: 100%; height: 40px; background: #222; margin-top: 10px; }
+        .pin-container { background: white; color: black; margin: 20px; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .pin-text { font-family: monospace; font-size: 18px; font-weight: bold; letter-spacing: 5px; }
+        .iron-shield { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #444 0%, #111 100%); border: 4px solid #666; border-radius: 20px; z-index: 10; display:flex; justify-content:center; align-items:center; flex-direction:column; opacity: 0; pointer-events: none; transition: 0.5s; transform: scale(1.05); color: white;}
+        .iron-shield.active { opacity: 1; pointer-events: auto; transform: scale(1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px;}
+        .btn-main:active { transform: scale(0.97); }
+        .btn-main:disabled { background: var(--border); color: #888; cursor: not-allowed; opacity: 0.7; }
         .btn-danger { background: var(--danger); }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #161B22; color: #fff; outline: none; }
-
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 250px; margin: 0 auto; }
-        .num-btn { background: var(--bg-surface); color: #fff; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 20px; font-weight: 600; cursor: pointer; }
-
-        /* Stock & List Items */
-        .stock-item, .transaction { display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); padding: 15px; border-radius: 16px; margin-bottom: 10px; }
-        .t-icon, .stock-icon { width: 40px; height: 40px; background: var(--bg-main); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
-        
-        .level-badge { background: var(--warning); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; vertical-align: middle; margin-left: 5px; }
-        
-        .modal-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index: 3000; backdrop-filter: blur(5px); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; background: #161B22; color: #fff; outline: none; }
+        .form-group input:focus { border-color: var(--primary); }
+        .pin-dots { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; transition: transform 0.1s; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-muted); transition: 0.2s; }
+        .pin-dot.filled { background: var(--primary); border-color: var(--primary); }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 280px; margin: 0 auto; }
+        .num-btn { background: var(--bg-surface); color: var(--text-dark); border: none; font-size: 26px; font-weight: 600; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.1s, background 0.1s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin: 0 auto;}
+        .num-btn:active { transform: scale(0.9); background: var(--primary); color: white; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+        .toggle-row:first-child { border-top: none; padding-top: 0; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; border-radius: 24px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .stock-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); padding: 15px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s; }
+        .stock-item:active { transform: scale(0.98); }
+        .stock-left { display: flex; align-items: center; gap: 15px; }
+        .stock-icon { width: 45px; height: 45px; background: var(--bg-main); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .stock-info h4 { font-size: 15px; color: var(--text-dark); margin-bottom: 3px; }
+        .stock-info p { font-size: 12px; color: var(--text-muted); }
+        .stock-price-box { text-align: right; }
+        .stock-price { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+        .stock-trend { font-size: 12px; font-weight: 600; }
+        .trend-up { color: var(--success); } .trend-down { color: var(--danger); } .trend-flat { color: var(--warning); }
+        .news-item { background: var(--bg-surface); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; display:flex; gap:10px; align-items:center; }
+        .news-item.good { border-left: 3px solid var(--success); }
+        .news-item.bad { border-left: 3px solid var(--danger); }
+        .chart-container { width: 100%; height: 140px; background: #161B22; border-radius: 12px; margin: 15px 0; overflow:hidden; position:relative; border: 1px solid var(--border);}
+        .tabs-header { display: flex; background: var(--bg-surface); border-radius: 12px; padding: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; text-align: center; padding: 10px; font-weight: 600; font-size: 14px; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: #fff; }
+        .chart-tab { flex: 1; text-align: center; padding: 6px 0; font-size: 12px; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
+        .chart-tab.active { background: var(--primary); color: #fff; }
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
+        .action-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; background: none; cursor: pointer; }
+        .action-icon { width: 50px; height: 50px; background: var(--bg-surface); color: #fff; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .action-text { font-size: 11px; color: var(--text-dark); font-weight: 500; text-align: center; }
+        .transaction { display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); padding: 15px; border-radius: 16px; margin-bottom: 10px; }
+        .t-left { display: flex; align-items: center; gap: 15px; }
+        .t-icon { width: 40px; height: 40px; background: var(--bg-main); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(3px); }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--bg-surface); width: 90%; padding: 25px; border-radius: 24px; text-align: center; }
-
-        .bottom-nav { position: absolute; bottom: 0; width: 100%; background: var(--bg-surface); display: flex; justify-content: space-around; padding: 12px 0 25px; border-top: 1px solid var(--border); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 10px; }
+        .modal-content { background: var(--bg-surface); width: 90%; padding: 25px; border-radius: 20px; animation: slideUp 0.2s; position: relative;}
+        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--bg-main); width:30px; height:30px; border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; font-weight:bold;}
+        .bottom-nav { position: absolute; bottom: 0; width: 100%; background: var(--bg-surface); display: flex; justify-content: space-around; padding: 12px 0 25px; border-top: 1px solid var(--border); display: none;}
+        .bottom-nav.active { display: flex; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 500; transition: color 0.2s; }
         .nav-item.active { color: var(--primary); }
-
-        /* Skins */
-        .skin-gold .flip-card-front { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; }
-        .skin-neon .flip-card-front { background: #000; border: 2px solid #0f0; color: #0f0; box-shadow: 0 0 15px #0f0; }
-        .skin-glass .flip-card-front { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
-<body>
+<body ontouchstart="">
 
 <div class="app-container" id="app-root">
     <div id="toast" class="toast">Повідомлення</div>
@@ -89,370 +121,596 @@
     <div id="push-notif" class="push-notif">
         <div class="push-icon" id="push-icon">✉️</div>
         <div>
-            <div style="font-weight: 700; font-size: 14px;" id="push-title">Система</div>
-            <div style="font-size: 12px; color: var(--text-muted);" id="push-desc">Текст сповіщення</div>
+            <div style="font-weight: 700; font-size: 14px;" id="push-title">Вхідний лист</div>
+            <div style="font-size: 12px; color: var(--text-muted);" id="push-desc">Текст</div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="tax-modal">
-        <div class="modal-content">
-            <div style="font-size: 50px;">🕵️‍♂️</div>
-            <h2 style="margin: 10px 0;">Податкова перевірка!</h2>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Ваші статки привернули увагу. Що будете робити?</p>
-            <button class="btn-main" onclick="payTax()" style="margin-bottom: 10px;">Сплатити штраф (10%)</button>
-            <button class="btn-main btn-danger" onclick="tryEvadeTax()">Спробувати домовитись (50/50)</button>
+    <div class="modal-overlay" id="pwa-prompt">
+        <div class="modal-content" style="text-align:center;">
+            <div style="font-size:40px; margin-bottom:10px;">📱</div>
+            <h3 style="margin-bottom:10px;">Встановіть додаток</h3>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">
+                Щоб гра зберігала дані надійно, додайте її на головний екран:<br><br>
+                <b>🍎 iOS:</b> Натисніть «Поділитися» (квадратик зі стрілкою) ➔ «На екран Домой».<br><br>
+                <b>🤖 Android:</b> Меню браузера (3 крапки) ➔ «Встановити додаток».
+            </p>
+            <button class="btn-main" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Зрозуміло</button>
         </div>
     </div>
 
-    <div id="screen-login" class="screen auth-screen active">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div style="font-size: 60px;">🏦</div>
-            <h1 style="margin-top: 10px;">D-Bank Pro</h1>
+    <div id="screen-app-pin" class="screen auth-screen">
+        <div style="text-align: center; margin-top: 30px;">
+            <div class="avatar" style="width:70px; height:70px; font-size:30px; margin:0 auto 15px;" id="pin-avatar">👤</div>
+            <h2 id="pin-name" style="margin-bottom: 5px;">Ім'я</h2>
+            <p style="color:var(--text-muted); margin-bottom: 40px;">Введіть PIN-код для входу</p>
+            <div class="pin-dots" id="pin-dots">
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            </div>
+            <div class="numpad">
+                <button class="num-btn" onclick="enterPin('1')">1</button>
+                <button class="num-btn" onclick="enterPin('2')">2</button>
+                <button class="num-btn" onclick="enterPin('3')">3</button>
+                <button class="num-btn" onclick="enterPin('4')">4</button>
+                <button class="num-btn" onclick="enterPin('5')">5</button>
+                <button class="num-btn" onclick="enterPin('6')">6</button>
+                <button class="num-btn" onclick="enterPin('7')">7</button>
+                <button class="num-btn" onclick="enterPin('8')">8</button>
+                <button class="num-btn" onclick="enterPin('9')">9</button>
+                <div></div>
+                <button class="num-btn" onclick="enterPin('0')">0</button>
+                <button class="num-btn" onclick="deletePin()" style="background:transparent; box-shadow:none; color:var(--text-muted); font-size:30px;">⌫</button>
+            </div>
+            <div style="margin-top:40px; color:var(--danger); cursor:pointer; font-size:14px; font-weight:600;" onclick="logout()">Вийти з акаунту</div>
         </div>
-        <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
-        <div class="form-group"><label>Пароль</label><input type="password" id="login-pass" placeholder="****"></div>
-        <button class="btn-main" onclick="processLogin()">Увійти</button>
-        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
-            Немає акаунту? <span style="color: var(--primary); font-weight: bold; cursor: pointer;" onclick="switchAuth('screen-register')">Реєстрація</span>
-        </p>
+    </div>
+
+    <div id="screen-login" class="screen auth-screen">
+        <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
+        <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
+        <div class="form-group"><label>Пароль</label><input type="password" id="login-pass" placeholder="Введіть пароль"></div>
+        <button type="button" class="btn-main" onclick="processLogin()">Увійти</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Немає акаунту? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Зареєструватися</span></div>
     </div>
 
     <div id="screen-register" class="screen auth-screen">
-        <h2 style="text-align: center; margin-bottom: 20px;">Реєстрація</h2>
-        <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="mail@example.com"></div>
-        <div class="form-group"><label>Ваше Ім'я</label><input type="text" id="reg-name" placeholder="Олексій"></div>
-        <div class="form-group"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Мінімум 4 символи"></div>
-        <div class="form-group"><label>PIN для входу (4 цифри)</label><input type="password" id="reg-pin" placeholder="****" maxlength="4"></div>
-        <button class="btn-main" onclick="completeRegistration()">Створити акаунт</button>
-        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);" onclick="switchAuth('screen-login')">Вже є акаунт? Увійти</p>
+        <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">👋</div>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Створити акаунт</div>
+        <div class="form-group"><label>Електронна пошта</label><input type="email" id="reg-email" placeholder="mail@example.com"></div>
+        <button type="button" class="btn-main" onclick="sendVerificationCode()">Надіслати код</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Вже є акаунт? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-login')">Увійти</span></div>
     </div>
 
-    <div id="screen-pin" class="screen auth-screen">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div class="avatar" style="width:70px; height:70px; font-size:30px; margin:0 auto;" id="pin-avatar">👤</div>
-            <h2 id="pin-name" style="margin-top: 10px;">User</h2>
-            <p style="color: var(--text-muted);">Введіть PIN</p>
-        </div>
-        <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;" id="pin-dots">
-            <div style="width:15px; height:15px; border-radius:50%; border:2px solid var(--border);"></div>
-            <div style="width:15px; height:15px; border-radius:50%; border:2px solid var(--border);"></div>
-            <div style="width:15px; height:15px; border-radius:50%; border:2px solid var(--border);"></div>
-            <div style="width:15px; height:15px; border-radius:50%; border:2px solid var(--border);"></div>
-        </div>
-        <div class="numpad">
-            <button class="num-btn" onclick="pressPin('1')">1</button><button class="num-btn" onclick="pressPin('2')">2</button><button class="num-btn" onclick="pressPin('3')">3</button>
-            <button class="num-btn" onclick="pressPin('4')">4</button><button class="num-btn" onclick="pressPin('5')">5</button><button class="num-btn" onclick="pressPin('6')">6</button>
-            <button class="num-btn" onclick="pressPin('7')">7</button><button class="num-btn" onclick="pressPin('8')">8</button><button class="num-btn" onclick="pressPin('9')">9</button>
-            <div></div><button class="num-btn" onclick="pressPin('0')">0</button><button class="num-btn" onclick="clearPin()" style="background:none;">⌫</button>
-        </div>
+    <div id="screen-verify" class="screen auth-screen">
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 5px; font-weight: 700;">Код підтвердження</div>
+        <div style="text-align:center; font-size:14px; margin-bottom:20px; color:var(--text-muted)">Ми надіслали код на вашу пошту</div>
+        <div class="form-group"><label>Введіть 4-значний код</label><input type="number" id="reg-code" placeholder="0000"></div>
+        <button type="button" class="btn-main" onclick="verifyCode()">Підтвердити</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);"><span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Скасувати</span></div>
+    </div>
+
+    <div id="screen-setup" class="screen auth-screen">
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Останній крок</div>
+        <div class="form-group"><label>Ваше Ім'я</label><input type="text" id="reg-name" placeholder="Наприклад: Олексій"></div>
+        <div class="form-group"><label>Пароль акаунту</label><input type="password" id="reg-pass" placeholder="Мінімум 4 символи"></div>
+        <div class="form-group"><label>PIN-код для входу (4 цифри)</label><input type="password" id="reg-app-pin" placeholder="****" inputmode="numeric" maxlength="4"></div>
+        <button type="button" class="btn-main" onclick="completeRegistration()">Завершити реєстрацію</button>
     </div>
 
     <div id="screen-dashboard" class="screen">
         <header>
-            <div class="greeting">
-                <p>Вітаємо,</p>
-                <h1 id="dash-name">Користувач <span id="dash-lvl" class="level-badge">LVL 1</span></h1>
-            </div>
-            <div class="avatar" onclick="switchTab('screen-profile', 4)">👤</div>
+            <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 ₴</h1></div>
+            <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
         </header>
 
-        <div class="flip-card" onclick="this.classList.toggle('flipped')">
-            <div class="flip-card-inner" id="card-inner">
-                <div class="flip-card-front">
-                    <div style="display:flex; justify-content:space-between;"><span>Universal Card</span><b>VISA</b></div>
-                    <div><p style="font-size: 12px; opacity: 0.8;">Баланс</p><div class="balance-value" id="dash-balance">0.00 ₴</div></div>
-                    <div id="dash-card-num" style="letter-spacing: 2px;">**** **** **** ****</div>
-                    <div class="iron-shield" id="card-shield">🔒 ЗАБЛОКОВАНО</div>
+        <div class="flip-card" id="flip-card-main">
+            <div class="flip-card-inner" id="flip-card-inner-main">
+                <div class="flip-card-front" onclick="openCardDetails()">
+                    <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
+                    <div><div class="balance-label">Доступно</div><div class="balance-value" id="dashboard-balance">0.00 ₴</div></div>
+                    <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px;"><span id="dashboard-card-num">**** **** **** ****</span><span>12/28</span></div>
+                    <div class="iron-shield" id="main-iron-shield"><div style="font-size:30px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКОВАНО</div></div>
                 </div>
             </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-bottom: 25px;">
-            <button class="btn-main" style="background: var(--success);" onclick="earnClick()">+ Заробити <span id="click-val">0.10</span> ₴</button>
-            <button class="btn-main" style="width:60px; background: var(--bg-surface);" onclick="openModal('upgrades-modal')">🚀</button>
+            <button type="button" class="btn-main" style="flex:1; background: linear-gradient(135deg, #10B981, #059669);" onclick="earnMoney()" id="btn-earn">+ Заробити 0.10 ₴</button>
+            <button type="button" class="btn-main" style="width:50px; padding:0; background: var(--bg-surface); color:var(--text-dark);" onclick="openUpgrades()">🚀</button>
         </div>
 
-        <div style="font-weight: bold; margin-bottom: 15px;">Останні операції</div>
-        <div id="history-list"></div>
+        <div class="quick-actions">
+            <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
+            <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
+            <button type="button" class="action-btn" onclick="openModal('mobile-modal')"><div class="action-icon">📱</div><div class="action-text">Мобільний</div></button>
+            <button type="button" class="action-btn" onclick="showToast('У розробці', 'info')"><div class="action-icon">📷</div><div class="action-text">Мій QR</div></button>
+        </div>
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Історія операцій</div>
+        <div id="history-container"></div>
+    </div>
+
+    <div id="screen-payments" class="screen">
+        <header><div class="greeting"><h1>Переказ на картку</h1></div></header>
+        <div class="form-group"><label>З картки</label><input type="text" id="from-card-input" disabled style="background: var(--bg-main);"></div>
+        <div class="form-group"><label>Номер картки отримувача</label><input type="text" id="transfer-card" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)"></div>
+        <div class="form-group"><label>Сума переказу (₴)</label><input type="number" id="transfer-amount" placeholder="0.00" oninput="checkTransferForm()"></div>
+        <button type="button" class="btn-main" id="btn-transfer" disabled onclick="executeTransfer()">Надіслати</button>
+    </div>
+
+    <div id="screen-stocks" class="screen">
+        <header><div class="greeting"><p>Мій портфель</p><h1 id="portfolio-total">0.00 ₴</h1></div></header>
+        <div class="tabs-header">
+            <div class="tab-btn active" onclick="setMarketTab('stocks', this)">Акції 📈</div>
+            <div class="tab-btn" onclick="setMarketTab('crypto', this)">Крипта ₿</div>
+            <div class="tab-btn" onclick="setMarketTab('news', this)">Новини 📰</div>
+        </div>
+        <div id="stocks-container"></div>
+    </div>
+
+    <div id="screen-products" class="screen">
+        <header><div class="greeting"><h1>Мої Продукти</h1></div></header>
+        <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🌾</div><div style="font-weight:bold;">Депозит 5%</div></div>
+                <div style="font-size:12px; color:var(--text-muted);">На 5 хвилин</div>
+            </div>
+            <div id="deposit-input-area">
+                <div class="form-group"><input type="number" id="deposit-amount" placeholder="Сума (мінімум 10 ₴)" style="width:100%;"></div>
+                <button type="button" class="btn-main" onclick="openDeposit()">Відкрити депозит</button>
+            </div>
+            <div id="deposit-timer-area" style="margin-top:15px; display:none;"></div>
+        </div>
+        <div style="background:var(--bg-surface); padding:20px; border-radius:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит готівкою</div></div>
+                <div style="font-size:12px; color:var(--danger); font-weight:bold;">Ризик!</div>
+            </div>
+            <div id="credit-input-area">
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;" id="credit-desc-text"></p>
+                <button type="button" class="btn-main" id="btn-take-credit" onclick="takeCredit()">Взяти кредит</button>
+            </div>
+            <div id="credit-timer-area" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="screen-card-details" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
+            <div style="font-weight: 600;">Управління карткою</div>
+            <div style="width:24px;"></div>
+        </div>
+        <div class="flip-card" id="flip-card">
+            <div class="flip-card-inner" id="flip-card-inner">
+                <div class="flip-card-front">
+                    <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
+                    <div><div class="balance-label">Баланс</div><div class="balance-value" id="detail-balance" style="font-size: 24px;">0.00 ₴</div></div>
+                    <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px;"><span id="full-card-num">****</span><span>12/28</span></div>
+                    <div class="iron-shield" id="detail-iron-shield"><div style="font-size:40px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКОВАНО</div></div>
+                </div>
+                <div class="flip-card-back">
+                    <div class="magnetic-stripe"></div>
+                    <div style="text-align: right; padding-right: 20px; font-size: 12px; margin-top: 10px;" id="card-cvv-display">CVV: ***</div>
+                    <div class="pin-container">
+                        <div><div style="font-size: 10px; color: #888; margin-bottom: 2px;">PIN-код картки:</div><div class="pin-text" id="card-pin-display">****</div></div>
+                        <div style="font-size:24px; cursor:pointer;" onclick="togglePin(event)">👁</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Натисніть або свайпніть, щоб перевернути</p>
+        <div style="background: var(--bg-surface); border-radius: 16px; padding: 15px; margin-bottom: 15px;">
+            <div style="font-weight: 600; margin-bottom: 10px;">Дизайн картки (Скіни)</div>
+            <div style="display:grid; grid-template-columns: 1fr; gap:10px;">
+                <button class="btn-main" style="background:#0047AB;" onclick="buySkin('default', 0)">Синя (Стандарт)</button>
+                <button class="btn-main" style="background:linear-gradient(135deg, #FFD700, #B8860B); color:#000;" onclick="buySkin('skin-gold', 50000)">Золота — 50 000 ₴</button>
+                <button class="btn-main" style="background:#000; color:#0f0; border:1px solid #0f0;" onclick="buySkin('skin-neon', 100000)">Неонова — 100 000 ₴</button>
+                <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.2);" onclick="buySkin('skin-glass', 250000)">Скляна — 250 000 ₴</button>
+            </div>
+        </div>
+        <div style="background: var(--bg-surface); border-radius: 16px; padding: 10px;">
+            <button type="button" class="btn-main btn-danger" id="btn-lock" onclick="toggleLockCard()">Блокувати картку 🔒</button>
+        </div>
     </div>
 
     <div id="screen-profile" class="screen">
-        <h2 style="margin-bottom: 20px;">Профіль</h2>
-        <div style="background: var(--bg-surface); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 20px;">
-            <div class="avatar" style="width:80px; height:80px; font-size:30px; margin: 0 auto 10px;">👤</div>
-            <h3 id="prof-name">Ім'я</h3>
-            <p id="prof-rank" style="color: var(--warning); font-weight: bold;">Рейтинг: LVL 1</p>
-            <div style="width: 100%; background: #111; height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden;">
-                <div id="lvl-progress" style="width: 0%; height: 100%; background: var(--warning);"></div>
+        <header><div class="greeting"><h1>Профіль</h1></div></header>
+        <div style="background:var(--bg-surface); border-radius:16px; padding:20px; margin-bottom:20px; text-align:center;">
+            <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 10px;" id="profile-avatar-main">👤</div>
+            <h2 id="profile-name">Ім'я</h2>
+            <p id="profile-email" style="color:var(--text-muted); font-size:14px; margin-bottom: 15px;">email</p>
+            <div style="background: var(--bg-main); padding: 10px; border-radius: 8px; display: inline-block;">
+                <div style="font-size: 12px; color: var(--text-muted);">Загальний статок (Гроші + Активи)</div>
+                <div id="profile-net-worth" style="font-size: 18px; font-weight: bold; color: var(--success); margin-top: 5px;">0.00 ₴</div>
             </div>
         </div>
-        <div class="form-group">
-            <label>Дизайн картки</label>
-            <select onchange="changeSkin(this.value)" style="width: 100%; padding: 12px; border-radius: 12px; background: var(--bg-surface); color: #fff; border: 1px solid var(--border);">
-                <option value="default">Класичний (Синій)</option>
-                <option value="skin-gold">Золотий (50 000 ₴)</option>
-                <option value="skin-neon">Неоновий (100 000 ₴)</option>
-                <option value="skin-glass">Скляний (250 000 ₴)</option>
-            </select>
+        <div style="background: var(--bg-surface); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+            <div style="font-weight: 600; margin-bottom: 10px;">Налаштування</div>
+            <div class="toggle-row">
+                <div style="font-size:14px;">Звуки</div>
+                <label class="switch"><input type="checkbox" id="set-sounds" onchange="toggleSetting('sounds')"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+                <div style="font-size:14px;">Push-сповіщення</div>
+                <label class="switch"><input type="checkbox" id="set-notifs" onchange="toggleSetting('notifications')"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+                <div style="font-size:14px;">Новини ринку</div>
+                <label class="switch"><input type="checkbox" id="set-news" onchange="toggleSetting('newsNotifications')"><span class="slider"></span></label>
+            </div>
         </div>
-        <button class="btn-main btn-danger" onclick="logout()">Вийти з акаунту</button>
+        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--text-dark); border:1px solid var(--border); margin-bottom: 10px;" onclick="logout()">Вийти з акаунту</button>
+        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--danger); border:1px solid var(--danger);" onclick="deleteAccount()">Видалити акаунт назавжди</button>
     </div>
 
-    <div class="modal-overlay" id="upgrades-modal" onclick="closeModals(event)">
+    <div class="modal-overlay" id="stock-modal" onclick="closeModal(event, 'stock-modal')">
+        <div class="modal-content" style="padding:15px;">
+            <div class="close-modal" onclick="document.getElementById('stock-modal').classList.remove('active')">✕</div>
+            <div id="modal-stock-icon" style="font-size: 30px; margin-bottom:5px; text-align:center;">📈</div>
+            <h2 id="modal-stock-name" style="text-align:center; font-size:18px;">Акція</h2>
+            <div style="text-align:center; font-size: 24px; font-weight: bold; margin-bottom:10px;" id="modal-stock-price">0.00 ₴</div>
+            <div style="display: flex; justify-content: space-between; background: var(--bg-main); border-radius: 8px; padding: 4px; margin-bottom: 10px;">
+                <div class="tab-btn active chart-tab" onclick="setChartTab('1H', this)">1Г</div>
+                <div class="tab-btn chart-tab" onclick="setChartTab('1D', this)">1Д</div>
+                <div class="tab-btn chart-tab" onclick="setChartTab('1W', this)">1Т</div>
+                <div class="tab-btn chart-tab" onclick="setChartTab('1M', this)">1М</div>
+            </div>
+            <div class="chart-container"><svg id="stock-chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px;"><span>В портфелі: <b id="modal-user-owned">0</b> шт.</span></div>
+            <div class="form-group"><input type="number" id="stock-qty" placeholder="Кількість" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продати</button>
+                <button type="button" class="btn-main" style="background:var(--success); padding:10px;" onclick="executeBuyStock()">Купити</button>
+            </div>
+            <div id="stock-calc-total" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">Разом: 0.00 ₴</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upgrades-modal" onclick="closeModal(event, 'upgrades-modal')">
         <div class="modal-content">
-            <h3>Магазин покращень</h3>
-            <div style="margin: 20px 0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background: var(--bg-main); padding: 10px; border-radius: 12px;">
-                    <div style="text-align:left;"><b style="font-size:14px;">Сильний клік</b><br><small id="upg-click-price">Цена: 500 ₴</small></div>
-                    <button class="btn-main" style="width:auto; padding:8px 15px;" onclick="buyUpgrade('click')">Купити</button>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background: var(--bg-main); padding: 10px; border-radius: 12px;">
-                    <div style="text-align:left;"><b style="font-size:14px;">Автоклікер</b><br><small id="upg-auto-price">Цена: 5000 ₴</small></div>
-                    <button class="btn-main" style="width:auto; padding:8px 15px; background: var(--success);" onclick="buyUpgrade('auto')">Купити</button>
-                </div>
+            <div class="close-modal" onclick="document.getElementById('upgrades-modal').classList.remove('active')">✕</div>
+            <h3>Прокачка 🚀</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Інвестуй, щоб заробляти більше! Ціна зростає x2.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:10px;">
+                <div style="text-align:left;"><b>Посилений клік</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-click-desc">+0.50 ₴ за клік</span></div>
+                <button class="btn-main" style="width:auto; padding:10px 15px;" id="upg-click-btn" onclick="buyUpgrade('click')">500 ₴</button>
             </div>
-            <button class="btn-main" onclick="document.getElementById('upgrades-modal').classList.remove('active')">Закрити</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px;">
+                <div style="text-align:left;"><b>Автоклікер</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-auto-desc">+2.00 ₴ кожну секунду</span></div>
+                <button class="btn-main" style="width:auto; padding:10px 15px; background:var(--success);" id="upg-auto-btn" onclick="buyUpgrade('auto')">5000 ₴</button>
+            </div>
         </div>
     </div>
 
-    <nav class="bottom-nav" id="main-nav" style="display: none;">
-        <div class="nav-item active" onclick="switchTab('screen-dashboard', 0)">🏠<span>Головна</span></div>
-        <div class="nav-item">💸<span>Платежі</span></div>
-        <div class="nav-item">📈<span>Біржа</span></div>
-        <div class="nav-item">🏦<span>Банк</span></div>
-        <div class="nav-item" onclick="switchTab('screen-profile', 4)">⚙️<span>Профіль</span></div>
+    <div class="modal-overlay" id="topup-modal" onclick="closeModal(event, 'topup-modal')">
+        <div class="modal-content"><h3>Термінал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз на 5 годин.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 ₴</button></div>
+    </div>
+    <div class="modal-overlay" id="mobile-modal" onclick="closeModal(event, 'mobile-modal')">
+        <div class="modal-content"><h3>Поповнення мобільного</h3><input type="number" id="mobile-amount" placeholder="Сума (₴)" style="width:100%; padding:10px; margin: 15px 0; border:1px solid var(--border); border-radius:8px;"><button type="button" class="btn-main" onclick="payMobile()">Поповнити</button></div>
+    </div>
+
+    <nav class="bottom-nav" id="main-nav">
+        <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Головна</span></div>
+        <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежі</span></div>
+        <div class="nav-item" onclick="openStocks(this)"><div class="nav-icon">📈</div><span>Біржа</span></div>
+        <div class="nav-item" onclick="openProducts(this)"><div class="nav-icon">🏦</div><span>Продукти</span></div>
+        <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профіль</span></div>
     </nav>
 </div>
 
 <script>
-    // --- DATABASE ---
+    try {
+        const manifest = { name: "D-Bank", short_name: "D-Bank", start_url: location.href, display: "standalone", background_color: "#161B22", theme_color: "#0047AB", icons: [{ src: "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Crect width='512' height='512' rx='100' fill='%230047AB'/%3E%3Ctext x='50%25' y='55%25' font-size='250' fill='%23FFF' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%8F%A6%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }] };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(blob); document.head.appendChild(link);
+    } catch(e) {}
+
+    function checkPWA() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); }
+    }
+    window.addEventListener('load', checkPWA);
+
     const firebaseConfig = { apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU", authDomain: "dbank-2b218.firebaseapp.com", databaseURL: "https://dbank-2b218-default-rtdb.firebaseio.com", projectId: "dbank-2b218", storageBucket: "dbank-2b218.firebasestorage.app", messagingSenderId: "1092545286683", appId: "1:1092545286683:web:e0ea2eb48d3cf9fe8adebe" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
-    let user = null;
-    let userKey = localStorage.getItem('dbank_key');
-    let currentPinInput = "";
+    let tempRegEmail = ""; let tempRegCode = ""; let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H'; let activeNews = null; let deleteConfirm = false; let toastTimeout; let isPinVisible = false; let isFlipped = false; let touchstartX = 0; let currentPinInput = "";
+    let currentUserKey = localStorage.getItem('DBank_User_Key') || null;
 
-    // --- SYSTEM FUNCTIONS ---
-    function showToast(msg, type="info") {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.className = `toast show ${type}`;
-        setTimeout(() => t.classList.remove('show'), 3000);
+    const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
+
+    // Local First Database Architecture
+    let db = { users: {} };
+    try { let saved = localStorage.getItem('DBank_Store_FINAL'); if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } } catch(e) {}
+
+    function saveDB() { 
+        try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {}
+        if(currentUserKey && db.users[currentUserKey]) {
+            localStorage.setItem('DBank_User_Key', currentUserKey);
+            database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{}); 
+        }
+    }
+    function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
+
+    let globalNews = []; try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
+    function saveNews() { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); }
+
+    function calculateCreditLimit() { return 1000 + Math.floor(Math.pow(Math.random(), 3) * 70) * 100; }
+    function generateRandomNum(length) { let num = ""; for(let i = 0; i < length; i++) num += Math.floor(Math.random() * 10); return num; }
+
+    function playSound(type='default') {
+        const user = getState(); if(user && user.settings && !user.settings.sounds) return;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
+            if(type === 'alert') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.5); gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5); osc.start(); osc.stop(ctx.currentTime + 0.5); } 
+            else { osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3); osc.stop(ctx.currentTime + 0.3); }
+        } catch(e) {}
     }
 
-    function showPush(title, desc, icon="✉️") {
-        document.getElementById('push-title').innerText = title;
-        document.getElementById('push-desc').innerText = desc;
-        document.getElementById('push-icon').innerText = icon;
-        document.getElementById('push-notif').classList.add('show');
-        setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 5000);
+    function showPush(title, desc, icon, isAlert=false, isNews=false) {
+        const user = getState(); if(user && user.settings) { if(!user.settings.notifications) return; if(isNews && !user.settings.newsNotifications) return; }
+        document.getElementById('push-title').innerText = title; document.getElementById('push-desc').innerHTML = desc; document.getElementById('push-icon').innerText = icon;
+        const pushNotif = document.getElementById('push-notif'); pushNotif.style.borderLeftColor = isAlert ? 'var(--danger)' : 'var(--primary)'; document.getElementById('push-icon').style.background = isAlert ? 'var(--danger)' : 'var(--primary)';
+        pushNotif.classList.add('show'); playSound(isAlert ? 'alert' : 'default'); setTimeout(() => pushNotif.classList.remove('show'), isAlert ? 6000 : 4000);
     }
+    function showToast(msg, type = "success") { const toast = document.getElementById('toast'); toast.className = `toast show ${type}`; toast.innerText = msg; clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000); }
 
-    function switchAuth(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    }
+    function genHist(base, len, vol) { let arr = [base]; for(let i=1; i<len; i++) { arr.push(arr[i-1] * (1 + (Math.random() * vol * 2) - vol)); } return arr; }
+    const stocksMarket = [ { id: 'pear', name: 'Pear Inc.', icon: '🍐', hist1H: genHist(1500, 15, 0.005), hist1D: genHist(1450, 15, 0.02), hist1W: genHist(1300, 15, 0.05), hist1M: genHist(1000, 15, 0.1) }, { id: 'boogle', name: 'Boogle', icon: '👓', hist1H: genHist(2800, 15, 0.005), hist1D: genHist(2750, 15, 0.02), hist1W: genHist(2600, 15, 0.05), hist1M: genHist(2400, 15, 0.1) }, { id: 'microhard', name: 'MicroHard', icon: '🪟', hist1H: genHist(3100, 15, 0.005), hist1D: genHist(3050, 15, 0.02), hist1W: genHist(2900, 15, 0.05), hist1M: genHist(2500, 15, 0.1) }, { id: 'tuskla', name: 'Tuskla Motors', icon: '🚗', hist1H: genHist(2200, 15, 0.01), hist1D: genHist(2100, 15, 0.03), hist1W: genHist(1800, 15, 0.08), hist1M: genHist(1500, 15, 0.15) }, { id: 'amazin', name: 'Amazin', icon: '📦', hist1H: genHist(3300, 15, 0.005), hist1D: genHist(3250, 15, 0.02), hist1W: genHist(3100, 15, 0.05), hist1M: genHist(2800, 15, 0.1) }, { id: 'facelook', name: 'FaceLook', icon: '📘', hist1H: genHist(330, 15, 0.005), hist1D: genHist(320, 15, 0.02), hist1W: genHist(300, 15, 0.05), hist1M: genHist(250, 15, 0.1) }, { id: 'netflick', name: 'NetFlick', icon: '🍿', hist1H: genHist(400, 15, 0.008), hist1D: genHist(390, 15, 0.02), hist1W: genHist(350, 15, 0.06), hist1M: genHist(300, 15, 0.12) }, { id: 'spotifly', name: 'Spotifly', icon: '🎧', hist1H: genHist(250, 15, 0.005), hist1D: genHist(245, 15, 0.02), hist1W: genHist(230, 15, 0.05), hist1M: genHist(180, 15, 0.1) }, { id: 'samsong', name: 'SamSong', icon: '📱', hist1H: genHist(700, 15, 0.005), hist1D: genHist(690, 15, 0.02), hist1W: genHist(650, 15, 0.05), hist1M: genHist(600, 15, 0.1) }, { id: 'nvidea', name: 'En-Videa', icon: '🎮', hist1H: genHist(8000, 15, 0.01), hist1D: genHist(7800, 15, 0.03), hist1W: genHist(6500, 15, 0.08), hist1M: genHist(5000, 15, 0.15) } ];
+    const cryptoMarket = [ { id: 'bite', name: 'BiteCoin', icon: '₿', hist1H: genHist(60000, 15, 0.05), hist1D: genHist(58000, 15, 0.1), hist1W: genHist(50000, 15, 0.2), hist1M: genHist(40000, 15, 0.4) }, { id: 'eth', name: 'Etherium', icon: '💠', hist1H: genHist(3000, 15, 0.04), hist1D: genHist(2900, 15, 0.08), hist1W: genHist(2500, 15, 0.15), hist1M: genHist(2000, 15, 0.3) }, { id: 'solario', name: 'Solario', icon: '☀️', hist1H: genHist(150, 15, 0.06), hist1D: genHist(140, 15, 0.12), hist1W: genHist(100, 15, 0.25), hist1M: genHist(50, 15, 0.5) }, { id: 'bnn', name: 'BNN Coin', icon: '🟡', hist1H: genHist(400, 15, 0.04), hist1D: genHist(380, 15, 0.08), hist1W: genHist(300, 15, 0.15), hist1M: genHist(200, 15, 0.3) }, { id: 'doge', name: 'DogeMeme', icon: '🐕', hist1H: genHist(5, 15, 0.08), hist1D: genHist(4.5, 15, 0.15), hist1W: genHist(3, 15, 0.3), hist1M: genHist(1, 15, 0.6) } ];
 
-    // --- AUTH LOGIC ---
-    function processLogin() {
-        const email = document.getElementById('login-email').value.trim().toLowerCase().replace(/\./g, ',');
-        const pass = document.getElementById('login-pass').value;
-        db.ref('users/' + email).once('value').then(s => {
-            if(s.exists() && s.val().password === pass) {
-                user = s.val(); userKey = email;
-                localStorage.setItem('dbank_key', email);
-                switchAuth('screen-pin');
-                setupPinScreen();
-            } else showToast("Невірні дані!", "danger");
+    function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+
+    function sendVerificationCode() {
+        const emailInput = document.getElementById('reg-email'); if(!emailInput) return; const email = emailInput.value.trim().toLowerCase();
+        if(!email.includes('@')) { showToast("Невірний email!", "error"); return; }
+        const emailKey = email.replace(/\./g, ',');
+        
+        database.ref('users/' + emailKey).once('value').then(snapshot => {
+            if(snapshot.exists() || db.users[emailKey]) { showToast("Акаунт вже існує!", "error"); return; }
+            tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
+            showToast("Код: " + tempRegCode, "success");
+            document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show'); setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
+            switchAuthScreen('screen-verify');
+        }).catch(() => {
+            if(db.users[emailKey]) { showToast("Акаунт вже існує!", "error"); return; }
+            tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify');
         });
     }
+
+    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Невірний код!", "error"); }
 
     function completeRegistration() {
-        const email = document.getElementById('reg-email').value.trim().toLowerCase().replace(/\./g, ',');
-        const name = document.getElementById('reg-name').value;
-        const pass = document.getElementById('reg-pass').value;
-        const pin = document.getElementById('reg-pin').value;
-        if(email.length < 5 || name.length < 2 || pass.length < 4 || pin.length !== 4) return showToast("Перевірте дані!", "danger");
+        const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value;
+        if(name.length < 2 || pass.length < 4) { showToast("Заповніть усі поля!", "error"); return; } if(appPin.length !== 4) { showToast("Введіть 4 цифри PIN!", "error"); return; }
+        const emailKey = tempRegEmail.replace(/\./g, ',');
+        db.users[emailKey] = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', deposits: [], credit: {active: false}, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true } };
+        currentUserKey = emailKey; saveDB(); showToast("Акаунт успішно створено!", "success"); startApp();
+    }
 
-        const newUser = {
-            name, password: pass, pin, balance: 0, 
-            clickPower: 0.1, autoClicker: 0, clickPrice: 500, autoPrice: 5000,
-            lvl: 1, exp: 0, cardNumber: "4441 " + Math.floor(1000 + Math.random()*9000) + " " + Math.floor(1000 + Math.random()*9000) + " " + Math.floor(1000 + Math.random()*9000),
-            skin: 'default', history: []
-        };
-        db.ref('users/' + email).set(newUser).then(() => {
-            showToast("Успішно!");
-            switchAuth('screen-login');
+    function processLogin() {
+        const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value; const emailKey = email.replace(/\./g, ',');
+        database.ref('users/' + emailKey).once('value').then((snapshot) => {
+            if(snapshot.exists() && snapshot.val().password === pass) {
+                db.users[emailKey] = snapshot.val(); currentUserKey = emailKey;
+                let u = db.users[currentUserKey];
+                if(!u.appPin) u.appPin = "0000"; if(u.clickTier === undefined) u.clickTier = 0; if(u.clickPower === undefined) u.clickPower = 0.10; if(u.clickUpgradePrice === undefined) u.clickUpgradePrice = 500; if(u.autoClicker === undefined) u.autoClicker = 0; if(u.autoUpgradePrice === undefined) u.autoUpgradePrice = 5000; if(!u.skin) u.skin = 'default'; if(!u.deposits) u.deposits = []; if(!u.credit) u.credit = {active: false}; if(!u.creditLimit) u.creditLimit = calculateCreditLimit(); if(!u.settings) u.settings = { sounds: true, notifications: true, newsNotifications: true };
+                saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = ''; showAppPinScreen();
+            } else { showToast("Невірна пошта або пароль!", "error"); }
+        }).catch(() => {
+            if(db.users[emailKey] && db.users[emailKey].password === pass) { currentUserKey = emailKey; saveDB(); document.getElementById('login-email').value = ''; document.getElementById('login-pass').value = ''; showAppPinScreen(); } 
+            else { showToast("Помилка з'єднання", "error"); }
         });
     }
 
-    function setupPinScreen() {
-        document.getElementById('pin-name').innerText = user.name;
-        document.getElementById('pin-avatar').innerText = user.name[0].toUpperCase();
+    function checkAuthState() { 
+        if(currentUserKey) {
+            database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
+                if(snapshot.exists()) { db.users[currentUserKey] = snapshot.val(); saveDB(); showAppPinScreen(); } 
+                else { if(db.users[currentUserKey]) showAppPinScreen(); else logout(); }
+            }).catch(() => { if(db.users[currentUserKey]) showAppPinScreen(); else logout(); });
+        } else { switchAuthScreen('screen-login'); }
     }
 
-    function pressPin(n) {
-        if(currentPinInput.length < 4) {
-            currentPinInput += n;
-            updatePinDots();
-            if(currentPinInput.length === 4) {
-                if(currentPinInput === user.pin) startApp();
-                else { showToast("Невірний PIN!", "danger"); clearPin(); }
-            }
-        }
+    function logout() { currentUserKey = null; localStorage.removeItem('DBank_User_Key'); document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
+    function deleteAccount() { if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
+
+    function showAppPinScreen() {
+        document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.remove('active');
+        const user = getState() || {name: "Користувач"}; document.getElementById('pin-name').innerText = user.name || "Користувач"; document.getElementById('pin-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
+        currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active');
     }
 
-    function updatePinDots() {
-        const dots = document.getElementById('pin-dots').children;
-        for(let i=0; i<4; i++) dots[i].style.background = i < currentPinInput.length ? 'var(--primary)' : 'none';
+    function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
+    function deletePin() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
+    function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
+
+    function checkAppPin() {
+        const user = getState();
+        if(currentPinInput === (user.appPin || "0000")) { startApp(); } 
+        else { showToast("Невірний PIN!", "error"); currentPinInput = ""; updatePinDots(); const dotsContainer = document.getElementById('pin-dots'); dotsContainer.style.transform = "translateX(-15px)"; setTimeout(() => dotsContainer.style.transform = "translateX(15px)", 50); setTimeout(() => dotsContainer.style.transform = "translateX(-15px)", 100); setTimeout(() => dotsContainer.style.transform = "translateX(0)", 150); }
     }
 
-    function clearPin() { currentPinInput = ""; updatePinDots(); }
-
-    // --- CORE GAME ---
     function startApp() {
-        switchAuth('screen-dashboard');
-        document.getElementById('main-nav').style.display = "flex";
-        updateUI();
-        setInterval(gameTick, 1000); // Автокликер раз в секунду
+        document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
+        const user = getState();
+        if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true }; if(!user.portfolio) user.portfolio = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.history) user.history = []; if(user.clickTier === undefined) user.clickTier = 0; if(user.clickPower === undefined) user.clickPower = 0.10; if(user.clickUpgradePrice === undefined) user.clickUpgradePrice = 500; if(user.autoClicker === undefined) user.autoClicker = 0; if(user.autoUpgradePrice === undefined) user.autoUpgradePrice = 5000; if(!user.skin) user.skin = 'default'; if(!user.appPin) user.appPin = "0000"; if(!user.creditLimit) user.creditLimit = calculateCreditLimit();
+        saveDB();
+
+        const displayEmail = tempRegEmail || (currentUserKey ? currentUserKey.replace(/,/g, '.') : "");
+        document.getElementById('profile-name').innerText = user.name || "Користувач"; document.getElementById('profile-email').innerText = displayEmail; document.getElementById('dashboard-avatar').innerText = (user.name && user.name.length > 0) ? user.name.charAt(0).toUpperCase() : "👤";
+        const formattedCard = user.cardNumber ? user.cardNumber.match(/.{1,4}/g).join(' ') : "0000 0000 0000 0000"; document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + (user.cvv || "000"); document.getElementById('btn-earn').innerText = `+ Заробити ${user.clickPower.toFixed(2)} ₴`; document.getElementById('set-sounds').checked = user.settings.sounds; document.getElementById('set-notifs').checked = user.settings.notifications; document.getElementById('set-news').checked = user.settings.newsNotifications;
+        applySkin(user.skin); applyLockStatusVisually(); isPinVisible = false; document.getElementById('card-pin-display').innerText = "****"; updateBalanceDisplayQuiet(); renderHistory(); updateProfileNetWorth(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]);
     }
 
-    function gameTick() {
-        if(!user) return;
-        let changed = false;
-        
-        // Автокликер работает здесь
-        if(user.autoClicker > 0) {
-            user.balance = parseFloat((user.balance + user.autoClicker).toFixed(2));
-            changed = true;
-        }
+    function switchScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+    function switchTab(screenId, navElement = null) { switchScreen(screenId); if(navElement) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navElement.classList.add('active'); } }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
+    function toggleSetting(key) { const user = getState(); if(key === 'sounds') user.settings.sounds = document.getElementById('set-sounds').checked; if(key === 'notifications') user.settings.notifications = document.getElementById('set-notifs').checked; if(key === 'newsNotifications') user.settings.newsNotifications = document.getElementById('set-news').checked; saveDB(); }
 
-        // Рандомное событие: Налоговая
-        if(user.balance > 50000 && Math.random() < 0.005) { // Шанс раз в 200 секунд
-            openModal('tax-modal');
-        }
-
-        if(changed) {
-            updateUI();
-            saveData();
-        }
+    function updateProfileNetWorth() {
+        const user = getState(); if(!user) return; let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
+        for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
+        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
     }
 
-    function earnClick() {
-        user.balance = parseFloat((user.balance + user.clickPower).toFixed(2));
-        addExp(user.clickPower * 2);
-        updateUI();
-        saveData();
+    const flipCardInner = document.getElementById('flip-card-inner'); const flipCard = document.getElementById('flip-card');
+    function triggerFlip(direction) { if (!isFlipped) { flipCardInner.style.transform = direction === 'left' ? 'rotateY(-180deg)' : 'rotateY(180deg)'; isFlipped = true; } else { flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; isPinVisible = false; document.getElementById('card-pin-display').innerText = "****"; } }
+    flipCard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }); flipCard.addEventListener('touchend', e => { let diff = e.changedTouches[0].screenX - touchstartX; if (Math.abs(diff) > 40) triggerFlip(diff > 0 ? 'right' : 'left'); }); flipCard.addEventListener('click', e => { if(e.target.innerText === '👁') return; triggerFlip('right'); });
+    function togglePin(event) { if(event) event.stopPropagation(); isPinVisible = !isPinVisible; document.getElementById('card-pin-display').innerText = isPinVisible ? getState().pin : "****"; }
+    function openCardDetails() { switchTab('screen-card-details', document.querySelectorAll('.nav-item')[0]); flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; }
+    function toggleLockCard() { const user = getState(); user.isLocked = !user.isLocked; saveDB(); applyLockStatusVisually(); showPush("Безпека", user.isLocked ? "Картку під щитом" : "Картку розблоковано", user.isLocked ? "🔒" : "🔓"); }
+    function applyLockStatusVisually() {
+        const user = getState(); const mainShield = document.getElementById('main-iron-shield'); const detailShield = document.getElementById('detail-iron-shield'); const btnLock = document.getElementById('btn-lock');
+        if(user.isLocked) { mainShield.classList.add('active'); detailShield.classList.add('active'); btnLock.innerText = "Розблокувати картку 🔓"; btnLock.classList.remove('btn-danger'); btnLock.style.background = "var(--success)"; } 
+        else { mainShield.classList.remove('active'); detailShield.classList.remove('active'); btnLock.innerText = "Блокувати картку 🔒"; btnLock.classList.add('btn-danger'); btnLock.style.background = ""; }
     }
+    function applySkin(skinName) { document.getElementById('app-root').classList.remove('skin-gold', 'skin-neon', 'skin-glass'); if(skinName !== 'default') document.getElementById('app-root').classList.add(skinName); }
+    function buySkin(skinName, price) { const user = getState(); if(user.skin === skinName) { showToast("Вже встановлено!", "info"); return; } if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= price; user.skin = skinName; saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); showToast("Дизайн оновлено!", "success"); }
 
-    function addExp(v) {
-        user.exp += v;
-        let nextLvlExp = user.lvl * 1000;
-        if(user.exp >= nextLvlExp) {
-            user.lvl++;
-            user.exp = 0;
-            showPush("Новий рівень!", `Тепер ви LVL ${user.lvl}. Кредитний ліміт збільшено!`, "🏆");
-        }
+    function openUpgrades() { renderUpgrades(); document.getElementById('upgrades-modal').classList.add('active'); }
+    function renderUpgrades() {
+        const user = getState(); let nextClickPower = clickTiers[user.clickTier + 1] || (user.clickPower * 2); document.getElementById('upg-click-desc').innerText = `+${nextClickPower.toFixed(2)} ₴ за клік`; document.getElementById('upg-click-btn').innerText = `${user.clickUpgradePrice} ₴`;
+        let nextAuto = user.autoClicker === 0 ? 2 : user.autoClicker * 2; document.getElementById('upg-auto-desc').innerText = `+${nextAuto.toFixed(2)} ₴ кожну секунду`; document.getElementById('upg-auto-btn').innerText = `${user.autoUpgradePrice} ₴`;
     }
-
-    function updateUI() {
-        document.getElementById('dash-balance').innerText = user.balance.toLocaleString() + " ₴";
-        document.getElementById('dash-name').innerHTML = `${user.name} <span class="level-badge">LVL ${user.lvl}</span>`;
-        document.getElementById('dash-card-num').innerText = user.cardNumber;
-        document.getElementById('click-val').innerText = user.clickPower.toFixed(2);
-        document.getElementById('prof-name').innerText = user.name;
-        document.getElementById('prof-rank').innerText = `Рейтинг: LVL ${user.lvl}`;
-        
-        let progress = (user.exp / (user.lvl * 1000)) * 100;
-        document.getElementById('lvl-progress').style.width = progress + "%";
-        
-        document.getElementById('upg-click-price').innerText = `Ціна: ${user.clickPrice.toLocaleString()} ₴`;
-        document.getElementById('upg-auto-price').innerText = `Ціна: ${user.autoPrice.toLocaleString()} ₴`;
-        
-        document.getElementById('card-inner').className = "flip-card-inner " + user.skin;
-        renderHistory();
-    }
-
     function buyUpgrade(type) {
-        if(type === 'click') {
-            if(user.balance >= user.clickPrice) {
-                user.balance -= user.clickPrice;
-                user.clickPower += 0.5;
-                user.clickPrice *= 2;
-                showToast("Покращено!");
-            } else showToast("Недостатньо коштів!", "danger");
-        } else {
-            if(user.balance >= user.autoPrice) {
-                user.balance -= user.autoPrice;
-                user.autoClicker += 2;
-                user.autoPrice *= 2.5;
-                showToast("Автоклікер куплено!");
-            } else showToast("Недостатньо коштів!", "danger");
-        }
-        updateUI(); saveData();
+        const user = getState();
+        if(type === 'click') { if(user.balance < user.clickUpgradePrice) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= user.clickUpgradePrice; user.clickTier++; user.clickPower = clickTiers[user.clickTier] || (user.clickPower * 2); user.clickUpgradePrice *= 2; document.getElementById('btn-earn').innerText = `+ Заробити ${user.clickPower.toFixed(2)} ₴`; } 
+        else if (type === 'auto') { if(user.balance < user.autoUpgradePrice) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= user.autoUpgradePrice; user.autoClicker = user.autoClicker === 0 ? 2 : user.autoClicker * 2; user.autoUpgradePrice *= 2; }
+        saveDB(); updateBalanceDisplayQuiet(); renderUpgrades(); showToast("Успішна прокачка!", "success");
     }
 
-    // --- TAX LOGIC ---
-    function payTax() {
-        let tax = user.balance * 0.1;
-        user.balance -= tax;
-        showToast(`Сплачено ${tax.toFixed(0)} ₴`);
-        closeTax();
-    }
+    function earnMoney() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } getState().balance = parseFloat((getState().balance + getState().clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); }
+    function updateBalanceDisplayQuiet() { const user = getState(); const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${user.cardNumber.slice(-4)} (${formatted})`; checkTransferForm(); }
+    
+    function addTransaction(title, amount, icon) { const user = getState(); if(!user.history) user.history = []; user.history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); saveDB(); renderHistory(); }
+    function renderHistory() { const user = getState(); const container = document.getElementById('history-container'); container.innerHTML = ''; if(!user || !user.history || user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас ще немає операцій.</div>'; return; } user.history.slice(0, 15).forEach(t => { const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} ₴` : `- ${Math.abs(t.amount).toFixed(2)} ₴`; container.innerHTML += `<div class="transaction"><div class="t-left"><div class="t-icon">${t.icon}</div><div><div class="t-title">${t.title}</div><div class="t-date">${t.date}</div></div></div><div class="t-amount ${t.type}">${amountStr}</div></div>`; }); }
 
-    function tryEvadeTax() {
-        if(Math.random() > 0.5) {
-            showPush("Успіх!", "Ви змогли приховати податки", "😎");
-        } else {
-            let fine = user.balance * 0.25;
-            user.balance -= fine;
-            showPush("Провал!", `Податкова виписала штраф: ${fine.toFixed(0)} ₴`, "🚨");
-        }
-        closeTax();
-    }
+    function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
+    function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
+    function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
+    
+    function executeTransfer() {
+        const sender = getState(); if(sender.isLocked) { showToast("Картка під щитом!", "error"); return; }
+        const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value); const btn = document.getElementById('btn-transfer'); 
+        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; }
+        btn.innerText = "⏳ Обробка..."; btn.disabled = true;
+        
+        database.ref('users').once('value').then(snapshot => {
+            let allUsers = snapshot.val() || {}; let receiverKey = null;
+            for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
+            if(!receiverKey) { for(let key in db.users) { if(db.users[key].cardNumber === cardInput) { receiverKey = key; break; } } }
 
-    function closeTax() {
-        document.getElementById('tax-modal').classList.remove('active');
-        updateUI(); saveData();
-    }
-
-    function changeSkin(s) {
-        const prices = {'default': 0, 'skin-gold': 50000, 'skin-neon': 100000, 'skin-glass': 250000};
-        if(user.balance >= prices[s]) {
-            user.skin = s;
-            updateUI(); saveData();
-            showToast("Дизайн змінено!");
-        } else showToast("Недостатньо коштів!");
-    }
-
-    function saveData() {
-        if(userKey) db.ref('users/' + userKey).update(user);
-    }
-
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = "";
-        if(!user.history) user.history = [];
-        user.history.slice(-5).reverse().forEach(h => {
-            list.innerHTML += `<div class="transaction"><span>${h.title}</span><b style="color:${h.type==='plus'?'var(--success)':'var(--danger)'}">${h.amount} ₴</b></div>`;
+            sender.balance = parseFloat((sender.balance - amount).toFixed(2)); 
+            
+            if(receiverKey) {
+                let receiver = allUsers[receiverKey] || db.users[receiverKey]; if(!receiver.history) receiver.history = [];
+                receiver.balance = parseFloat((receiver.balance + amount).toFixed(2));
+                receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
+                sender.history.unshift({ icon: '💸', title: `Переказ ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                
+                db.users[receiverKey] = receiver; database.ref('users/' + receiverKey).set(receiver).catch(()=>{});
+                showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
+            } else {
+                sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸");
+            }
+            
+            saveDB(); document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
+            updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+        }).catch(err => {
+            sender.balance = parseFloat((sender.balance - amount).toFixed(2)); 
+            sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+            showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> (Офлайн)`, "💸"); saveDB();
+            document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
+            updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
         });
     }
+    
+    function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { const diff = cooldown - (now - user.lastTopUpTime); showToast(`Зачекайте ${Math.floor(diff / (1000 * 60 * 60))} год ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))} хв`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
+    function payMobile() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } const amount = parseFloat(document.getElementById('mobile-amount').value); if(!amount || amount <= 0 || amount > getState().balance) { showToast("Некоректна сума!", "error"); return; } getState().balance = parseFloat((getState().balance - amount).toFixed(2)); saveDB(); addTransaction("Мобільний", -amount, '📱'); updateBalanceDisplayQuiet(); document.getElementById('mobile-modal').classList.remove('active'); document.getElementById('mobile-amount').value = ''; showPush("Оплата", `Рахунок поповнено на <b>${amount} ₴</b>`, "📱"); }
 
-    function switchTab(id, idx) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        const navs = document.querySelectorAll('.nav-item');
-        navs.forEach(n => n.classList.remove('active'));
-        navs[idx].classList.add('active');
+    function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
+    function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
+    function renderStocks() {
+        const user = getState(); const container = document.getElementById('stocks-container'); container.innerHTML = '';
+        if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; }
+        let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket;
+        marketData.forEach(s => {
+            const currentPrice = s.hist1H[s.hist1H.length-1]; const prevPrice = s.hist1H[s.hist1H.length-2]; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; }
+            const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0;
+            container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`;
+        });
+        document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+    }
+    function setChartTab(tabId, el) { currentChartTab = tabId; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); openStockModal(currentStockId, false); }
+    function openStockModal(stockId, resetTab = false) {
+        if(resetTab) { currentChartTab = '1H'; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.chart-tab')[0].classList.add('active'); }
+        const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === stockId); const user = getState(); currentStockId = stockId; const currentPrice = stock.hist1H[stock.hist1H.length-1]; const portfolioData = user.portfolio[stockId] || {qty: 0, avgPrice: 0}; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; const step = currentMarketTab === 'crypto' ? '0.01' : '0.1'; document.getElementById('stock-qty').step = step; document.getElementById('stock-qty').min = step; if(resetTab) document.getElementById('stock-qty').value = step;
+        document.getElementById('modal-stock-icon').innerText = stock.icon; document.getElementById('modal-stock-name').innerText = stock.name; document.getElementById('modal-stock-price').innerText = currentPrice.toFixed(2) + ' ₴'; document.getElementById('modal-user-owned').innerText = qtyDisplay; drawChart(stock['hist' + currentChartTab], portfolioData.avgPrice, portfolioData.qty > 0); updateStockCalc(); document.getElementById('stock-modal').classList.add('active');
+    }
+    function drawChart(pts, avgPrice, ownsStock) {
+        const svg = document.getElementById('stock-chart-svg'); const min = Math.min(...pts) * 0.99; const max = Math.max(...pts) * 1.01; const width = 100; const height = 100; const stepX = width / (pts.length - 1); let strokeColor = '#10B981'; if (pts[pts.length-1] < pts[pts.length-2]) strokeColor = '#EF4444'; else if (pts[pts.length-1] === pts[pts.length-2]) strokeColor = '#F59E0B'; let d = `M 0 ${height - ((pts[0] - min)/(max - min) * height)}`; for(let i=1; i<pts.length; i++) { d += ` L ${i * stepX} ${height - ((pts[i] - min)/(max - min) * height)}`; } let html = `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="2" vector-effect="non-scaling-stroke"/>`; if(ownsStock && avgPrice > 0) { let yPos = height - ((avgPrice - min)/(max - min) * height); if(yPos >= 0 && yPos <= 100) { html += `<line x1="0" y1="${yPos}" x2="100" y2="${yPos}" stroke="#8792A2" stroke-width="1" stroke-dasharray="2,2" vector-effect="non-scaling-stroke"/><text x="2" y="${yPos - 2}" font-size="4" fill="#8792A2" style="font-family:sans-serif;">Куплено: ${avgPrice.toFixed(2)}</text>`; } } svg.innerHTML = html;
+    }
+    function updateStockCalc() { const qty = parseFloat(document.getElementById('stock-qty').value) || 0; const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); document.getElementById('stock-calc-total').innerText = `Разом: ${(qty * stock.hist1H[stock.hist1H.length-1]).toFixed(2)} ₴`; }
+    function executeBuyStock() {
+        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const cost = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); if(user.balance < cost) { showToast("Недостатньо коштів!", "error"); return; }
+        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; pData.avgPrice = ((pData.qty * pData.avgPrice) + cost) / (pData.qty + qty); pData.qty = parseFloat((pData.qty + qty).toFixed(2)); user.balance -= cost; user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Купівля ${qty} ${stock.name}`, -cost, '📉'); updateBalanceDisplayQuiet(); showPush("Біржа", `Куплено <b>${qty} шт.</b> ${stock.name}`, stock.icon); openStockModal(stock.id, false);
+    }
+    function executeSellStock() {
+        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const revenue = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Немає стільки активів!", "error"); return; }
+        user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModals(e) { if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('active'); }
-    function logout() { localStorage.clear(); location.reload(); }
+    function openProducts(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-products', navElement); renderProductsFull(); }
+    function renderProductsFull() {
+        const user = getState(); const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); if(user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); const cLimit = user.creditLimit; const cReturn = Math.floor(cLimit * 1.10);
+        if(user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cLimit} ₴ на 5 хвилин. Повернути треба ${cReturn} ₴. У разі несплати — повне скидання прогресу (банкрутство)!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cLimit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } renderProductsTimersOnly();
+    }
+    function renderProductsTimersOnly() {
+        const user = getState(); if(user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; }
+        if(user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; const cReturn = Math.floor(user.creditLimit * 1.10); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cReturn} ₴)</button>`; }
+    }
+    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderProductsFull(); showToast("Депозит відкрито!", "success"); }
+    function takeCredit() { const user = getState(); const cLimit = user.creditLimit; user.balance += cLimit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cLimit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cLimit} ₴. Поверніть за 5 хв!`, "🚨", true); }
+    function payCredit() { const user = getState(); const cReturn = Math.floor(user.creditLimit * 1.10); if(user.balance < cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cReturn; user.credit = { active: false }; saveDB(); addTransaction("Погашення кредиту", -cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено!", "success"); }
 
-    window.onload = () => { if(userKey) switchAuth('screen-login'); };
+    setInterval(() => {
+        let needsUpdate = false; const user = getState();
+        if(user) {
+            if(document.getElementById('screen-profile').classList.contains('active')) updateProfileNetWorth();
+            const now = Date.now();
+            if(user.deposits && user.deposits.length > 0) {
+                for(let i = user.deposits.length - 1; i >= 0; i--) {
+                    let dep = user.deposits[i];
+                    if(now >= dep.endTime) { let payout = parseFloat((dep.amount * 1.05).toFixed(2)); user.balance = parseFloat((user.balance + payout).toFixed(2)); user.history.unshift({ icon: '🌾', title: "Виплата депозиту (5%)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: payout, type: 'plus' }); showPush("Депозит закрито", `Отримано <b>${payout} ₴</b>`, "🌾"); user.deposits.splice(i, 1); needsUpdate = true; }
+                }
+            }
+            if(user.credit && user.credit.active) {
+                if(now >= user.credit.dueTime) {
+                    showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true);
+                    for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; }
+                    user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.isLocked = true;
+                    user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' });
+                    applyLockStatusVisually(); applySkin(user.skin); document.getElementById('btn-earn').innerText = `+ Заробити 0.10 ₴`;
+                    if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true;
+                }
+            }
+            if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-products').classList.contains('active')) renderProductsFull(); } 
+            else { if(document.getElementById('screen-products').classList.contains('active')) renderProductsTimersOnly(); }
+        }
+    }, 1000);
+
+    setInterval(() => {
+        if(Math.random() < 0.08 && !activeNews) { const allAssets = [...stocksMarket, ...cryptoMarket]; const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; const isGood = Math.random() < 0.5; let title = isGood ? `🚀 Прорив ${asset.name}` : `💥 Падіння ${asset.name}`; let desc = isGood ? `Активи летять у космос!` : `Стрімкий обвал ціни!`; if(db.currentUser) showPush(title, desc, asset.icon, !isGood, true); globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); if(globalNews.length > 10) globalNews.pop(); saveNews(); activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; }
+        const updateAsset = (s, isCrypto) => { let vol = isCrypto ? 0.05 : 0.005; let changePercent = (Math.random() * vol * 2) - vol; if (!isCrypto && Math.random() < 0.25) changePercent = 0; if(activeNews && activeNews.id === s.id) { changePercent = activeNews.isGood ? (Math.random() * 0.1 + 0.05) : -(Math.random() * 0.1 + 0.05); activeNews.ticksLeft--; if(activeNews.ticksLeft <= 0) activeNews = null; } let newPrice = s.hist1H[s.hist1H.length-1] * (1 + changePercent); s.hist1H.push(parseFloat(newPrice.toFixed(2))); if(s.hist1H.length > 15) s.hist1H.shift(); };
+        stocksMarket.forEach(s => updateAsset(s, false)); cryptoMarket.forEach(s => updateAsset(s, true));
+        if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks();
+        if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) openStockModal(currentStockId, false);
+    }, 5000);
+
+    window.addEventListener('load', checkAuthState);
 </script>
 
 </body>
-</html>
