@@ -151,13 +151,13 @@
     <div class="modal-overlay" id="pwa-prompt">
         <div class="modal-content" style="text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">📱</div>
-            <h3 style="margin-bottom:10px;">Встанови додаток!</h3>
+            <h3 style="margin-bottom:10px;">Встановіть додаток!</h3>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">
-                Щоб гра працювала ідеально і зберігала дані, додай її на головний екран телефону:<br><br>
-                <b>🍎 iOS:</b> Натисни «Поділитися» (квадратик зі стрілкою) ➔ «На екран Домой».<br><br>
+                Щоб гра зберігала дані та працювала коректно, її потрібно додати на головний екран:<br><br>
+                <b>🍎 iOS:</b> Натисніть «Поділитися» (квадратик зі стрілкою) ➔ «На екран Домой».<br><br>
                 <b>🤖 Android:</b> Меню браузера (3 крапки) ➔ «Встановити додаток».
             </p>
-            <button class="btn-main" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Зрозумів, від'їбись</button>
+            <button class="btn-main" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Зрозуміло</button>
         </div>
     </div>
 
@@ -190,7 +190,7 @@
         </div>
     </div>
 
-    <div id="screen-login" class="screen auth-screen active">
+    <div id="screen-login" class="screen auth-screen">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
         <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
         <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
@@ -282,7 +282,6 @@
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🌾</div><div style="font-weight:bold;">Депозит 5%</div></div>
                 <div style="font-size:12px; color:var(--text-muted);">На 5 хвилин</div>
             </div>
-            
             <div id="deposit-input-area">
                 <div class="form-group"><input type="number" id="deposit-amount" placeholder="Сума (мінімум 10 ₴)" style="width:100%;"></div>
                 <button type="button" class="btn-main" onclick="openDeposit()">Відкрити депозит</button>
@@ -339,7 +338,6 @@
                 <button class="btn-main" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.2);" onclick="buySkin('skin-glass', 250000)">Скляна — 250 000 ₴</button>
             </div>
         </div>
-
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 10px;">
             <button type="button" class="btn-main btn-danger" id="btn-lock" onclick="toggleLockCard()">Блокувати картку 🔒</button>
         </div>
@@ -466,19 +464,19 @@
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
     // ==========================================
-    // 2. БАЗА ДАНИХ (IdealBankDB - Більше не міняється)
+    // 2. БАЗА ДАНИХ (DBank_Store_FINAL - Більше не міняється)
     // ==========================================
     let db = { users: {}, currentUser: null };
     try { 
-        let saved = localStorage.getItem('IdealBankDB') || localStorage.getItem('bankDB_v14') || localStorage.getItem('bankDB_v13'); 
+        let saved = localStorage.getItem('DBank_Store_FINAL') || localStorage.getItem('IdealBankDB') || localStorage.getItem('bankDB_v14'); 
         if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
     } catch(e) {}
-    function saveDB() { try { localStorage.setItem('IdealBankDB', JSON.stringify(db)); } catch(e) {} }
+    function saveDB() { try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {} }
     function getState() { return db.users[db.currentUser]; }
 
     let globalNews = [];
-    try { let nSaved = localStorage.getItem('IdealBankNews'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
-    function saveNews() { localStorage.setItem('IdealBankNews', JSON.stringify(globalNews)); }
+    try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
+    function saveNews() { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); }
 
     // ==========================================
     // 3. ЗВУК ТА PUSH
@@ -548,6 +546,7 @@
         
         tempRegEmail = email; tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
         
+        // Сповіщення без грубощів
         showToast("Код: " + tempRegCode, "success");
         document.getElementById('push-title').innerText = "Вхідний лист"; document.getElementById('push-desc').innerHTML = `Код: <b style="color:var(--primary);">${tempRegCode}</b>`; document.getElementById('push-icon').innerText = "✉️"; document.getElementById('push-notif').classList.add('show');
         setTimeout(() => document.getElementById('push-notif').classList.remove('show'), 6000);
@@ -587,11 +586,14 @@
         } else showToast("Помилка входу!", "error");
     }
 
+    // Головна перевірка при запуску
     function checkAuthState() { 
         if(db.currentUser && db.users[db.currentUser]) {
             if(!db.users[db.currentUser].appPin) { db.users[db.currentUser].appPin = "0000"; saveDB(); }
             showAppPinScreen();
-        } else { switchAuthScreen('screen-login'); }
+        } else {
+            switchAuthScreen('screen-login');
+        }
     }
 
     function logout() { db.currentUser = null; saveDB(); document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
@@ -704,14 +706,14 @@
     
     function executeTransfer() {
         const sender = getState();
-        if(sender.isLocked) { showToast("Картка під щитом, блядь!", "error"); return; }
+        if(sender.isLocked) { showToast("Картка під щитом!", "error"); return; }
         
         const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
         const amount = parseFloat(document.getElementById('transfer-amount').value); 
         const btn = document.getElementById('btn-transfer'); 
 
         if(cardInput === sender.cardNumber) {
-            showToast("Нахуя сам собі кидаєш?", "error"); return;
+            showToast("Не можна переказати самому собі!", "error"); return;
         }
 
         btn.innerText = "⏳ Обробка..."; btn.disabled = true;
@@ -737,7 +739,9 @@
             
             saveDB(); 
             document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; 
-            updateBalanceDisplayQuiet(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+            updateBalanceDisplayQuiet(); 
+            renderHistory(); // <--- Виправлення: тепер список операцій одразу оновлюється
+            switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
         }, 800);
     }
     
