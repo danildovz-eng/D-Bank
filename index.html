@@ -217,8 +217,8 @@
             <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
             <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
             <button type="button" class="action-btn" onclick="openModal('mobile-modal')"><div class="action-icon">📱</div><div class="action-text">Мобільний</div></button>
-            <button type="button" class="action-btn" onclick="showToast('У розробці', 'info')"><div class="action-icon">📷</div><div class="action-text">Мій QR</div></button>
             <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
+            <button type="button" class="action-btn" onclick="openLeaderboard()"><div class="action-icon">🏆</div><div class="action-text">Рейтинг</div></button>
         </div>
 
         <div style="background:var(--bg-surface); padding:15px; border-radius:16px; margin-bottom:20px;">
@@ -228,6 +228,16 @@
 
         <div style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Історія операцій</div>
         <div id="history-container"></div>
+    </div>
+
+    <div id="screen-leaderboard" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
+            <div style="font-weight: 600; font-size:18px;">Топ-10 Багатіїв 🏆</div>
+            <div style="width:24px;"></div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:15px;">Рейтинг враховує баланс та вартість усіх активів</p>
+        <div id="leaderboard-container">Завантаження бази...</div>
     </div>
 
     <div id="screen-payments" class="screen">
@@ -280,9 +290,10 @@
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит готівкою</div></div>
-                <div style="font-size:12px; color:var(--danger); font-weight:bold;">Ризик!</div>
+                <div style="font-size:12px; font-weight:bold;" id="credit-rate-label">Ставка: --%</div>
             </div>
             <div id="credit-input-area">
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">Ваш рейтинг: <b id="credit-score-display" style="color:var(--success);">100</b></div>
                 <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;" id="credit-desc-text"></p>
                 <button type="button" class="btn-main" id="btn-take-credit" onclick="takeCredit()">Взяти кредит</button>
             </div>
@@ -429,23 +440,32 @@
 
     let tempRegEmail = ""; let tempRegCode = ""; let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H'; let activeNews = null; let deleteConfirm = false; let toastTimeout; let isPinVisible = false; let isFlipped = false; let touchstartX = 0; let currentPinInput = "";
     let hackInterval; let currentHackPin = "";
-    let currentUserKey = localStorage.getItem('DBank_User_Key') || null;
+
+    // SAFE STORAGE WRAPPER
+    let currentUserKey = null;
+    try { currentUserKey = localStorage.getItem('DBank_User_Key'); } catch(e) {}
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00, 1000.00];
 
     let db = { users: {} };
+    try { 
+        let saved = localStorage.getItem('DBank_Store_FINAL'); 
+        if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
+    } catch(e) {}
 
     function saveDB() {
         if(currentUserKey && db.users[currentUserKey]) {
-            localStorage.setItem('DBank_User_Key', currentUserKey);
+            try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
             try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {}
             database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{});
         }
     }
+    
     function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
 
-    let globalNews = []; try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
-    function saveNews() { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); }
+    let globalNews = []; 
+    try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
+    function saveNews() { try { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); } catch(e) {} }
 
     function calculateCreditLimit() { return 1000 + Math.floor(Math.pow(Math.random(), 3) * 70) * 100; }
     function generateRandomNum(length) { let num = ""; for(let i = 0; i < length; i++) num += Math.floor(Math.random() * 10); return num; }
@@ -510,12 +530,12 @@
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value;
         const emailKey = tempRegEmail.replace(/\./g, ',');
-        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', deposits: [], credit: {active: false}, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, prestigeMultiplier: 1, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false } };
+        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, prestigeMultiplier: 1, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false } };
         
         database.ref('users/' + emailKey).set(newUser).then(() => {
             db.users[emailKey] = newUser;
             currentUserKey = emailKey;
-            localStorage.setItem('DBank_User_Key', currentUserKey);
+            try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
             showToast("Акаунт створено!", "success");
             startApp();
         });
@@ -528,7 +548,7 @@
             if(snapshot.exists() && snapshot.val().password === pass) {
                 db.users[emailKey] = snapshot.val();
                 currentUserKey = emailKey;
-                localStorage.setItem('DBank_User_Key', currentUserKey);
+                try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
                 showAppPinScreen();
             } else {
                 showToast("Невірна пошта або пароль!", "error");
@@ -556,7 +576,11 @@
     function logout() { 
         if(currentUserKey) database.ref('users/' + currentUserKey).off('value');
         window.dbListenerAttached = false;
-        currentUserKey = null; localStorage.removeItem('DBank_User_Key'); document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); 
+        currentUserKey = null; 
+        try { localStorage.removeItem('DBank_User_Key'); } catch(e) {}
+        document.getElementById('main-nav').classList.remove('active'); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        switchAuthScreen('screen-login'); 
     }
     
     function deleteAccount() { 
@@ -572,6 +596,15 @@
     function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
     function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Невірний PIN!", "error"); currentPinInput = ""; updatePinDots(); } }
 
+    function getCreditData() {
+        const user = getState();
+        let score = user.creditScore || 100;
+        let limit = 1000 + (score * 50);
+        let interestRate = Math.max(0.05, 0.25 - (score * 0.001));
+        let cReturn = Math.floor(limit * (1 + interestRate));
+        return { limit, cReturn, rate: (interestRate * 100).toFixed(1), score };
+    }
+
     function startApp() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState();
@@ -581,10 +614,10 @@
         if(!user.credit) user.credit = { active: false };
         if(!user.portfolio) user.portfolio = {};
         if(!user.history) user.history = [];
+        if(user.creditScore === undefined) user.creditScore = 100;
         checkQuests();
         saveDB();
 
-        // СЛУШАТЕЛЬ РЕАЛЬНОГО ВРЕМЕНИ (ФИКС БАГА С ПЕРЕВОДАМИ)
         if(!window.dbListenerAttached) {
             window.dbListenerAttached = true;
             database.ref('users/' + currentUserKey).on('value', snap => {
@@ -592,14 +625,19 @@
                     let remote = snap.val();
                     let local = db.users[currentUserKey];
                     if(remote.history && (!local.history || remote.history.length > local.history.length)) {
+                        let diff = remote.history.length - (local.history ? local.history.length : 0);
                         local.balance = remote.balance;
                         local.history = remote.history;
                         updateBalanceDisplayQuiet();
                         if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory();
-                        let newTx = remote.history[0];
-                        if(newTx && newTx.type === 'plus' && newTx.icon === '💸') {
-                            showPush("Отримано переказ!", `Вам надійшло ${newTx.amount} ₴`, "💸");
-                            playSound('default');
+                        
+                        // Пушимо тільки нові транзакції
+                        for(let i=0; i < diff; i++) {
+                            let newTx = remote.history[i];
+                            if(newTx && newTx.type === 'plus' && newTx.icon === '💸') {
+                                showPush("Отримано переказ!", `Вам надійшло ${newTx.amount} ₴`, "💸");
+                                playSound('default');
+                            }
                         }
                     }
                 }
@@ -618,6 +656,38 @@
     function switchTab(screenId, navElement = null) { switchScreen(screenId); if(navElement) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navElement.classList.add('active'); } }
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
+
+    // --- LEADERBOARD --- //
+    function openLeaderboard() {
+        switchTab('screen-leaderboard', null);
+        document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; margin-top:20px; color:var(--text-muted);">Завантаження бази...</div>';
+        database.ref('users').once('value').then(snapshot => {
+            let allUsers = snapshot.val() || {};
+            let arr = [];
+            for(let key in allUsers) {
+                let u = allUsers[key];
+                let netWorth = u.balance || 0;
+                if(u.portfolio) {
+                    const allAssets = [...stocksMarket, ...cryptoMarket];
+                    for(let id in u.portfolio) {
+                        let asset = allAssets.find(a => a.id === id);
+                        if(asset && u.portfolio[id].qty > 0) netWorth += u.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1];
+                    }
+                }
+                arr.push({ name: u.name || "Анонім", nw: netWorth });
+            }
+            arr.sort((a,b) => b.nw - a.nw);
+            let html = '';
+            arr.slice(0, 10).forEach((item, idx) => {
+                let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<b>${idx+1}.</b>`;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:15px; border-radius:12px; margin-bottom:10px;">
+                    <div style="font-size:15px;">${medal} ${item.name}</div>
+                    <div style="color:var(--success); font-weight:bold;">${item.nw.toLocaleString('uk-UA', {minimumFractionDigits:2, maximumFractionDigits:2})} ₴</div>
+                </div>`;
+            });
+            document.getElementById('leaderboard-container').innerHTML = html || '<div style="text-align:center;">Немає гравців</div>';
+        }).catch(() => document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; color:var(--danger);">Помилка підключення</div>');
+    }
 
     // --- QUESTS --- //
     function checkQuests() { const user = getState(); const today = new Date().toLocaleDateString(); if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; } }
@@ -693,12 +763,12 @@
     function renderBusinesses() {
         const user = getState(); const area = document.getElementById('businesses-area'); if(!area) return;
         let count = user.businesses && user.businesses.shaurma ? user.businesses.shaurma : 0;
-        let price = 50000 * Math.pow(1.5, count); let inc = 10 * (user.prestigeMultiplier || 1);
+        let price = 500000 * Math.pow(1.5, count); let inc = 10 * (user.prestigeMultiplier || 1);
         area.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px;"><div><div><b>Ларьок з шаурмою</b> (Шт: ${count})</div><div style="font-size:12px; color:var(--success);">+${inc} ₴ / сек за кожен</div></div><button class="btn-main" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyBusiness('shaurma')">${price.toFixed(0)} ₴</button></div>`;
     }
     function buyBusiness(type) {
         const user = getState(); let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
-        let price = 50000 * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо грошей!", "error"); return; }
+        let price = 500000 * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо грошей!", "error"); return; }
         user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
         saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
     }
@@ -743,29 +813,56 @@
     function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
     function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
+    
+    // ТУТ ИСПРАВЛЕН БАГ С ПЕРЕВОДАМИ (FIREBASE TRANSACTION)
     function executeTransfer() { 
-        const sender = getState(); const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value);
+        const sender = getState(); 
+        const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
+        const amount = parseFloat(document.getElementById('transfer-amount').value);
+        const btn = document.getElementById('btn-transfer');
+
         if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; }
         
-        database.ref('users').once('value').then(snapshot => {
+        btn.innerText = "⏳ Обробка..."; btn.disabled = true;
+
+        database.ref('users').get().then(snapshot => {
             let allUsers = snapshot.val() || {}; let receiverKey = null;
             for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
             
-            sender.balance -= amount;
             if(receiverKey) {
-                let receiver = allUsers[receiverKey]; if(!receiver.history) receiver.history = [];
-                receiver.balance += amount;
-                receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
-                sender.history.unshift({ icon: '💸', title: `Переказ ${receiver.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
-                database.ref('users/' + receiverKey).set(receiver).catch(()=>{});
-                showPush("Переказ доставлено", `Отримувач: <b>${receiver.name}</b>`, "💸");
+                // Використовуємо транзакцію для безпечного зарахування без втрати даних отримувача
+                database.ref('users/' + receiverKey).transaction(function(receiver) {
+                    if (receiver) {
+                        receiver.balance = parseFloat(((receiver.balance || 0) + amount).toFixed(2));
+                        if (!receiver.history) receiver.history = [];
+                        receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' });
+                    }
+                    return receiver;
+                }).then(() => {
+                    sender.balance -= amount;
+                    sender.history.unshift({ icon: '💸', title: `Переказ ${allUsers[receiverKey].name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                    saveDB(); 
+                    document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
+                    btn.innerText = "Надіслати"; btn.disabled = false;
+                    updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                    showPush("Переказ доставлено", `Отримувач: <b>${allUsers[receiverKey].name}</b>`, "💸");
+                }).catch(() => {
+                    showToast("Помилка транзакції", "error");
+                    btn.innerText = "Надіслати"; btn.disabled = false;
+                });
             } else {
+                sender.balance -= amount;
                 sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
+                saveDB(); 
+                document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
+                btn.innerText = "Надіслати"; btn.disabled = false;
+                updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
                 showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸");
             }
-            saveDB(); document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
-            updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
-        }).catch(err => { showToast("Помилка БД", "error"); });
+        }).catch(err => { 
+            showToast("Помилка БД", "error"); 
+            btn.innerText = "Надіслати"; btn.disabled = false;
+        });
     }
     
     function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
@@ -790,20 +887,69 @@
     }
 
     function openProducts(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-products', navElement); renderProductsFull(); renderBusinesses(); }
+    
     function renderProductsFull() {
         const user = getState(); const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); 
         if(user.deposits && user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } 
-        const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); const cLimit = user.creditLimit || 1000; const cReturn = Math.floor(cLimit * 1.10);
-        if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cLimit} ₴ на 5 хвилин. Повернути треба ${cReturn} ₴. Банкрутство при несплаті!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cLimit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } renderProductsTimersOnly();
+        const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); 
+        
+        let cData = getCreditData();
+        document.getElementById('credit-score-display').innerText = cData.score;
+        document.getElementById('credit-score-display').style.color = cData.score > 80 ? 'var(--success)' : cData.score < 40 ? 'var(--danger)' : 'var(--warning)';
+        document.getElementById('credit-rate-label').innerText = `Ставка: ${cData.rate}%`;
+
+        if(user.credit && user.credit.active) { 
+            credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; 
+        } else { 
+            document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно — росте рейтинг. Несплата — банкрутство і падіння рейтингу!`; 
+            document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; 
+            credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; 
+        } 
+        renderProductsTimersOnly();
     }
+
     function renderProductsTimersOnly() {
         const user = getState(); 
         if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; }
-        if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; const cReturn = Math.floor((user.creditLimit||1000) * 1.10); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cReturn} ₴)</button>`; }
+        if(user.credit && user.credit.active) { 
+            let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; 
+            let cData = getCreditData();
+            document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cData.cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cData.cReturn} ₴)</button>`; 
+        }
     }
+    
     function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderProductsFull(); showToast("Депозит відкрито!", "success"); }
-    function takeCredit() { const user = getState(); const cLimit = user.creditLimit || 1000; user.balance += cLimit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cLimit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cLimit} ₴. Поверніть за 5 хв!`, "🚨", true); }
-    function payCredit() { const user = getState(); const cReturn = Math.floor((user.creditLimit || 1000) * 1.10); if(user.balance < cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cReturn; user.credit = { active: false }; saveDB(); addTransaction("Погашення кредиту", -cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено!", "success"); }
+    
+    function takeCredit() { 
+        const user = getState(); 
+        if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; }
+        let cData = getCreditData();
+        user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); 
+        addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); 
+    }
+    
+    function payCredit() { 
+        const user = getState(); let cData = getCreditData();
+        if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } 
+        user.balance -= cData.cReturn; user.credit = { active: false }; 
+        user.creditScore = Math.min(250, (user.creditScore || 100) + 20);
+        saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); 
+    }
+
+    setInterval(() => {
+        try {
+            const user = getState();
+            if(!user || user.isLocked) return;
+            if(user.balance > 100000) {
+                let tax = Math.floor(user.balance * 0.01);
+                user.balance -= tax;
+                saveDB();
+                addTransaction("Податок на багатство", -tax, '🏛️');
+                updateBalanceDisplayQuiet();
+                showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️");
+            }
+        } catch(e) {}
+    }, 60000);
 
     setInterval(() => {
         try {
@@ -831,6 +977,7 @@
                     showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true);
                     for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; }
                     user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true;
+                    user.creditScore = 10; // Drop rating heavily
                     user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' });
                     applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10 * mult).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`;
                     if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true;
