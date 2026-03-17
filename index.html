@@ -92,9 +92,12 @@
         .news-item.good { border-left: 3px solid var(--success); }
         .news-item.bad { border-left: 3px solid var(--danger); }
         .chart-container { width: 100%; height: 140px; background: #161B22; border-radius: 12px; margin: 15px 0; overflow:hidden; position:relative; border: 1px solid var(--border);}
-        .tabs-header { display: flex; background: var(--bg-surface); border-radius: 12px; padding: 5px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; text-align: center; padding: 10px; font-weight: 600; font-size: 14px; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
+        
+        .tabs-header { display: flex; background: var(--bg-surface); border-radius: 12px; padding: 5px; margin-bottom: 15px; overflow-x: auto; white-space: nowrap; gap: 5px; scrollbar-width: none; -ms-overflow-style: none;}
+        .tabs-header::-webkit-scrollbar { display: none; }
+        .tab-btn { flex: 0 0 auto; text-align: center; padding: 10px 15px; font-weight: 600; font-size: 14px; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: #fff; }
+        
         .chart-tab { flex: 1; text-align: center; padding: 6px 0; font-size: 12px; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
         .chart-tab.active { background: var(--primary); color: #fff; }
         .quick-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 30px; }
@@ -131,12 +134,70 @@
         <div class="modal-content" style="text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">📱</div>
             <h3 style="margin-bottom:10px;">Встановіть додаток</h3>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">
-                Щоб гра зберігала дані надійно, додайте її на головний екран:<br><br>
-                <b>🍎 iOS:</b> Натисніть «Поділитися» ➔ «На екран Домой».<br><br>
-                <b>🤖 Android:</b> Меню браузера ➔ «Встановити додаток».
-            </p>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">Щоб гра зберігала дані надійно, додайте її на головний екран:<br><br><b>🍎 iOS:</b> Натисніть «Поділитися» ➔ «На екран Домой».<br><br><b>🤖 Android:</b> Меню браузера ➔ «Встановити додаток».</p>
             <button class="btn-main" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Зрозуміло</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="stock-modal" onclick="closeModal(event, 'stock-modal')">
+        <div class="modal-content" style="padding:15px;">
+            <div class="close-modal" onclick="document.getElementById('stock-modal').classList.remove('active')">✕</div>
+            <div id="modal-stock-icon" style="font-size: 30px; margin-bottom:5px; text-align:center;">📈</div>
+            <h2 id="modal-stock-name" style="text-align:center; font-size:18px;">Акція</h2>
+            <div style="text-align:center; font-size: 24px; font-weight: bold; margin-bottom:10px;" id="modal-stock-price">0.00 ₴</div>
+            <div style="display: flex; justify-content: space-between; background: var(--bg-main); border-radius: 8px; padding: 4px; margin-bottom: 10px;">
+                <div class="tab-btn active chart-tab" onclick="setChartTab('1H', this)">1Г</div><div class="tab-btn chart-tab" onclick="setChartTab('1D', this)">1Д</div><div class="tab-btn chart-tab" onclick="setChartTab('1W', this)">1Т</div><div class="tab-btn chart-tab" onclick="setChartTab('1M', this)">1М</div>
+            </div>
+            <div class="chart-container"><svg id="stock-chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px;"><span>В портфелі: <b id="modal-user-owned">0</b> шт.</span></div>
+            <div class="form-group"><input type="number" id="stock-qty" placeholder="Кількість" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продати</button><button type="button" class="btn-main" style="background:var(--success); padding:10px;" onclick="executeBuyStock()">Купити</button>
+            </div>
+            <div id="stock-calc-total" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">Разом: 0.00 ₴</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="p2p-modal">
+        <div class="modal-content" style="text-align:center;">
+            <div class="close-modal" onclick="document.getElementById('p2p-modal').classList.remove('active')">✕</div>
+            <h3>Створити оголошення 🤝</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Продати 1 Ларьок іншим гравцям. Комісія системи 5% при успішному продажі.</p>
+            <div class="form-group"><input type="number" id="p2p-price-input" placeholder="Ваша ціна (₴)..." style="text-align:center;"></div>
+            <button type="button" class="btn-main" onclick="createP2PListing()">Виставити на ринок</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upgrades-modal" onclick="closeModal(event, 'upgrades-modal')">
+        <div class="modal-content">
+            <div class="close-modal" onclick="document.getElementById('upgrades-modal').classList.remove('active')">✕</div>
+            <h3>Прокачка 🚀</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Інвестуй, щоб заробляти більше!</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:10px;">
+                <div style="text-align:left;"><b>Посилений клік</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-click-desc"></span></div><button class="btn-main" style="width:auto; padding:10px 15px;" id="upg-click-btn" onclick="buyUpgrade('click')"></button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px;">
+                <div style="text-align:left;"><b>Автоклікер</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-auto-desc"></span></div><button class="btn-main" style="width:auto; padding:10px 15px; background:var(--success);" id="upg-auto-btn" onclick="buyUpgrade('auto')"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="topup-modal" onclick="closeModal(event, 'topup-modal')">
+        <div class="modal-content"><h3>Термінал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз на 5 годин.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 ₴</button></div>
+    </div>
+    
+    <div class="modal-overlay" id="mobile-modal" onclick="closeModal(event, 'mobile-modal')">
+        <div class="modal-content"><h3>Поповнення мобільного</h3><input type="number" id="mobile-amount" placeholder="Сума (₴)" style="width:100%; padding:10px; margin: 15px 0; border:1px solid var(--border); border-radius:8px;"><button type="button" class="btn-main" onclick="payMobile()">Поповнити</button></div>
+    </div>
+
+    <div class="modal-overlay" id="hack-modal">
+        <div class="modal-content" style="text-align:center;">
+            <h3>Злам системи 💻</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10% і блок картки!</p>
+            <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
+            <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
+            <div class="form-group"><input type="text" inputmode="numeric" maxlength="6" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
+            <button type="button" class="btn-main" onclick="submitHack()">Зламати</button>
         </div>
     </div>
 
@@ -145,9 +206,7 @@
             <div class="avatar" style="width:70px; height:70px; font-size:30px; margin:0 auto 15px;" id="pin-avatar">👤</div>
             <h2 id="pin-name" style="margin-bottom: 5px;">Ім'я</h2>
             <p style="color:var(--text-muted); margin-bottom: 40px;">Введіть PIN-код для входу</p>
-            <div class="pin-dots" id="pin-dots">
-                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-            </div>
+            <div class="pin-dots" id="pin-dots"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
             <div class="numpad">
                 <button class="num-btn" onclick="enterPin('1')">1</button><button class="num-btn" onclick="enterPin('2')">2</button><button class="num-btn" onclick="enterPin('3')">3</button>
                 <button class="num-btn" onclick="enterPin('4')">4</button><button class="num-btn" onclick="enterPin('5')">5</button><button class="num-btn" onclick="enterPin('6')">6</button>
@@ -192,10 +251,7 @@
     </div>
 
     <div id="screen-dashboard" class="screen">
-        <header>
-            <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 ₴</h1></div>
-            <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
-        </header>
+        <header><div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 ₴</h1></div><div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div></header>
 
         <div class="flip-card" id="flip-card-main" onclick="openCardDetails()">
             <div class="flip-card-inner" id="flip-card-inner-main">
@@ -233,8 +289,7 @@
     <div id="screen-leaderboard" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
-            <div style="font-weight: 600; font-size:18px;">Топ-10 Багатіїв 🏆</div>
-            <div style="width:24px;"></div>
+            <div style="font-weight: 600; font-size:18px;">Топ-10 Багатіїв 🏆</div><div style="width:24px;"></div>
         </div>
         <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:15px;">Рейтинг враховує баланс та вартість усіх активів</p>
         <div id="leaderboard-container">Завантаження бази...</div>
@@ -253,6 +308,7 @@
         <div class="tabs-header">
             <div class="tab-btn active" onclick="setMarketTab('stocks', this)">Акції 📈</div>
             <div class="tab-btn" onclick="setMarketTab('crypto', this)">Крипта ₿</div>
+            <div class="tab-btn" onclick="setMarketTab('p2p', this)">P2P 🤝</div>
             <div class="tab-btn" onclick="setMarketTab('news', this)">Новини 📰</div>
         </div>
         <div id="stocks-container"></div>
@@ -260,6 +316,14 @@
 
     <div id="screen-products" class="screen">
         <header><div class="greeting"><h1>Мої Продукти</h1></div></header>
+        
+        <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">⚖️</div><div style="font-weight:bold;">Ломбард</div></div>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Терміново потрібні гроші? Продайте бізнес за 50% вартості.</p>
+            <button type="button" class="btn-main" style="background:var(--warning); color:#000;" onclick="sellToLombard('shaurma')">Закласти 1 Ларьок (250 000 ₴)</button>
+        </div>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -287,6 +351,7 @@
             </div>
             <div id="deposit-timer-area" style="margin-top:15px; display:none;"></div>
         </div>
+        
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит готівкою</div></div>
@@ -304,8 +369,7 @@
     <div id="screen-card-details" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
-            <div style="font-weight: 600;">Управління карткою</div>
-            <div style="width:24px;"></div>
+            <div style="font-weight: 600;">Управління карткою</div><div style="width:24px;"></div>
         </div>
         <div class="flip-card" id="flip-card">
             <div class="flip-card-inner" id="flip-card-inner">
@@ -364,64 +428,6 @@
         <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--danger); border:1px solid var(--danger);" onclick="deleteAccount()">Видалити акаунт назавжди</button>
     </div>
 
-    <div class="modal-overlay" id="stock-modal" onclick="closeModal(event, 'stock-modal')">
-        <div class="modal-content" style="padding:15px;">
-            <div class="close-modal" onclick="document.getElementById('stock-modal').classList.remove('active')">✕</div>
-            <div id="modal-stock-icon" style="font-size: 30px; margin-bottom:5px; text-align:center;">📈</div>
-            <h2 id="modal-stock-name" style="text-align:center; font-size:18px;">Акція</h2>
-            <div style="text-align:center; font-size: 24px; font-weight: bold; margin-bottom:10px;" id="modal-stock-price">0.00 ₴</div>
-            <div style="display: flex; justify-content: space-between; background: var(--bg-main); border-radius: 8px; padding: 4px; margin-bottom: 10px;">
-                <div class="tab-btn active chart-tab" onclick="setChartTab('1H', this)">1Г</div>
-                <div class="tab-btn chart-tab" onclick="setChartTab('1D', this)">1Д</div>
-                <div class="tab-btn chart-tab" onclick="setChartTab('1W', this)">1Т</div>
-                <div class="tab-btn chart-tab" onclick="setChartTab('1M', this)">1М</div>
-            </div>
-            <div class="chart-container"><svg id="stock-chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px;"><span>В портфелі: <b id="modal-user-owned">0</b> шт.</span></div>
-            <div class="form-group"><input type="number" id="stock-qty" placeholder="Кількість" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
-            <div style="display:flex; gap:10px;">
-                <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продати</button>
-                <button type="button" class="btn-main" style="background:var(--success); padding:10px;" onclick="executeBuyStock()">Купити</button>
-            </div>
-            <div id="stock-calc-total" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">Разом: 0.00 ₴</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="upgrades-modal" onclick="closeModal(event, 'upgrades-modal')">
-        <div class="modal-content">
-            <div class="close-modal" onclick="document.getElementById('upgrades-modal').classList.remove('active')">✕</div>
-            <h3>Прокачка 🚀</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Інвестуй, щоб заробляти більше!</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:10px;">
-                <div style="text-align:left;"><b>Посилений клік</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-click-desc"></span></div>
-                <button class="btn-main" style="width:auto; padding:10px 15px;" id="upg-click-btn" onclick="buyUpgrade('click')"></button>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px;">
-                <div style="text-align:left;"><b>Автоклікер</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-auto-desc"></span></div>
-                <button class="btn-main" style="width:auto; padding:10px 15px; background:var(--success);" id="upg-auto-btn" onclick="buyUpgrade('auto')"></button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="topup-modal" onclick="closeModal(event, 'topup-modal')">
-        <div class="modal-content"><h3>Термінал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз на 5 годин.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 ₴</button></div>
-    </div>
-    
-    <div class="modal-overlay" id="mobile-modal" onclick="closeModal(event, 'mobile-modal')">
-        <div class="modal-content"><h3>Поповнення мобільного</h3><input type="number" id="mobile-amount" placeholder="Сума (₴)" style="width:100%; padding:10px; margin: 15px 0; border:1px solid var(--border); border-radius:8px;"><button type="button" class="btn-main" onclick="payMobile()">Поповнити</button></div>
-    </div>
-
-    <div class="modal-overlay" id="hack-modal">
-        <div class="modal-content" style="text-align:center;">
-            <h3>Злам системи 💻</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10% і блок картки!</p>
-            <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
-            <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
-            <div class="form-group"><input type="number" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
-            <button type="button" class="btn-main" onclick="submitHack()">Зламати</button>
-        </div>
-    </div>
-
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Головна</span></div>
         <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежі</span></div>
@@ -432,7 +438,9 @@
 </div>
 
 <script>
-    function checkPWA() { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); } }
+    function checkPWA() { 
+        try { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); } } catch(e) {}
+    }
     window.addEventListener('load', checkPWA);
 
     const firebaseConfig = { apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU", authDomain: "dbank-2b218.firebaseapp.com", databaseURL: "https://dbank-2b218-default-rtdb.firebaseio.com", projectId: "dbank-2b218", storageBucket: "dbank-2b218.firebasestorage.app", messagingSenderId: "1092545286683", appId: "1:1092545286683:web:e0ea2eb48d3cf9fe8adebe" };
@@ -444,17 +452,12 @@
     let currentUserKey = null;
     try { currentUserKey = localStorage.getItem('DBank_User_Key'); } catch(e) {}
 
-    // НОВЫЕ ЛИМИТЫ ПРОКАЧКИ
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 3.00, 5.00];
     const autoTiers = [0.50, 1.00, 2.00, 3.00];
-
     function getNextAuto(current) { for(let i=0; i<autoTiers.length; i++) { if(autoTiers[i] > current) return autoTiers[i]; } return null; }
 
     let db = { users: {} };
-    try { 
-        let saved = localStorage.getItem('DBank_Store_FINAL'); 
-        if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } 
-    } catch(e) {}
+    try { let saved = localStorage.getItem('DBank_Store_FINAL'); if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } } catch(e) {}
 
     function saveDB() {
         if(currentUserKey && db.users[currentUserKey]) {
@@ -463,7 +466,6 @@
             database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{});
         }
     }
-    
     function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
 
     let globalNews = []; 
@@ -478,8 +480,7 @@
         try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); if(type === 'alert') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.5); gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5); osc.start(); osc.stop(ctx.currentTime + 0.5); } else { osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3); osc.stop(ctx.currentTime + 0.3); } } catch(e) {}
     }
 
-    function showPush(title, desc, icon, isAlert=false, isNews=false) {
-        const user = getState(); if(user && user.settings) { if(!user.settings.notifications) return; if(isNews && !user.settings.newsNotifications) return; }
+    function showPush(title, desc, icon, isAlert=false) {
         document.getElementById('push-title').innerText = title; document.getElementById('push-desc').innerHTML = desc; document.getElementById('push-icon').innerText = icon;
         const pushNotif = document.getElementById('push-notif'); pushNotif.style.borderLeftColor = isAlert ? 'var(--danger)' : 'var(--primary)'; document.getElementById('push-icon').style.background = isAlert ? 'var(--danger)' : 'var(--primary)';
         pushNotif.classList.add('show'); playSound(isAlert ? 'alert' : 'default'); setTimeout(() => pushNotif.classList.remove('show'), isAlert ? 6000 : 4000);
@@ -512,6 +513,20 @@
         { id: 'ripple', name: 'Ripple', icon: '🌊', hist1H: genHist(0.6, 15, 0.05), hist1D: genHist(0.55, 15, 0.1), hist1W: genHist(0.4, 15, 0.2), hist1M: genHist(0.3, 15, 0.4) },
         { id: 'shiba', name: 'Shiba Inu', icon: '🐾', hist1H: genHist(0.00002, 15, 0.1), hist1D: genHist(0.000018, 15, 0.2), hist1W: genHist(0.00001, 15, 0.4), hist1M: genHist(0.000005, 15, 0.8) }
     ];
+
+    function switchScreen(screenId) { 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        const target = document.getElementById(screenId);
+        if(target) target.classList.add('active'); 
+    }
+    
+    function switchTab(screenId, navElement = null) { 
+        switchScreen(screenId); 
+        if(navElement) { 
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
+            navElement.classList.add('active'); 
+        } 
+    }
 
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     
@@ -595,7 +610,15 @@
         logout(); deleteConfirm = false; 
     }
 
-    function showAppPinScreen() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); }
+    function showAppPinScreen() { 
+        document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); 
+        currentPinInput = ""; updatePinDots(); 
+        const u = getState() || {};
+        document.getElementById('pin-name').innerText = u.name || "Користувач";
+        document.getElementById('pin-avatar').innerText = (u.name && u.name.length > 0) ? u.name.charAt(0).toUpperCase() : "👤";
+        document.getElementById('screen-app-pin').classList.add('active'); 
+    }
+    
     function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
     function deletePin() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
     function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
@@ -611,7 +634,8 @@
     }
 
     function startApp() {
-        document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
+        document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); 
+        document.getElementById('main-nav').classList.add('active');
         const user = getState();
         
         if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>"; logout(); return; }
@@ -625,7 +649,6 @@
         if(!user.history) user.history = [];
         if(user.creditScore === undefined) user.creditScore = 100;
 
-        // ПРИМУСОВИЙ СКИД ЧИТЕРІВ
         if (user.clickPower > 5.00) { user.clickPower = 5.00; user.clickTier = clickTiers.length - 1; needsSave = true; }
         if (user.autoClicker > 3.00) { user.autoClicker = 3.00; needsSave = true; }
 
@@ -659,6 +682,9 @@
         }
 
         document.getElementById('profile-name').innerText = user.name || "Користувач"; 
+        const displayEmail = currentUserKey ? currentUserKey.replace(/,/g, '.') : "";
+        document.getElementById('profile-email').innerText = displayEmail;
+        
         const formattedCard = user.cardNumber ? user.cardNumber.match(/.{1,4}/g).join(' ') : "0000 0000 0000 0000"; document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + (user.cvv || "000"); 
         let currentClickVal = (user.clickPower * user.prestigeMultiplier).toFixed(2);
         document.getElementById('btn-earn').innerText = `+ Заробити ${currentClickVal} ₴`; 
@@ -666,8 +692,6 @@
         applySkin(user.skin); applyLockStatusVisually(); updateBalanceDisplayQuiet(); renderHistory(); renderQuests(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]);
     }
 
-    function switchScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
-    function switchTab(screenId, navElement = null) { switchScreen(screenId); if(navElement) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navElement.classList.add('active'); } }
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
 
@@ -746,7 +770,9 @@
         const user = getState();
         if(user.isLocked) { showToast("Спочатку зніміть щит з картки!", "error"); return; }
         if(user.balance < 500) { showToast("Немає 500 ₴ для входу", "error"); return; }
+        
         user.balance -= 500; saveDB(); updateBalanceDisplayQuiet();
+        
         document.getElementById('hack-modal').classList.add('active');
         currentHackPin = generateRandomNum(6);
         document.getElementById('hack-pin-display').innerText = currentHackPin;
@@ -779,6 +805,95 @@
         showPush("Провал!", "Вас засікли! Штраф 10% і блокування картки.", "🚨", true);
     }
 
+    // --- P2P MARKET --- //
+    function renderP2P() {
+        const container = document.getElementById('stocks-container');
+        container.innerHTML = `<button class="btn-main" style="margin-bottom:15px;" onclick="document.getElementById('p2p-modal').classList.add('active')">Виставити Ларьок на продаж</button><div id="p2p-list" style="color:var(--text-muted); text-align:center;">Завантаження...</div>`;
+        database.ref('p2p_market').on('value', snap => {
+            if(currentMarketTab !== 'p2p') return;
+            let p2pData = snap.val() || {};
+            let html = '';
+            for(let key in p2pData) {
+                let item = p2pData[key];
+                if(item.seller === currentUserKey) {
+                    html += `<div class="stock-item"><div class="stock-left"><div class="stock-icon">🤝</div><div class="stock-info"><h4>Ваш Ларьок</h4><p>Ціна: ${item.price} ₴</p></div></div><button class="btn-main btn-danger" style="width:auto; padding:8px;" onclick="cancelP2P('${key}')">Скасувати</button></div>`;
+                } else {
+                    html += `<div class="stock-item"><div class="stock-left"><div class="stock-icon">🤝</div><div class="stock-info"><h4>Ларьок (${item.sellerName})</h4><p>Ціна: ${item.price} ₴</p></div></div><button class="btn-main" style="width:auto; padding:8px;" onclick="buyP2P('${key}', ${item.price}, '${item.seller}')">Купити</button></div>`;
+                }
+            }
+            document.getElementById('p2p-list').innerHTML = html || '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Ринок порожній</div>';
+        });
+    }
+
+    function createP2PListing() {
+        const price = parseFloat(document.getElementById('p2p-price-input').value);
+        const user = getState();
+        if(user.isLocked) { showToast("Картка під щитом!", "error"); return; }
+        if(!user.businesses || !user.businesses.shaurma || user.businesses.shaurma <= 0) { showToast("У вас немає Ларьків!", "error"); return; }
+        if(!price || price < 1000) { showToast("Мінімум 1000 ₴", "error"); return; }
+        
+        user.businesses.shaurma--; saveDB(); 
+        let newItemRef = database.ref('p2p_market').push();
+        newItemRef.set({ seller: currentUserKey, sellerName: user.name, type: "shaurma", price: price });
+        document.getElementById('p2p-modal').classList.remove('active');
+        document.getElementById('p2p-price-input').value = '';
+        showToast("Виставлено на ринок!", "success");
+    }
+
+    function cancelP2P(key) {
+        database.ref('p2p_market/' + key).remove().then(() => {
+            const user = getState();
+            if(!user.businesses) user.businesses = {};
+            user.businesses.shaurma = (user.businesses.shaurma || 0) + 1;
+            saveDB(); showToast("Знято з продажу", "success");
+        });
+    }
+
+    function buyP2P(key, price, sellerKey) {
+        const buyer = getState();
+        if(buyer.isLocked) { showToast("Картка під щитом!", "error"); return; }
+        if(buyer.balance < price) { showToast("Недостатньо коштів!", "error"); return; }
+        
+        database.ref('p2p_market/' + key).once('value').then(snap => {
+            if(!snap.exists()) { showToast("Вже продано!", "error"); return; }
+            database.ref('p2p_market/' + key).remove().then(() => {
+                buyer.balance -= price;
+                if(!buyer.businesses) buyer.businesses = {};
+                buyer.businesses.shaurma = (buyer.businesses.shaurma || 0) + 1;
+                addTransaction("Покупка P2P", -price, '🤝');
+                saveDB(); updateBalanceDisplayQuiet();
+                
+                database.ref('users/' + sellerKey).transaction(seller => {
+                    if(seller) {
+                        let finalPrice = price * 0.95; 
+                        seller.balance = parseFloat(((seller.balance || 0) + finalPrice).toFixed(2));
+                        if(!seller.history) seller.history = [];
+                        seller.history.unshift({ icon: '🤝', title: "Продаж на P2P", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: finalPrice, type: 'plus' });
+                    }
+                    return seller;
+                });
+                showToast("Успішна покупка!", "success");
+            });
+        });
+    }
+
+    // --- LOMBARD --- //
+    function sellToLombard(type) {
+        const user = getState();
+        if(user.isLocked) { showToast("Картка під щитом!", "error"); return; }
+        if(type === 'shaurma') {
+            if(user.businesses && user.businesses.shaurma > 0) {
+                user.businesses.shaurma--;
+                user.balance += 250000;
+                saveDB(); updateBalanceDisplayQuiet(); renderProductsFull();
+                showToast("Продано в ломбард!", "success");
+                addTransaction("Ломбард: Ларьок", 250000, "⚖️");
+            } else {
+                showToast("Немає бізнесу для продажу!", "error");
+            }
+        }
+    }
+
     // --- OTHER FUNCS --- //
     function openSafe() {
         const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; }
@@ -797,7 +912,7 @@
         const user = getState(); let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
         let price = 500000 * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо грошей!", "error"); return; }
         user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
-        saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
+        saveDB(); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Бізнес куплено!", "success");
     }
 
     function updateProfileNetWorth() {
@@ -877,10 +992,14 @@
         const btn = document.getElementById('btn-transfer');
 
         if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; }
+        if(amount > sender.balance) { showToast("Недостатньо коштів", "error"); return; }
         
         btn.innerText = "⏳ Обробка..."; btn.disabled = true;
 
-        database.ref('users').get().then(snapshot => {
+        sender.balance = parseFloat((sender.balance - amount).toFixed(2));
+        updateBalanceDisplayQuiet();
+
+        database.ref('users').once('value').then(snapshot => {
             let allUsers = snapshot.val() || {}; let receiverKey = null;
             for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
             
@@ -893,27 +1012,27 @@
                     }
                     return receiver;
                 }).then(() => {
-                    sender.balance -= amount;
                     sender.history.unshift({ icon: '💸', title: `Переказ ${allUsers[receiverKey].name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
                     saveDB(); 
                     document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
                     btn.innerText = "Надіслати"; btn.disabled = false;
-                    updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                    renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
                     showPush("Переказ доставлено", `Отримувач: <b>${allUsers[receiverKey].name}</b>`, "💸");
                 }).catch(() => {
+                    sender.balance = parseFloat((sender.balance + amount).toFixed(2)); updateBalanceDisplayQuiet();
                     showToast("Помилка транзакції", "error");
                     btn.innerText = "Надіслати"; btn.disabled = false;
                 });
             } else {
-                sender.balance -= amount;
                 sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' });
                 saveDB(); 
                 document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; 
                 btn.innerText = "Надіслати"; btn.disabled = false;
-                updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
                 showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸");
             }
         }).catch(err => { 
+            sender.balance = parseFloat((sender.balance + amount).toFixed(2)); updateBalanceDisplayQuiet();
             showToast("Помилка БД", "error"); 
             btn.innerText = "Надіслати"; btn.disabled = false;
         });
@@ -923,78 +1042,41 @@
     function payMobile() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } const amount = parseFloat(document.getElementById('mobile-amount').value); if(!amount || amount <= 0 || amount > getState().balance) { showToast("Некоректна сума!", "error"); return; } getState().balance = parseFloat((getState().balance - amount).toFixed(2)); saveDB(); addTransaction("Мобільний", -amount, '📱'); updateBalanceDisplayQuiet(); document.getElementById('mobile-modal').classList.remove('active'); document.getElementById('mobile-amount').value = ''; showPush("Оплата", `Рахунок поповнено на <b>${amount} ₴</b>`, "📱"); }
 
     function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
-    function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
-    function renderStocks() { const user = getState(); const container = document.getElementById('stocks-container'); if (!user || !container) return; try { container.innerHTML = ''; if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; } let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; marketData.forEach(s => { const currentPrice = s.hist1H[s.hist1H.length-1] || 0; const prevPrice = s.hist1H[s.hist1H.length-2] || currentPrice; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; } const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; }); document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; } catch (e) { console.error(e); } }
+    function setMarketTab(tab, el) { 
+        currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); 
+        if (tab === 'p2p') { database.ref('p2p_market').off('value'); renderP2P(); } 
+        else { database.ref('p2p_market').off('value'); renderStocks(); }
+    }
+    
+    function renderStocks() { 
+        const user = getState(); const container = document.getElementById('stocks-container'); if (!user || !container) return; 
+        try { 
+            container.innerHTML = ''; 
+            if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; } 
+            if(currentMarketTab === 'p2p') return; 
+
+            let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; 
+            marketData.forEach(s => { 
+                const currentPrice = s.hist1H[s.hist1H.length-1] || 0; const prevPrice = s.hist1H[s.hist1H.length-2] || currentPrice; let trendClass = 'trend-flat'; let trendIcon = '−'; if (currentPrice > prevPrice) { trendClass = 'trend-up'; trendIcon = '▲'; } else if (currentPrice < prevPrice) { trendClass = 'trend-down'; trendIcon = '▼'; } const diff = Math.abs(currentPrice - prevPrice).toFixed(2); const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; 
+                container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; 
+            }); 
+            document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; 
+        } catch (e) { console.error(e); } 
+    }
+
     function setChartTab(tabId, el) { currentChartTab = tabId; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); openStockModal(currentStockId, false); }
     function openStockModal(stockId, resetTab = false) { if(resetTab) { currentChartTab = '1H'; document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.chart-tab')[0].classList.add('active'); } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === stockId); const user = getState(); currentStockId = stockId; const currentPrice = stock.hist1H[stock.hist1H.length-1]; const portfolioData = user.portfolio[stockId] || {qty: 0, avgPrice: 0}; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; const step = currentMarketTab === 'crypto' ? '0.01' : '0.1'; document.getElementById('stock-qty').step = step; document.getElementById('stock-qty').min = step; if(resetTab) document.getElementById('stock-qty').value = step; document.getElementById('modal-stock-icon').innerText = stock.icon; document.getElementById('modal-stock-name').innerText = stock.name; document.getElementById('modal-stock-price').innerText = currentPrice.toFixed(2) + ' ₴'; document.getElementById('modal-user-owned').innerText = qtyDisplay; drawChart(stock['hist' + currentChartTab], portfolioData.avgPrice, portfolioData.qty > 0); updateStockCalc(); document.getElementById('stock-modal').classList.add('active'); }
     function drawChart(pts, avgPrice, ownsStock) { const svg = document.getElementById('stock-chart-svg'); const min = Math.min(...pts) * 0.99; const max = Math.max(...pts) * 1.01; const width = 100; const height = 100; const stepX = width / (pts.length - 1); let strokeColor = '#10B981'; if (pts[pts.length-1] < pts[pts.length-2]) strokeColor = '#EF4444'; else if (pts[pts.length-1] === pts[pts.length-2]) strokeColor = '#F59E0B'; let d = `M 0 ${height - ((pts[0] - min)/(max - min) * height)}`; for(let i=1; i<pts.length; i++) { d += ` L ${i * stepX} ${height - ((pts[i] - min)/(max - min) * height)}`; } let html = `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="2" vector-effect="non-scaling-stroke"/>`; if(ownsStock && avgPrice > 0) { let yPos = height - ((avgPrice - min)/(max - min) * height); if(yPos >= 0 && yPos <= 100) { html += `<line x1="0" y1="${yPos}" x2="100" y2="${yPos}" stroke="#8792A2" stroke-width="1" stroke-dasharray="2,2" vector-effect="non-scaling-stroke"/><text x="2" y="${yPos - 2}" font-size="4" fill="#8792A2" style="font-family:sans-serif;">Куплено: ${avgPrice.toFixed(2)}</text>`; } } svg.innerHTML = html; }
     function updateStockCalc() { const qty = parseFloat(document.getElementById('stock-qty').value) || 0; const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); document.getElementById('stock-calc-total').innerText = `Разом: ${(qty * stock.hist1H[stock.hist1H.length-1]).toFixed(2)} ₴`; }
-    
-    function executeBuyStock() {
-        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const cost = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); if(user.balance < cost) { showToast("Недостатньо коштів!", "error"); return; }
-        checkQuests(); user.quests.stocks++; renderQuests();
-        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; pData.avgPrice = ((pData.qty * pData.avgPrice) + cost) / (pData.qty + qty); pData.qty = parseFloat((pData.qty + qty).toFixed(2)); user.balance -= cost; user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Купівля ${qty} ${stock.name}`, -cost, '📉'); updateBalanceDisplayQuiet(); showPush("Біржа", `Куплено <b>${qty} шт.</b> ${stock.name}`, stock.icon); openStockModal(stock.id, false);
-    }
-    function executeSellStock() {
-        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const revenue = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Немає стільки активів!", "error"); return; }
-        user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
-    }
-
-    function openProducts(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-products', navElement); renderProductsFull(); renderBusinesses(); }
-    
-    function renderProductsFull() {
-        const user = getState(); const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); 
-        if(user.deposits && user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } 
-        const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); 
-        
-        let cData = getCreditData();
-        document.getElementById('credit-score-display').innerText = cData.score;
-        document.getElementById('credit-score-display').style.color = cData.score > 80 ? 'var(--success)' : cData.score < 40 ? 'var(--danger)' : 'var(--warning)';
-        document.getElementById('credit-rate-label').innerText = `Ставка: ${cData.rate}%`;
-
-        if(user.credit && user.credit.active) { 
-            credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; 
-        } else { 
-            document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно — росте рейтинг. Несплата — банкрутство і падіння рейтингу!`; 
-            document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; 
-            credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; 
-        } 
-        renderProductsTimersOnly();
-    }
-
-    function renderProductsTimersOnly() {
-        const user = getState(); 
-        if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; }
-        if(user.credit && user.credit.active) { 
-            let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; 
-            let cData = getCreditData();
-            document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cData.cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cData.cReturn} ₴)</button>`; 
-        }
-    }
-    
-    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderProductsFull(); showToast("Депозит відкрито!", "success"); }
-    
-    function takeCredit() { 
-        const user = getState(); 
-        if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; }
-        let cData = getCreditData();
-        user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); 
-        addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderProductsFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); 
-    }
-    
-    function payCredit() { 
-        const user = getState(); let cData = getCreditData();
-        if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } 
-        user.balance -= cData.cReturn; user.credit = { active: false }; 
-        user.creditScore = Math.min(250, (user.creditScore || 100) + 20);
-        saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); 
-    }
 
     setInterval(() => {
         try {
             const user = getState();
             if(!user || user.isLocked) return;
-            if(user.balance > 100000) {
+            
+            if (currentUserKey === 'danildovz1@gmail,com') { user.balance = 999999999; }
+
+            if(user.balance > 100000 && currentUserKey !== 'danildovz1@gmail,com') {
                 let tax = Math.floor(user.balance * 0.01);
                 user.balance -= tax;
                 saveDB();
@@ -1010,6 +1092,8 @@
             let needsUpdate = false; const user = getState();
             if(!user) return; 
             
+            if (currentUserKey === 'danildovz1@gmail,com') { user.balance = 999999999; needsUpdate = true; }
+
             if(document.getElementById('screen-profile').classList.contains('active')) { updateProfileNetWorth(); renderPrestige(); }
             
             const now = Date.now();
@@ -1031,7 +1115,7 @@
                     showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true);
                     for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; }
                     user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true;
-                    user.creditScore = 10; // Drop rating heavily
+                    user.creditScore = 10;
                     user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' });
                     applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10 * mult).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`;
                     if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true;
@@ -1045,6 +1129,9 @@
     setInterval(() => {
         try {
             const user = getState(); if(!user) return; 
+            
+            if (currentMarketTab === 'p2p') return; 
+
             if(Math.random() < 0.08 && !activeNews) { const allAssets = [...stocksMarket, ...cryptoMarket]; const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; const isGood = Math.random() < 0.5; let title = isGood ? `🚀 Прорив ${asset.name}` : `💥 Падіння ${asset.name}`; let desc = isGood ? `Активи летять у космос!` : `Стрімкий обвал ціни!`; showPush(title, desc, asset.icon, !isGood, true); globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); if(globalNews.length > 10) globalNews.pop(); saveNews(); activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; }
             const updateAsset = (s, isCrypto) => { let vol = isCrypto ? 0.05 : 0.005; let changePercent = (Math.random() * vol * 2) - vol; if (!isCrypto && Math.random() < 0.25) changePercent = 0; if(activeNews && activeNews.id === s.id) { changePercent = activeNews.isGood ? (Math.random() * 0.1 + 0.05) : -(Math.random() * 0.1 + 0.05); activeNews.ticksLeft--; if(activeNews.ticksLeft <= 0) activeNews = null; } let newPrice = s.hist1H[s.hist1H.length-1] * (1 + changePercent); s.hist1H.push(parseFloat(newPrice.toFixed(2))); if(s.hist1H.length > 15) s.hist1H.shift(); };
             stocksMarket.forEach(s => updateAsset(s, false)); cryptoMarket.forEach(s => updateAsset(s, true));
