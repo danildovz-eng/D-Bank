@@ -196,7 +196,7 @@
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10% і блок картки!</p>
             <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
             <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
-            <div class="form-group"><input type="text" inputmode="numeric" maxlength="6" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
+            <div class="form-group"><input type="text" inputmode="numeric" maxlength="6" id="hack-input" placeholder="Введіть код..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
             <button type="button" class="btn-main" onclick="submitHack()">Зламати</button>
         </div>
     </div>
@@ -422,7 +422,6 @@
             <div style="font-weight: 600; margin-bottom: 10px;">Налаштування</div>
             <div class="toggle-row"><div style="font-size:14px;">Звуки</div><label class="switch"><input type="checkbox" id="set-sounds" onchange="toggleSetting('sounds')"><span class="slider"></span></label></div>
             <div class="toggle-row"><div style="font-size:14px;">Push-сповіщення</div><label class="switch"><input type="checkbox" id="set-notifs" onchange="toggleSetting('notifications')"><span class="slider"></span></label></div>
-            <div class="toggle-row"><div style="font-size:14px;">Новини ринку</div><label class="switch"><input type="checkbox" id="set-news" onchange="toggleSetting('newsNotifications')"><span class="slider"></span></label></div>
         </div>
         <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--text-dark); border:1px solid var(--border); margin-bottom: 10px;" onclick="logout()">Вийти з акаунту</button>
         <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--danger); border:1px solid var(--danger);" onclick="deleteAccount()">Видалити акаунт назавжди</button>
@@ -438,6 +437,13 @@
 </div>
 
 <script>
+    // --- БЕЗПЕЧНА РОБОТА З ПАМ'ЯТТЮ (ФІКС ЧОРНОГО ЕКРАНУ НА iOS) ---
+    const Storage = {
+        get: function(key) { try { return localStorage.getItem(key); } catch(e) { return null; } },
+        set: function(key, val) { try { localStorage.setItem(key, val); } catch(e) {} },
+        remove: function(key) { try { localStorage.removeItem(key); } catch(e) {} }
+    };
+
     function checkPWA() { 
         try { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); } } catch(e) {}
     }
@@ -449,28 +455,29 @@
     let tempRegEmail = ""; let tempRegCode = ""; let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H'; let activeNews = null; let deleteConfirm = false; let toastTimeout; let isPinVisible = false; let isFlipped = false; let touchstartX = 0; let currentPinInput = "";
     let hackInterval; let currentHackPin = "";
 
-    let currentUserKey = null;
-    try { currentUserKey = localStorage.getItem('DBank_User_Key'); } catch(e) {}
+    let currentUserKey = Storage.get('DBank_User_Key') || null;
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 3.00, 5.00];
     const autoTiers = [0.50, 1.00, 2.00, 3.00];
     function getNextAuto(current) { for(let i=0; i<autoTiers.length; i++) { if(autoTiers[i] > current) return autoTiers[i]; } return null; }
 
     let db = { users: {} };
-    try { let saved = localStorage.getItem('DBank_Store_FINAL'); if (saved && saved !== "null") { let parsed = JSON.parse(saved); if (parsed && parsed.users) db = parsed; } } catch(e) {}
+    let savedData = Storage.get('DBank_Store_FINAL'); 
+    if (savedData && savedData !== "null") { try { let parsed = JSON.parse(savedData); if (parsed && parsed.users) db = parsed; } catch(e) {} }
 
     function saveDB() {
         if(currentUserKey && db.users[currentUserKey]) {
-            try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
-            try { localStorage.setItem('DBank_Store_FINAL', JSON.stringify(db)); } catch(e) {}
+            Storage.set('DBank_User_Key', currentUserKey);
+            Storage.set('DBank_Store_FINAL', JSON.stringify(db));
             database.ref('users/' + currentUserKey).set(db.users[currentUserKey]).catch(()=>{});
         }
     }
     function getState() { return currentUserKey ? db.users[currentUserKey] : null; }
 
     let globalNews = []; 
-    try { let nSaved = localStorage.getItem('DBank_News_FINAL'); if(nSaved && nSaved !== "null") globalNews = JSON.parse(nSaved); } catch(e) {}
-    function saveNews() { try { localStorage.setItem('DBank_News_FINAL', JSON.stringify(globalNews)); } catch(e) {} }
+    let nSaved = Storage.get('DBank_News_FINAL'); 
+    if(nSaved && nSaved !== "null") { try { globalNews = JSON.parse(nSaved); } catch(e) {} }
+    function saveNews() { Storage.set('DBank_News_FINAL', JSON.stringify(globalNews)); }
 
     function calculateCreditLimit() { return 1000 + Math.floor(Math.pow(Math.random(), 3) * 70) * 100; }
     function generateRandomNum(length) { let num = ""; for(let i = 0; i < length; i++) num += Math.floor(Math.random() * 10); return num; }
@@ -553,7 +560,7 @@
         database.ref('users/' + emailKey).set(newUser).then(() => {
             db.users[emailKey] = newUser;
             currentUserKey = emailKey;
-            try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
+            Storage.set('DBank_User_Key', currentUserKey);
             showToast("Акаунт створено!", "success");
             startApp();
         });
@@ -567,7 +574,7 @@
                 if(snapshot.val().isBanned) { showToast("Цей акаунт заблоковано назавжди.", "error"); return; }
                 db.users[emailKey] = snapshot.val();
                 currentUserKey = emailKey;
-                try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {}
+                Storage.set('DBank_User_Key', currentUserKey);
                 showAppPinScreen();
             } else {
                 showToast("Невірна пошта або пароль!", "error");
@@ -597,7 +604,7 @@
         if(currentUserKey) database.ref('users/' + currentUserKey).off('value');
         window.dbListenerAttached = false;
         currentUserKey = null; 
-        try { localStorage.removeItem('DBank_User_Key'); } catch(e) {}
+        Storage.remove('DBank_User_Key');
         document.getElementById('main-nav').classList.remove('active'); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
         switchAuthScreen('screen-login'); 
@@ -865,7 +872,7 @@
                 
                 database.ref('users/' + sellerKey).transaction(seller => {
                     if(seller) {
-                        let finalPrice = price * 0.95; 
+                        let finalPrice = price * 0.95; // 5% комиссия банка
                         seller.balance = parseFloat(((seller.balance || 0) + finalPrice).toFixed(2));
                         if(!seller.history) seller.history = [];
                         seller.history.unshift({ icon: '🤝', title: "Продаж на P2P", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: finalPrice, type: 'plus' });
@@ -885,7 +892,7 @@
             if(user.businesses && user.businesses.shaurma > 0) {
                 user.businesses.shaurma--;
                 user.balance += 250000;
-                saveDB(); updateBalanceDisplayQuiet(); renderProductsFull();
+                saveDB(); updateBalanceDisplayQuiet(); renderProductsFull(); renderBusinesses();
                 showToast("Продано в ломбард!", "success");
                 addTransaction("Ломбард: Ларьок", 250000, "⚖️");
             } else {
@@ -912,7 +919,7 @@
         const user = getState(); let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
         let price = 500000 * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо грошей!", "error"); return; }
         user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
-        saveDB(); updateBalanceDisplayQuiet(); renderProductsFull(); showToast("Бізнес куплено!", "success");
+        saveDB(); updateBalanceDisplayQuiet(); renderProductsFull(); renderBusinesses(); showToast("Бізнес куплено!", "success");
     }
 
     function updateProfileNetWorth() {
@@ -986,15 +993,18 @@
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
     
     function executeTransfer() { 
+        const btn = document.getElementById('btn-transfer');
+        if(btn.disabled) return;
+        btn.disabled = true;
+
         const sender = getState(); 
         const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
         const amount = parseFloat(document.getElementById('transfer-amount').value);
-        const btn = document.getElementById('btn-transfer');
 
-        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; }
-        if(amount > sender.balance) { showToast("Недостатньо коштів", "error"); return; }
+        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); btn.disabled = false; return; }
+        if(amount > sender.balance) { showToast("Недостатньо коштів", "error"); btn.disabled = false; return; }
         
-        btn.innerText = "⏳ Обробка..."; btn.disabled = true;
+        btn.innerText = "⏳ Обробка..."; 
 
         sender.balance = parseFloat((sender.balance - amount).toFixed(2));
         updateBalanceDisplayQuiet();
@@ -1041,19 +1051,44 @@
     function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
     function payMobile() { if(getState().isLocked) { showToast("Картка під щитом!", "error"); return; } const amount = parseFloat(document.getElementById('mobile-amount').value); if(!amount || amount <= 0 || amount > getState().balance) { showToast("Некоректна сума!", "error"); return; } getState().balance = parseFloat((getState().balance - amount).toFixed(2)); saveDB(); addTransaction("Мобільний", -amount, '📱'); updateBalanceDisplayQuiet(); document.getElementById('mobile-modal').classList.remove('active'); document.getElementById('mobile-amount').value = ''; showPush("Оплата", `Рахунок поповнено на <b>${amount} ₴</b>`, "📱"); }
 
-    function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
+    function openProducts(navElement) { 
+        try {
+            if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } 
+            switchTab('screen-products', navElement); 
+            renderProductsFull(); 
+            renderBusinesses(); 
+        } catch(e) {
+            console.error(e);
+            showToast("Помилка Продуктів", "error");
+        }
+    }
+    
+    function openStocks(navElement) { 
+        if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } 
+        switchTab('screen-stocks', navElement); 
+        if (currentMarketTab === 'p2p') renderP2P();
+        else renderStocks(); 
+    }
+    
     function setMarketTab(tab, el) { 
-        currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); 
-        if (tab === 'p2p') { database.ref('p2p_market').off('value'); renderP2P(); } 
-        else { database.ref('p2p_market').off('value'); renderStocks(); }
+        currentMarketTab = tab; 
+        document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); 
+        el.classList.add('active'); 
+        if (tab === 'p2p') { 
+            database.ref('p2p_market').off('value'); 
+            renderP2P(); 
+        } else { 
+            database.ref('p2p_market').off('value'); 
+            renderStocks(); 
+        }
     }
     
     function renderStocks() { 
+        if (currentMarketTab === 'p2p') { renderP2P(); return; }
         const user = getState(); const container = document.getElementById('stocks-container'); if (!user || !container) return; 
         try { 
             container.innerHTML = ''; 
             if(currentMarketTab === 'news') { if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; } 
-            if(currentMarketTab === 'p2p') return; 
 
             let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; 
             marketData.forEach(s => { 
@@ -1074,7 +1109,9 @@
             const user = getState();
             if(!user || user.isLocked) return;
             
-            if (currentUserKey === 'danildovz1@gmail,com') { user.balance = 999999999; }
+            if (currentUserKey === 'danildovz1@gmail,com') {
+                user.balance = 999999999;
+            }
 
             if(user.balance > 100000 && currentUserKey !== 'danildovz1@gmail,com') {
                 let tax = Math.floor(user.balance * 0.01);
@@ -1115,7 +1152,7 @@
                     showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true);
                     for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; }
                     user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true;
-                    user.creditScore = 10;
+                    user.creditScore = 10; 
                     user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' });
                     applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10 * mult).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`;
                     if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true;
