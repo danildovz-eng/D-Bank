@@ -675,22 +675,29 @@
 
         if(!window.dbListenerAttached) {
             window.dbListenerAttached = true;
-            database.ref('users/' + currentUserKey).on('value', snap => {
-                if(snap.exists()) {
-                    let remote = snap.val(); 
-                    if(remote.isBanned) { 
-                        logout();
-                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАЗАВЖДИ</div>";
-                        return; 
-                    }
-                    let local = db.users[currentUserKey];
-                    if(remote.history && (!local.history || remote.history.length > local.history.length)) {
-                        let diff = remote.history.length - (local.history ? local.history.length : 0);
-                        local.balance = remote.balance; local.history = remote.history; updateBalanceDisplayQuiet();
-                        if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory();
-                        for(let i=0; i < diff; i++) { let newTx = remote.history[i]; if(newTx && newTx.type === 'plus' && newTx.icon === '💸') { showPush("Отримано переказ!", `Вам надійшло ${newTx.amount} ₴`, "💸"); playSound('default'); } }
-                    }
+            
+            database.ref('users/' + currentUserKey + '/isBanned').on('value', snap => {
+                if(snap.exists() && snap.val() === true) { 
+                    logout();
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАХУЙ</div>";
                 }
+            });
+
+            database.ref('users/' + currentUserKey + '/incoming_transfers').on('child_added', snap => {
+                let tx = snap.val();
+                let u = db.users[currentUserKey];
+                
+                u.balance = parseFloat((u.balance + tx.amount).toFixed(2));
+                u.history.unshift({ icon: '💸', title: `Переказ від ${tx.senderName}`, date: tx.date, amount: tx.amount, type: 'plus' });
+                
+                showPush("Отримано бабки!", `Вам надійшло ${tx.amount} ₴`, "💸");
+                playSound('default');
+                
+                saveDB();
+                updateBalanceDisplayQuiet();
+                if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory();
+                
+                snap.ref.remove();
             });
         }
 
@@ -1175,7 +1182,7 @@
         const amount = parseFloat(document.getElementById('transfer-amount').value); 
         const btn = document.getElementById('btn-transfer');
 
-        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; } 
+        if(cardInput === sender.cardNumber) { showToast("Ти що, йобнувся? Самому собі переказувати не можна.", "error"); return; } 
         
         btn.innerText = "⏳ Обробка..."; 
         btn.disabled = true;
@@ -1186,13 +1193,10 @@
                 let receiverKey = Object.keys(snapshot.val())[0];
                 let receiverData = snapshot.val()[receiverKey];
 
-                database.ref('users/' + receiverKey).transaction(function(receiver) { 
-                    if (receiver) { 
-                        receiver.balance = parseFloat(((receiver.balance || 0) + amount).toFixed(2)); 
-                        if (!receiver.history) receiver.history = []; 
-                        receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' }); 
-                    } 
-                    return receiver; 
+                database.ref('users/' + receiverKey + '/incoming_transfers').push({
+                    amount: amount,
+                    senderName: sender.name,
+                    date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'})
                 }).then(() => { 
                     sender.balance -= amount; 
                     sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
@@ -1204,7 +1208,7 @@
                     updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
                     showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
                 }).catch(() => { 
-                    showToast("Помилка мережі. Гроші не списано.", "error"); 
+                    showToast("Помилка мережі, сука. Гроші не списано.", "error"); 
                     btn.innerText = "Надіслати"; btn.disabled = false; 
                 });
             } else { 
@@ -1220,7 +1224,7 @@
                 showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
             }
         }).catch(err => { 
-            showToast("Помилка з'єднання. Перевірте інтернет.", "error"); 
+            showToast("Хуйовий інтернет. Спробуй ще раз.", "error"); 
             btn.innerText = "Надіслати"; btn.disabled = false; 
         });
     }
