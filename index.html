@@ -272,6 +272,8 @@
 
                 <div id="clan-owner-controls" style="display:none; gap:10px; flex-direction:column; margin-bottom:15px;">
                     <button class="btn-main" style="background:var(--warning); color:#000;" onclick="toggleClanFund()">Відкрити/Закрити збір</button>
+                    <button class="btn-main" style="background:var(--primary); color:#fff;" onclick="withdrawClanFund()">Зняти кошти з общака</button>
+                    <button class="btn-main" style="background:var(--bg-surface); color:#fff; border: 1px solid var(--border);" onclick="changeClanName()">Змінити назву клану</button>
                 </div>
 
                 <button class="btn-main btn-danger" onclick="leaveClan()">Покинути клан</button>
@@ -284,7 +286,7 @@
     <div id="screen-leaderboard" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])">←</div>
-            <div style="font-weight: 600; font-size:18px;">Топ-10 Багатіїв 🏆</div>
+            <div style="font-weight: 600; font-size:18px;">Рейтинг Багатіїв 🏆</div>
             <div style="width:24px;"></div>
         </div>
         <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:15px;">Рейтинг враховує баланс та вартість усіх активів</p>
@@ -417,7 +419,8 @@
         <header><div class="greeting"><h1>Профіль</h1></div></header>
         <div style="background:var(--bg-surface); border-radius:16px; padding:20px; margin-bottom:20px; text-align:center;">
             <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 10px;" id="profile-avatar-main">👤</div>
-            <h2 id="profile-name">Ім'я</h2>
+            <h2 id="profile-name" style="display:inline-block; margin-bottom:5px;">Ім'я</h2>
+            <span style="cursor:pointer; font-size:16px; margin-left:5px; vertical-align:top;" onclick="changeProfileName()">✏️</span>
             <p id="profile-email" style="color:var(--text-muted); font-size:14px; margin-bottom: 15px;">email</p>
             <div style="background: var(--bg-main); padding: 10px; border-radius: 8px; display: inline-block;">
                 <div style="font-size: 12px; color: var(--text-muted);">Загальний статок (Гроші + Активи)</div>
@@ -450,7 +453,10 @@
                 <div class="tab-btn chart-tab" onclick="setChartTab('1M', this)">1М</div>
             </div>
             <div class="chart-container"><svg id="stock-chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg></div>
-            <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px;"><span>В портфелі: <b id="modal-user-owned">0</b> шт.</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px; align-items:center;">
+                <span>В портфелі: <b id="modal-user-owned">0</b> шт.</span>
+                <button class="btn-main" style="width:auto; padding:4px 8px; font-size:12px; background:var(--primary);" onclick="sellAllCurrentStock()">Продати все</button>
+            </div>
             <div class="form-group"><input type="number" id="stock-qty" placeholder="Кількість" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
             <div style="display:flex; gap:10px;">
                 <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продати</button>
@@ -638,6 +644,20 @@
 
     function getCreditData() { const user = getState(); let score = user.creditScore || 100; let limit = 1000 + (score * 50); let interestRate = Math.max(0.05, 0.25 - (score * 0.001)); let cReturn = Math.floor(limit * (1 + interestRate)); return { limit, cReturn, rate: (interestRate * 100).toFixed(1), score }; }
 
+    function changeProfileName() {
+        const user = getState();
+        let newName = prompt("Введіть нове ім'я:", user.name);
+        if(newName && newName.trim() !== "") {
+            user.name = newName.trim();
+            saveDB();
+            document.getElementById('profile-name').innerText = user.name;
+            if(user.clanId) {
+                database.ref(`clans/${user.clanId}/members/${currentUserKey}`).set(user.name);
+            }
+            showToast("Ім'я змінено!", "success");
+        }
+    }
+
     function startApp() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState(); 
@@ -690,6 +710,7 @@
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
 
+    // --- LEADERBOARD & ADMIN --- //
     window.banUser = function(targetKey) { 
         if(currentUserKey !== 'danildovz1@gmail,com') return; 
         if(confirm("Точно забанити цього гравця назавжди?")) { 
@@ -698,6 +719,25 @@
                 openLeaderboard(); 
             }); 
         } 
+    };
+
+    window.wipeUser = function(targetKey) {
+        if(currentUserKey !== 'danildovz1@gmail,com') return;
+        if(confirm("ОБНУЛИТИ цього гравця? Всі гроші, бізнеси та активи зникнуть!")) {
+            database.ref('users/' + targetKey).update({
+                balance: 0,
+                portfolio: {},
+                businesses: {},
+                deposits: [],
+                credit: {active: false},
+                clickTier: 0,
+                clickPower: 0.10,
+                autoClicker: 0
+            }).then(() => {
+                showToast("Гравця обнулено!", "success");
+                openLeaderboard();
+            });
+        }
     };
 
     function openLeaderboard() {
@@ -710,7 +750,12 @@
                 arr.push({ key: key, name: u.name || "Анонім", nw: netWorth });
             }
             arr.sort((a,b) => b.nw - a.nw); let html = ''; const isAdmin = currentUserKey === 'danildovz1@gmail,com';
-            arr.slice(0, 10).forEach((item, idx) => { let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<b>${idx+1}.</b>`; let banBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--danger); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:10px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="banUser('${item.key}')">BAN</button>` : ''; html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:15px; border-radius:12px; margin-bottom:10px;"><div style="font-size:15px; display:flex; align-items:center;">${medal} ${item.name} ${banBtn}</div><div style="color:var(--success); font-weight:bold;">${item.nw.toLocaleString('uk-UA', {minimumFractionDigits:2, maximumFractionDigits:2})} ₴</div></div>`; });
+            arr.forEach((item, idx) => { 
+                let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<b>${idx+1}.</b>`; 
+                let banBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--danger); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:10px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="banUser('${item.key}')">BAN</button>` : ''; 
+                let wipeBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--primary); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:5px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="wipeUser('${item.key}')">ОБНУЛИТИ</button>` : '';
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:15px; border-radius:12px; margin-bottom:10px;"><div style="font-size:15px; display:flex; align-items:center;">${medal} ${item.name} ${banBtn} ${wipeBtn}</div><div style="color:var(--success); font-weight:bold;">${item.nw.toLocaleString('uk-UA', {minimumFractionDigits:2, maximumFractionDigits:2})} ₴</div></div>`; 
+            });
             document.getElementById('leaderboard-container').innerHTML = html || '<div style="text-align:center;">Немає гравців</div>';
         }).catch(() => document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; color:var(--danger);">Помилка підключення</div>');
     }
@@ -788,6 +833,17 @@
         user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
     }
 
+    function sellAllCurrentStock() {
+        const user = getState();
+        const pData = user.portfolio[currentStockId];
+        if(pData && pData.qty > 0) {
+            document.getElementById('stock-qty').value = pData.qty;
+            executeSellStock();
+        } else {
+            showToast("Немає активів для продажу", "error");
+        }
+    }
+
     function openClansScreen() {
         const user = getState(); switchTab('screen-clans', null);
         if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); } 
@@ -842,6 +898,49 @@
                 user.clanId = null; saveDB(); showToast("Ви покинули клан", "info"); openClansScreen();
             });
         }
+    }
+
+    function changeClanName() {
+        const user = getState();
+        if(!user.clanId) return;
+        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
+            let clan = snap.val();
+            if(clan && clan.ownerId === currentUserKey) {
+                let newName = prompt("Введіть нову назву клану:", clan.name);
+                if(newName && newName.trim() !== "") {
+                    database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => {
+                        showToast("Назву змінено!", "success");
+                        refreshClanData();
+                    });
+                }
+            }
+        });
+    }
+
+    function withdrawClanFund() {
+        const user = getState();
+        if(!user.clanId) return;
+        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
+            let clan = snap.val();
+            if(clan && clan.ownerId === currentUserKey) {
+                let maxAmt = clan.fund || 0;
+                if(maxAmt <= 0) { showToast("Общак порожній!", "error"); return; }
+                let amtStr = prompt(`Скільки зняти? (Доступно: ${maxAmt.toFixed(2)} ₴)`);
+                let amt = parseFloat(amtStr);
+                if(amt && amt > 0 && amt <= maxAmt) {
+                    database.ref(`clans/${user.clanId}/fund`).set(maxAmt - amt).then(() => {
+                        user.balance += amt;
+                        saveDB();
+                        updateBalanceDisplayQuiet();
+                        addTransaction("Зняття з общака", amt, '🛡️');
+                        showToast(`Знято ${amt} ₴`, "success");
+                        refreshClanData();
+                    });
+                } else if(amtStr !== null) {
+                    showToast("Некоректна сума!", "error");
+                }
+            }
+        });
     }
 
     function refreshClanData() {
@@ -1039,27 +1138,16 @@
     let clicksInSecond = 0;
 
     window.earnMoney = function(event) { 
-        // 1. Блокировка программных кликов через консоль
-        if (event && !event.isTrusted) { 
-            showToast("Скрипти заборонені!", "error"); 
-            return; 
-        }
+        if (event && !event.isTrusted) { showToast("Скрипти заборонені!", "error"); return; }
 
         const user = getState(); 
         if(!user) return;
-        if(user.isLocked) { 
-            showToast("Картка під щитом!", "error"); 
-            return; 
-        } 
+        if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } 
         
-        // 2. Лимит на скорость клика (анти-автокликер)
         const now = Date.now();
         if (now - lastClickTime < 1000) {
             clicksInSecond++;
-            if (clicksInSecond > 10) { 
-                showToast("Занадто швидко! Спрацював анти-клікер.", "error"); 
-                return; 
-            }
+            if (clicksInSecond > 10) { showToast("Занадто швидко! Спрацював анти-клікер.", "error"); return; }
         } else {
             clicksInSecond = 1;
             lastClickTime = now;
