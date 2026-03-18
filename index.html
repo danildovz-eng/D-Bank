@@ -710,7 +710,6 @@
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
 
-    // --- LEADERBOARD & ADMIN --- //
     window.banUser = function(targetKey) { 
         if(currentUserKey !== 'danildovz1@gmail,com') return; 
         if(confirm("Точно забанити цього гравця назавжди?")) { 
@@ -1171,13 +1170,58 @@
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
     
     function executeTransfer() { 
-        const sender = getState(); const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value); const btn = document.getElementById('btn-transfer');
-        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; } btn.innerText = "⏳ Обробка..."; btn.disabled = true;
-        database.ref('users').get().then(snapshot => {
-            let allUsers = snapshot.val() || {}; let receiverKey = null; for(let key in allUsers) { if(allUsers[key].cardNumber === cardInput) { receiverKey = key; break; } }
-            if(receiverKey) {
-                database.ref('users/' + receiverKey).transaction(function(receiver) { if (receiver) { receiver.balance = parseFloat(((receiver.balance || 0) + amount).toFixed(2)); if (!receiver.history) receiver.history = []; receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' }); } return receiver; }).then(() => { sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ ${allUsers[receiverKey].name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ доставлено", `Отримувач: <b>${allUsers[receiverKey].name}</b>`, "💸"); }).catch(() => { showToast("Помилка транзакції", "error"); btn.innerText = "Надіслати"; btn.disabled = false; });
-            } else { sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); }
+        const sender = getState(); 
+        const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
+        const amount = parseFloat(document.getElementById('transfer-amount').value); 
+        const btn = document.getElementById('btn-transfer');
+
+        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; } 
+        
+        btn.innerText = "⏳ Обробка..."; 
+        btn.disabled = true;
+
+        database.ref('users').orderByChild('cardNumber').equalTo(cardInput).once('value')
+        .then(snapshot => {
+            if(snapshot.exists()) {
+                let receiverKey = Object.keys(snapshot.val())[0];
+                let receiverData = snapshot.val()[receiverKey];
+
+                database.ref('users/' + receiverKey).transaction(function(receiver) { 
+                    if (receiver) { 
+                        receiver.balance = parseFloat(((receiver.balance || 0) + amount).toFixed(2)); 
+                        if (!receiver.history) receiver.history = []; 
+                        receiver.history.unshift({ icon: '💸', title: `Переказ від ${sender.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: 'plus' }); 
+                    } 
+                    return receiver; 
+                }).then(() => { 
+                    sender.balance -= amount; 
+                    sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
+                    saveDB(); 
+                    
+                    document.getElementById('transfer-card').value = ''; 
+                    document.getElementById('transfer-amount').value = ''; 
+                    btn.innerText = "Надіслати"; btn.disabled = false; 
+                    updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                    showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
+                }).catch(() => { 
+                    showToast("Помилка мережі. Гроші не списано.", "error"); 
+                    btn.innerText = "Надіслати"; btn.disabled = false; 
+                });
+            } else { 
+                sender.balance -= amount; 
+                sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
+                saveDB(); 
+                
+                document.getElementById('transfer-card').value = ''; 
+                document.getElementById('transfer-amount').value = ''; 
+                btn.innerText = "Надіслати"; btn.disabled = false; 
+                
+                updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
+            }
+        }).catch(err => { 
+            showToast("Помилка з'єднання. Перевірте інтернет.", "error"); 
+            btn.innerText = "Надіслати"; btn.disabled = false; 
         });
     }
 
