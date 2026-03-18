@@ -215,7 +215,7 @@
         </div>
 
         <div style="display:flex; gap:10px; margin-bottom: 25px;">
-            <button type="button" class="btn-main" style="flex:1; background: linear-gradient(135deg, #10B981, #059669);" onclick="earnMoney()" id="btn-earn">+ Заробити 0.10 ₴</button>
+            <button type="button" class="btn-main" style="flex:1; background: linear-gradient(135deg, #10B981, #059669);" onclick="earnMoney(event)" id="btn-earn">+ Заробити 0.10 ₴</button>
             <button type="button" class="btn-main" style="width:50px; padding:0; background: var(--bg-surface); color:var(--text-dark);" onclick="openUpgrades()">🚀</button>
         </div>
 
@@ -644,13 +644,11 @@
         
         if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАЗАВЖДИ</div>"; logout(); return; }
         
-        // Видалення престижу у старих акаунтів, якщо він залишився
         if(user.prestigeMultiplier) { delete user.prestigeMultiplier; }
         
         if(!user.businesses) user.businesses = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.portfolio) user.portfolio = {}; if(!user.history) user.history = []; if(user.creditScore === undefined) user.creditScore = 100; if(user.clanId === undefined) user.clanId = null;
         if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true };
         
-        // Ініціалізація інвентарю скінів для старих гравців
         if(!user.ownedSkins) { user.ownedSkins = ['default']; if(user.skin && user.skin !== 'default') user.ownedSkins.push(user.skin); }
         
         if (user.clickPower > 5.00) { user.clickPower = 5.00; user.clickTier = clickTiers.length - 1; } if (user.autoClicker > 3.00) { user.autoClicker = 3.00; } checkQuests(); saveDB();
@@ -1036,7 +1034,45 @@
         saveDB(); updateBalanceDisplayQuiet(); renderUpgrades(); showToast("Успішна прокачка!", "success");
     }
 
-    function earnMoney() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } checkQuests(); user.quests.clicks++; user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); }
+    // --- ANTI-CHEAT & EARN LOGIC --- //
+    let lastClickTime = 0;
+    let clicksInSecond = 0;
+
+    window.earnMoney = function(event) { 
+        // 1. Блокировка программных кликов через консоль
+        if (event && !event.isTrusted) { 
+            showToast("Скрипти заборонені!", "error"); 
+            return; 
+        }
+
+        const user = getState(); 
+        if(!user) return;
+        if(user.isLocked) { 
+            showToast("Картка під щитом!", "error"); 
+            return; 
+        } 
+        
+        // 2. Лимит на скорость клика (анти-автокликер)
+        const now = Date.now();
+        if (now - lastClickTime < 1000) {
+            clicksInSecond++;
+            if (clicksInSecond > 10) { 
+                showToast("Занадто швидко! Спрацював анти-клікер.", "error"); 
+                return; 
+            }
+        } else {
+            clicksInSecond = 1;
+            lastClickTime = now;
+        }
+
+        checkQuests(); 
+        user.quests.clicks++; 
+        user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); 
+        saveDB(); 
+        updateBalanceDisplayQuiet(); 
+        renderQuests(); 
+    };
+
     function updateBalanceDisplayQuiet() { const user = getState(); if(!user) return; const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${(user.cardNumber || "0000").slice(-4)} (${formatted})`; checkTransferForm(); }
     
     function addTransaction(title, amount, icon) { const user = getState(); if(!user.history) user.history = []; user.history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); saveDB(); renderHistory(); }
