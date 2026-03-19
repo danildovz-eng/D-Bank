@@ -40,7 +40,7 @@
         .balance-label { font-size: 13px; opacity: 0.8; }
         .balance-value { font-size: 28px; font-weight: 700; margin-top: 5px; }
         
-        /* СТАРІ СКІНИ */
+        /* SKINS */
         .skin-gold .bank-card, .skin-gold .flip-card-front, .skin-gold .flip-card-back { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: #111; box-shadow: 0 10px 20px rgba(218, 165, 32, 0.3); border: 1px solid #FFF8DC; }
         .skin-gold .pin-container { background: #111; color: #FFD700; }
         .skin-neon .bank-card, .skin-neon .flip-card-front, .skin-neon .flip-card-back { background: #000; color: #0f0; box-shadow: 0 0 15px #0f0; border: 2px solid #0f0; }
@@ -73,7 +73,6 @@
         .skin-toxic .bank-card, .skin-toxic .flip-card-front, .skin-toxic .flip-card-back { background: #0a0a0a; color: #7FFF00; border: 1px solid #7FFF00; animation: toxicAnim 4s linear infinite; }
         .skin-toxic .pin-container { background: #7FFF00; color: #000; }
 
-        /* 5 НОВИХ СКІНІВ */
         @keyframes holoAnim { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .skin-hologram .bank-card, .skin-hologram .flip-card-front, .skin-hologram .flip-card-back { background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3); background-size: 1800% 1800%; animation: holoAnim 6s ease infinite; color: white; border: 1px solid #fff; text-shadow: 1px 1px 2px #000; }
         .skin-hologram .pin-container { background: rgba(0,0,0,0.5); color: #fff; }
@@ -143,29 +142,9 @@
         .chart-tab { flex: 1; text-align: center; padding: 6px 0; font-size: 12px; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
         .chart-tab.active { background: var(--primary); color: #fff; }
         
-        /* ГОРИЗОНТАЛЬНЕ МЕНЮ */
-        .quick-actions { 
-            display: flex; 
-            overflow-x: auto; 
-            gap: 15px; 
-            margin-bottom: 30px; 
-            padding-bottom: 10px; 
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
+        .quick-actions { display: flex; overflow-x: auto; gap: 15px; margin-bottom: 30px; padding-bottom: 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
         .quick-actions::-webkit-scrollbar { display: none; }
-        .action-btn { 
-            flex: 0 0 auto; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 8px; 
-            border: none; 
-            background: none; 
-            cursor: pointer; 
-            scroll-snap-align: start;
-            width: 60px;
-        }
+        .action-btn { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; background: none; cursor: pointer; scroll-snap-align: start; width: 60px; }
         .action-icon { width: 50px; height: 50px; background: var(--bg-surface); color: #fff; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .action-text { font-size: 11px; color: var(--text-dark); font-weight: 500; text-align: center; }
         
@@ -381,8 +360,8 @@
         <div id="stocks-container"></div>
     </div>
 
-    <div id="screen-products" class="screen">
-        <header><div class="greeting"><h1>Мої Продукти</h1></div></header>
+    <div id="screen-useful" class="screen">
+        <header><div class="greeting"><h1>Корисне 🎒</h1></div></header>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -427,6 +406,7 @@
             </div>
             <div id="deposit-timer-area" style="margin-top:15px; display:none;"></div>
         </div>
+
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит готівкою</div></div>
@@ -610,7 +590,7 @@
         <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Головна</span></div>
         <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежі</span></div>
         <div class="nav-item" onclick="openStocks(this)"><div class="nav-icon">📈</div><span>Біржа</span></div>
-        <div class="nav-item" onclick="openProducts(this)"><div class="nav-icon">🏦</div><span>Продукти</span></div>
+        <div class="nav-item" onclick="openUseful(this)"><div class="nav-icon">🎒</div><span>Корисне</span></div>
         <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профіль</span></div>
     </nav>
 </div>
@@ -618,7 +598,6 @@
     function checkPWA() { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); } }
     window.addEventListener('load', checkPWA);
 
-    // ВСТАВЬ СЮДА СВОИ КЛЮЧИ FIREBASE, ЕСЛИ ОНИ ПОМЕНЯЛИСЬ
     const firebaseConfig = { apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU", authDomain: "dbank-2b218.firebaseapp.com", databaseURL: "https://dbank-2b218-default-rtdb.firebaseio.com", projectId: "dbank-2b218", storageBucket: "dbank-2b218.firebasestorage.app", messagingSenderId: "1092545286683", appId: "1:1092545286683:web:e0ea2eb48d3cf9fe8adebe" };
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
@@ -694,25 +673,52 @@
         { id: 'shiba', name: 'Shiba Inu', icon: '🐾', hist1H: genHist(0.00002, 15, 0.1), hist1D: genHist(0.000018, 15, 0.2), hist1W: genHist(0.00001, 15, 0.4), hist1M: genHist(0.000005, 15, 0.8) }
     ];
 
+    const bizConfig = [
+        { id: 'shaurma', name: 'Ларьок з шаурмою', icon: '🌯', basePrice: 500000, baseIncome: 2 },
+        { id: 'carwash', name: 'Автомийка', icon: '🚗', basePrice: 2500000, baseIncome: 15 },
+        { id: 'it', name: 'IT-стартап', icon: '💻', basePrice: 25000000, baseIncome: 150 },
+        { id: 'build', name: 'Будівельна компанія', icon: '🏗️', basePrice: 500000000, baseIncome: 3000 },
+        { id: 'bank', name: 'Банк-конкурент', icon: '🏦', basePrice: 10000000000, baseIncome: 50000 }
+    ];
+
+    const skinsConfig = [
+        { id: 'default', name: 'Синя (Стандарт)', price: 0, style: 'background:#0047AB;' },
+        { id: 'skin-gold', name: 'Золота', price: 50000, style: 'background:linear-gradient(135deg, #FFD700, #B8860B); color:#000;' },
+        { id: 'skin-neon', name: 'Неонова', price: 100000, style: 'background:#000; color:#0f0; border:1px solid #0f0;' },
+        { id: 'skin-glass', name: 'Скляна', price: 250000, style: 'background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.2);' },
+        { id: 'skin-fire', name: '🔥 Пекельна', price: 1000000, style: 'background:linear-gradient(270deg, #8b0000, #ff4500); color:#fff; animation: fireAnim 3s infinite;' },
+        { id: 'skin-matrix', name: '💻 Хакерська', price: 2500000, style: 'background:#000; color:#0f0;' },
+        { id: 'skin-plasma', name: '🌌 Плазма', price: 5000000, style: 'background:linear-gradient(270deg, #8A2BE2, #0000FF); color:#fff;' },
+        { id: 'skin-rgb', name: '🎮 RGB Геймер', price: 7500000, style: 'background:#111; color:#fff; border:2px solid #ff0000;' },
+        { id: 'skin-ocean', name: '🌊 Океан', price: 10000000, style: 'background:linear-gradient(270deg, #001f3f, #0088cc); color:#fff;' },
+        { id: 'skin-gold-anim', name: '✨ Сяюче Золото', price: 25000000, style: 'background:linear-gradient(135deg, #FFDF00, #D4AF37); color:#000;' },
+        { id: 'skin-toxic', name: '☣️ Токсична', price: 50000000, style: 'background:#0a0a0a; color:#7FFF00; border:1px solid #7FFF00;' },
+        { id: 'skin-hologram', name: '💠 Голограма', price: 100000000, style: 'background:linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3); color:#fff;' },
+        { id: 'skin-lightning', name: '⚡ Блискавка', price: 250000000, style: 'background:#001133; color:#0ff; border:2px solid #0ff;' },
+        { id: 'skin-void', name: '🌌 Пустота', price: 500000000, style: 'background:radial-gradient(circle, #2e004f, #000); color:#a9a9a9;' },
+        { id: 'skin-dragon', name: '🐉 Дихання Дракона', price: 1000000000, style: 'background:linear-gradient(45deg, #8b0000, #ff4500); color:#ffd700;' },
+        { id: 'skin-god', name: '👼 Божественна', price: 5000000000, style: 'background:radial-gradient(circle, #fff, #ffd700); color:#000;' }
+    ];
+
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     
     function sendVerificationCode() { 
         tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
-        if(!tempRegEmail.includes('@')) { showToast("Кривий email, блядь!", "error"); return; }
+        if(!tempRegEmail.includes('@')) { showToast("Ти що ввів, блядь? Нормальний email пиши!", "error"); return; }
         const emailKey = tempRegEmail.replace(/\./g, ',');
         database.ref('users/' + emailKey).once('value').then(snapshot => {
-            if(snapshot.exists()) { showToast("Акаунт вже існує!", "error"); return; }
+            if(snapshot.exists()) { showToast("Такий акаунт вже є!", "error"); return; }
             tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
             showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify');
-        }).catch(() => showToast("Помилка підключення", "error"));
+        }).catch(() => showToast("Сервера лягли нахуй", "error"));
     }
     
-    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Невірний код!", "error"); }
+    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Кривий код!", "error"); }
     
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value; const emailKey = tempRegEmail.replace(/\./g, ',');
         const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false }, miners: 0, hasOffshore: false };
-        database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Акаунт створено!", "success"); startApp(); });
+        database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Акаунт готовий!", "success"); startApp(); });
     }
 
     function processLogin() {
@@ -720,7 +726,7 @@
         database.ref('users/' + emailKey).once('value').then((snapshot) => {
             if(snapshot.exists() && snapshot.val().password === pass) {
                 if(snapshot.val().isBanned) {
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАХУЙ</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ТИ В БАНІ, ВІДПОЧИВАЙ</div>";
                     setTimeout(logout, 3000); return; 
                 }
                 db.users[emailKey] = snapshot.val(); currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showAppPinScreen();
@@ -733,7 +739,7 @@
             database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
                 if(snapshot.exists()) {
                     if(snapshot.val().isBanned) {
-                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАХУЙ</div>";
+                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ТИ В БАНІ, ВІДПОЧИВАЙ</div>";
                         logout(); return; 
                     } 
                     db.users[currentUserKey] = snapshot.val(); showAppPinScreen(); 
@@ -743,26 +749,24 @@
     }
     
     function logout() { if(currentUserKey) database.ref('users/' + currentUserKey).off('value'); window.dbListenerAttached = false; currentUserKey = null; try { localStorage.removeItem('DBank_User_Key'); } catch(e) {} document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
-    function deleteAccount() { if(!deleteConfirm) { showToast("Натисніть ще раз", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
+    function deleteAccount() { if(!deleteConfirm) { showToast("Тицяй ще раз, якщо впевнений", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
 
     function showAppPinScreen() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); }
     function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
     function deletePin() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
     function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
-    function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Хуйовий PIN!", "error"); currentPinInput = ""; updatePinDots(); } }
+    function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Кривий PIN!", "error"); currentPinInput = ""; updatePinDots(); } }
 
     function getCreditData() { const user = getState(); let score = user.creditScore || 100; let limit = 1000 + (score * 50); let interestRate = Math.max(0.05, 0.25 - (score * 0.001)); let cReturn = Math.floor(limit * (1 + interestRate)); return { limit, cReturn, rate: (interestRate * 100).toFixed(1), score }; }
 
     function changeProfileName() {
         const user = getState();
-        let newName = prompt("Введіть нове ім'я:", user.name);
+        let newName = prompt("Як тебе називати:", user.name);
         if(newName && newName.trim() !== "") {
             user.name = newName.trim();
             saveDB();
             document.getElementById('profile-name').innerText = user.name;
-            if(user.clanId) {
-                database.ref(`clans/${user.clanId}/members/${currentUserKey}`).set(user.name);
-            }
+            if(user.clanId) { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).set(user.name); }
             showToast("Ім'я змінено!", "success");
         }
     }
@@ -771,15 +775,13 @@
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState(); 
         
-        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАЗАВЖДИ</div>"; logout(); return; }
+        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ТИ В БАНІ, ВІДПОЧИВАЙ</div>"; logout(); return; }
         
         if(user.prestigeMultiplier) { delete user.prestigeMultiplier; }
         if(user.miners === undefined) user.miners = 0;
         if(user.hasOffshore === undefined) user.hasOffshore = false;
-        
         if(!user.businesses) user.businesses = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.portfolio) user.portfolio = {}; if(!user.history) user.history = []; if(user.creditScore === undefined) user.creditScore = 100; if(user.clanId === undefined) user.clanId = null;
         if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true };
-        
         if(!user.ownedSkins) { user.ownedSkins = ['default']; if(user.skin && user.skin !== 'default') user.ownedSkins.push(user.skin); }
         
         if (user.clickPower > 5.00) { user.clickPower = 5.00; user.clickTier = clickTiers.length - 1; } if (user.autoClicker > 3.00) { user.autoClicker = 3.00; } checkQuests(); saveDB();
@@ -790,24 +792,19 @@
             database.ref('users/' + currentUserKey + '/isBanned').on('value', snap => {
                 if(snap.exists() && snap.val() === true) { 
                     logout();
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ НАХУЙ</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ТИ В БАНІ, ВІДПОЧИВАЙ</div>";
                 }
             });
 
             database.ref('users/' + currentUserKey + '/incoming_transfers').on('child_added', snap => {
                 let tx = snap.val();
                 let u = db.users[currentUserKey];
-                
                 u.balance = parseFloat((u.balance + tx.amount).toFixed(2));
                 u.history.unshift({ icon: '💸', title: `Переказ від ${tx.senderName}`, date: tx.date, amount: tx.amount, type: 'plus' });
-                
                 showPush("Отримано бабки!", `Вам надійшло ${tx.amount} ₴`, "💸");
                 playSound('default');
-                
-                saveDB();
-                updateBalanceDisplayQuiet();
+                saveDB(); updateBalanceDisplayQuiet();
                 if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory();
-                
                 snap.ref.remove();
             });
         }
@@ -830,32 +827,15 @@
 
     window.banUser = function(targetKey) { 
         if(currentUserKey !== 'danildovz1@gmail,com') return; 
-        if(confirm("Точно забанити цього уєбана назавжди?")) { 
-            database.ref('users/' + targetKey).update({ isBanned: true }).then(() => { 
-                showToast("Гравця відправлено в бан!", "success"); 
-                openLeaderboard(); 
-            }); 
+        if(confirm("Точно забанити цього обригана назавжди?")) { 
+            database.ref('users/' + targetKey).update({ isBanned: true }).then(() => { showToast("Гравця викинуто нахуй!", "success"); openLeaderboard(); }); 
         } 
     };
 
     window.wipeUser = function(targetKey) {
         if(currentUserKey !== 'danildovz1@gmail,com') return;
         if(confirm("ОБНУЛИТИ цього гравця нахуй? Всі гроші, бізнеси та активи зникнуть!")) {
-            database.ref('users/' + targetKey).update({
-                balance: 0,
-                portfolio: {},
-                businesses: {},
-                deposits: [],
-                credit: {active: false},
-                clickTier: 0,
-                clickPower: 0.10,
-                autoClicker: 0,
-                miners: 0,
-                hasOffshore: false
-            }).then(() => {
-                showToast("Гравця обнулено!", "success");
-                openLeaderboard();
-            });
+            database.ref('users/' + targetKey).update({ balance: 0, portfolio: {}, businesses: {}, deposits: [], credit: {active: false}, clickTier: 0, clickPower: 0.10, autoClicker: 0, miners: 0, hasOffshore: false }).then(() => { showToast("Гравця обнулено до трусів!", "success"); openLeaderboard(); });
         }
     };
 
@@ -879,13 +859,7 @@
         }).catch(() => document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; color:var(--danger);">Помилка підключення</div>');
     }
 
-    function toggleSetting(settingName) {
-        const user = getState();
-        if(settingName === 'sounds') user.settings.sounds = document.getElementById('set-sounds').checked;
-        if(settingName === 'notifications') user.settings.notifications = document.getElementById('set-notifs').checked;
-        if(settingName === 'newsNotifications') user.settings.newsNotifications = document.getElementById('set-news').checked;
-        saveDB();
-    }
+    function toggleSetting(settingName) { const user = getState(); if(settingName === 'sounds') user.settings.sounds = document.getElementById('set-sounds').checked; if(settingName === 'notifications') user.settings.notifications = document.getElementById('set-notifs').checked; if(settingName === 'newsNotifications') user.settings.newsNotifications = document.getElementById('set-news').checked; saveDB(); }
 
     function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
@@ -951,182 +925,48 @@
         user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
     }
 
-    function sellAllCurrentStock() {
-        const user = getState();
-        const pData = user.portfolio[currentStockId];
-        if(pData && pData.qty > 0) {
-            document.getElementById('stock-qty').value = pData.qty;
-            executeSellStock();
-        } else {
-            showToast("Нема чого продавати!", "error");
-        }
-    }
+    function sellAllCurrentStock() { const user = getState(); const pData = user.portfolio[currentStockId]; if(pData && pData.qty > 0) { document.getElementById('stock-qty').value = pData.qty; executeSellStock(); } else { showToast("Нема чого продавати!", "error"); } }
 
-    // --- CASINO ---
     window.playCasino = function(color) {
-        const user = getState();
-        const bet = parseFloat(document.getElementById('casino-bet').value);
+        const user = getState(); const bet = parseFloat(document.getElementById('casino-bet').value);
         if (!bet || bet <= 0 || bet > user.balance) { showToast("Крива ставка або грошей нема!", "error"); return; }
-        user.balance -= bet;
-        const roll = Math.random();
-        let resultColor = 'green';
-        if (roll < 0.48) resultColor = 'red';
-        else if (roll < 0.96) resultColor = 'black';
+        user.balance -= bet; const roll = Math.random(); let resultColor = 'green';
+        if (roll < 0.48) resultColor = 'red'; else if (roll < 0.96) resultColor = 'black';
 
-        if (color === resultColor) {
-            let win = color === 'green' ? bet * 14 : bet * 2;
-            user.balance += win;
-            addTransaction("Казино (Перемога)", win - bet, '🎰');
-            showPush("Казино", `Заєбісь! Випало ${resultColor}. +${win} ₴`, "🎰");
-        } else {
-            addTransaction("Казино (Програш)", -bet, '🎰');
-            showPush("Казино", `Пройоб. Випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true);
-        }
+        if (color === resultColor) { let win = color === 'green' ? bet * 14 : bet * 2; user.balance += win; addTransaction("Казино (Перемога)", win - bet, '🎰'); showPush("Казино", `Заєбісь! Випало ${resultColor}. +${win} ₴`, "🎰"); } 
+        else { addTransaction("Казино (Програш)", -bet, '🎰'); showPush("Казино", `Пройоб. Випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true); }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('casino-modal').classList.remove('active');
     };
 
-    // --- DARKNET (DDoS) ---
     window.buyDdos = function() {
-        const user = getState();
-        if(user.balance < 50000) { showToast("Треба 50 000 ₴ на хакерів!", "error"); return; }
+        const user = getState(); if(user.balance < 50000) { showToast("Треба 50 000 ₴ на хакерів!", "error"); return; }
         user.balance -= 50000;
-        if(Math.random() > 0.5) {
-            let stolen = 10000 + Math.floor(Math.random() * 90000);
-            user.balance += stolen;
-            addTransaction("Успішний DDoS", stolen, '🏴‍☠️');
-            showPush("Даркнет", `Атака успішна! Ти спиздив ${stolen} ₴`, "🏴‍☠️");
-        } else {
-            addTransaction("Невдалий DDoS", -50000, '🏴‍☠️');
-            showPush("Даркнет", "Вас попалили нахуй! Гроші втрачено.", "🏴‍☠️", true);
-        }
+        if(Math.random() > 0.5) { let stolen = 10000 + Math.floor(Math.random() * 90000); user.balance += stolen; addTransaction("Успішний DDoS", stolen, '🏴‍☠️'); showPush("Даркнет", `Атака успішна! Ти спиздив ${stolen} ₴`, "🏴‍☠️"); } 
+        else { addTransaction("Невдалий DDoS", -50000, '🏴‍☠️'); showPush("Даркнет", "Вас попалили нахуй! Гроші втрачено.", "🏴‍☠️", true); }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('darknet-modal').classList.remove('active');
     };
 
-    // --- CLANS ---
-    function openClansScreen() {
-        const user = getState(); switchTab('screen-clans', null);
-        if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); } 
-        else { document.getElementById('clan-no-clan').style.display = 'block'; document.getElementById('clan-active').style.display = 'none'; }
-    }
+    function openClansScreen() { const user = getState(); switchTab('screen-clans', null); if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); } else { document.getElementById('clan-no-clan').style.display = 'block'; document.getElementById('clan-active').style.display = 'none'; } }
     
-    function createClan() {
-        const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; }
-        let cName = prompt("Введіть назву клану:"); if(!cName || cName.trim() === '') return;
-        user.balance -= 10000;
-        let newClanRef = database.ref('clans').push();
-        let clanData = { name: cName, ownerId: currentUserKey, members: {}, fund: 0, isCollecting: false };
-        clanData.members[currentUserKey] = user.name;
-        newClanRef.set(clanData).then(() => {
-            user.clanId = newClanRef.key; saveDB(); updateBalanceDisplayQuiet();
-            addTransaction("Створення клану", -10000, '🛡️'); showToast("Клан створено!", "success"); openClansScreen();
-        });
-    }
+    function createClan() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } let cName = prompt("Введіть назву клану:"); if(!cName || cName.trim() === '') return; user.balance -= 10000; let newClanRef = database.ref('clans').push(); let clanData = { name: cName, ownerId: currentUserKey, members: {}, fund: 0, isCollecting: false }; clanData.members[currentUserKey] = user.name; newClanRef.set(clanData).then(() => { user.clanId = newClanRef.key; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Створення клану", -10000, '🛡️'); showToast("Клан створено!", "success"); openClansScreen(); }); }
 
-    function searchClans() {
-        let q = document.getElementById('clan-search-input').value.toLowerCase();
-        let resDiv = document.getElementById('clan-search-results'); resDiv.innerHTML = "Пошук...";
-        database.ref('clans').once('value').then(snap => {
-            let html = ""; let clans = snap.val() || {};
-            for(let id in clans) {
-                if(clans[id].name.toLowerCase().includes(q) || id === q) {
-                    let memCount = Object.keys(clans[id].members || {}).length;
-                    html += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><b>${clans[id].name}</b><br><span style="font-size:10px; color:var(--text-muted);">ID: ${id}<br>Учасників: ${memCount}</span></div><button class="btn-main" style="width:auto; padding:6px 12px; font-size:12px; background:var(--primary);" onclick="joinClan('${id}', '${clans[id].name}')">Вступити</button></div>`;
-                }
-            }
-            resDiv.innerHTML = html || "Клан не знайдено.";
-        });
-    }
+    function searchClans() { let q = document.getElementById('clan-search-input').value.toLowerCase(); let resDiv = document.getElementById('clan-search-results'); resDiv.innerHTML = "Пошук..."; database.ref('clans').once('value').then(snap => { let html = ""; let clans = snap.val() || {}; for(let id in clans) { if(clans[id].name.toLowerCase().includes(q) || id === q) { let memCount = Object.keys(clans[id].members || {}).length; html += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><b>${clans[id].name}</b><br><span style="font-size:10px; color:var(--text-muted);">ID: ${id}<br>Учасників: ${memCount}</span></div><button class="btn-main" style="width:auto; padding:6px 12px; font-size:12px; background:var(--primary);" onclick="joinClan('${id}', '${clans[id].name}')">Вступити</button></div>`; } } resDiv.innerHTML = html || "Клан не знайдено."; }); }
 
-    function joinClan(cId, cName) {
-        const user = getState();
-        database.ref(`clans/${cId}/members/${currentUserKey}`).set(user.name).then(() => {
-            user.clanId = cId; saveDB(); showToast(`Ви вступили в ${cName}!`, "success"); openClansScreen();
-        });
-    }
+    function joinClan(cId, cName) { const user = getState(); database.ref(`clans/${cId}/members/${currentUserKey}`).set(user.name).then(() => { user.clanId = cId; saveDB(); showToast(`Ви вступили в ${cName}!`, "success"); openClansScreen(); }); }
 
-    function leaveClan() {
-        const user = getState(); if(!user.clanId) return;
-        if(confirm("Точно хочеш з'їбатися з клану?")) {
-            database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-                let clan = snap.val();
-                if(clan && clan.ownerId === currentUserKey) {
-                    database.ref(`clans/${user.clanId}`).remove();
-                } else {
-                    database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove();
-                }
-                user.clanId = null; saveDB(); showToast("Ти покинув клан", "info"); openClansScreen();
-            });
-        }
-    }
+    function leaveClan() { const user = getState(); if(!user.clanId) return; if(confirm("Точно хочеш з'їбатися з клану?")) { database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}`).remove(); } else { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove(); } user.clanId = null; saveDB(); showToast("Ти покинув клан", "info"); openClansScreen(); }); } }
 
-    function changeClanName() {
-        const user = getState();
-        if(!user.clanId) return;
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let clan = snap.val();
-            if(clan && clan.ownerId === currentUserKey) {
-                let newName = prompt("Введіть нову назву клану:", clan.name);
-                if(newName && newName.trim() !== "") {
-                    database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => {
-                        showToast("Назву змінено!", "success");
-                        refreshClanData();
-                    });
-                }
-            }
-        });
-    }
+    function changeClanName() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let newName = prompt("Введіть нову назву клану:", clan.name); if(newName && newName.trim() !== "") { database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => { showToast("Назву змінено!", "success"); refreshClanData(); }); } } }); }
 
-    function withdrawClanFund() {
-        const user = getState();
-        if(!user.clanId) return;
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let clan = snap.val();
-            if(clan && clan.ownerId === currentUserKey) {
-                let maxAmt = clan.fund || 0;
-                if(maxAmt <= 0) { showToast("Общак порожній, хулі ти знімати зібрався?", "error"); return; }
-                let amtStr = prompt(`Скільки зняти? (Доступно: ${maxAmt.toFixed(2)} ₴)`);
-                let amt = parseFloat(amtStr);
-                if(amt && amt > 0 && amt <= maxAmt) {
-                    database.ref(`clans/${user.clanId}/fund`).set(maxAmt - amt).then(() => {
-                        user.balance += amt;
-                        saveDB();
-                        updateBalanceDisplayQuiet();
-                        addTransaction("Зняття з общака", amt, '🛡️');
-                        showToast(`Знято ${amt} ₴`, "success");
-                        refreshClanData();
-                    });
-                } else if(amtStr !== null) {
-                    showToast("Крива сума!", "error");
-                }
-            }
-        });
-    }
+    function withdrawClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let maxAmt = clan.fund || 0; if(maxAmt <= 0) { showToast("Общак порожній, хулі ти знімати зібрався?", "error"); return; } let amtStr = prompt(`Скільки зняти? (Доступно: ${maxAmt.toFixed(2)} ₴)`); let amt = parseFloat(amtStr); if(amt && amt > 0 && amt <= maxAmt) { database.ref(`clans/${user.clanId}/fund`).set(maxAmt - amt).then(() => { user.balance += amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Зняття з общака", amt, '🛡️'); showToast(`Знято ${amt} ₴`, "success"); refreshClanData(); }); } else if(amtStr !== null) { showToast("Крива сума!", "error"); } } }); }
 
     window.attackClan = function() {
-        const user = getState();
-        if(!user.clanId) return;
-        const targetId = document.getElementById('clan-attack-id').value.trim();
-        if(!targetId || targetId === user.clanId) { showToast("Кривий ID!", "error"); return; }
-        
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let myClan = snap.val();
-            if(myClan.ownerId !== currentUserKey) { showToast("Тільки лідер може починати війну!", "error"); return; }
-            if((myClan.fund || 0) < 10000) { showToast("В общаку немає 10 000 ₴ на атаку!", "error"); return; }
-            
-            database.ref(`clans/${targetId}`).once('value').then(targetSnap => {
-                if(!targetSnap.exists()) { showToast("Такого клану не існує!", "error"); return; }
-                let targetClan = targetSnap.val();
-                let targetFund = targetClan.fund || 0;
-                
+        const user = getState(); if(!user.clanId) return; const targetId = document.getElementById('clan-attack-id').value.trim(); if(!targetId || targetId === user.clanId) { showToast("Кривий ID!", "error"); return; }
+        database.ref(`clans/${user.clanId}`).once('value').then(snap => { let myClan = snap.val(); if(myClan.ownerId !== currentUserKey) { showToast("Тільки лідер може починати війну!", "error"); return; } if((myClan.fund || 0) < 10000) { showToast("В общаку немає 10 000 ₴ на атаку!", "error"); return; }
+            database.ref(`clans/${targetId}`).once('value').then(targetSnap => { if(!targetSnap.exists()) { showToast("Такого клану не існує!", "error"); return; } let targetClan = targetSnap.val(); let targetFund = targetClan.fund || 0;
                 database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000).then(() => {
-                    if(Math.random() > 0.4 && targetFund > 0) {
-                        let stolen = Math.floor(targetFund * 0.2); 
-                        database.ref(`clans/${targetId}/fund`).set(targetFund - stolen);
-                        database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000 + stolen);
-                        showPush("Війна", `Атака успішна! Вкрадено ${stolen} ₴ з чужого общака.`, "⚔️");
-                    } else {
-                        showPush("Війна", "Атака відбита. Ви проєбали 10к.", "⚔️", true);
-                    }
+                    if(Math.random() > 0.4 && targetFund > 0) { let stolen = Math.floor(targetFund * 0.2); database.ref(`clans/${targetId}/fund`).set(targetFund - stolen); database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000 + stolen); showPush("Війна", `Атака успішна! Вкрадено ${stolen} ₴ з чужого общака.`, "⚔️"); } 
+                    else { showPush("Війна", "Атака відбита. Ви проєбали 10к.", "⚔️", true); }
                     refreshClanData();
                 });
             });
@@ -1136,56 +976,22 @@
     function refreshClanData() {
         const user = getState(); if(!user.clanId) return;
         database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let clan = snap.val();
-            if(!clan) { user.clanId = null; saveDB(); openClansScreen(); return; }
-            document.getElementById('clan-name-display').innerText = clan.name;
-            document.getElementById('clan-fund-display').innerText = (clan.fund || 0).toLocaleString() + " ₴";
-            
-            let isOwner = clan.ownerId === currentUserKey;
-            document.getElementById('clan-role-display').innerText = isOwner ? "Роль: Лідер 👑" : "Роль: Учасник";
-            document.getElementById('clan-owner-controls').style.display = isOwner ? 'flex' : 'none';
-            
+            let clan = snap.val(); if(!clan) { user.clanId = null; saveDB(); openClansScreen(); return; }
+            document.getElementById('clan-name-display').innerText = clan.name; document.getElementById('clan-fund-display').innerText = (clan.fund || 0).toLocaleString() + " ₴";
+            let isOwner = clan.ownerId === currentUserKey; document.getElementById('clan-role-display').innerText = isOwner ? "Роль: Лідер 👑" : "Роль: Учасник"; document.getElementById('clan-owner-controls').style.display = isOwner ? 'flex' : 'none';
             let statusEl = document.getElementById('clan-fund-status'); let donateArea = document.getElementById('clan-donate-area');
-            if(clan.isCollecting) { statusEl.innerText = "Збір коштів ВІДКРИТО 💸"; statusEl.style.color = "var(--success)"; donateArea.style.display = 'block'; } 
-            else { statusEl.innerText = "Збір коштів ЗАКРИТО 🔒"; statusEl.style.color = "var(--warning)"; donateArea.style.display = 'none'; }
-            
+            if(clan.isCollecting) { statusEl.innerText = "Збір коштів ВІДКРИТО 💸"; statusEl.style.color = "var(--success)"; donateArea.style.display = 'block'; } else { statusEl.innerText = "Збір коштів ЗАКРИТО 🔒"; statusEl.style.color = "var(--warning)"; donateArea.style.display = 'none'; }
             let memHtml = "";
-            for(let uid in clan.members) {
-                let kickBtn = (isOwner && uid !== currentUserKey) ? `<button class="btn-main btn-danger" style="width:auto; padding:4px 8px; font-size:10px;" onclick="kickMember('${user.clanId}','${uid}')">Вигнати</button>` : '';
-                memHtml += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${uid === clan.ownerId ? '👑 ' : ''}${clan.members[uid]}</span> ${kickBtn}</div>`;
-            }
+            for(let uid in clan.members) { let kickBtn = (isOwner && uid !== currentUserKey) ? `<button class="btn-main btn-danger" style="width:auto; padding:4px 8px; font-size:10px;" onclick="kickMember('${user.clanId}','${uid}')">Вигнати</button>` : ''; memHtml += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${uid === clan.ownerId ? '👑 ' : ''}${clan.members[uid]}</span> ${kickBtn}</div>`; }
             document.getElementById('clan-members-list').innerHTML = memHtml;
         });
     }
 
-    function toggleClanFund() {
-        const user = getState(); if(!user.clanId) return;
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) {
-                database.ref(`clans/${user.clanId}/isCollecting`).set(!clan.isCollecting).then(refreshClanData);
-            }
-        });
-    }
+    function toggleClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}/isCollecting`).set(!clan.isCollecting).then(refreshClanData); } }); }
 
-    function donateToClan() {
-        const user = getState(); if(!user.clanId) return;
-        let amt = parseFloat(document.getElementById('clan-donate-amount').value);
-        if(!amt || amt <= 0 || amt > user.balance) { showToast("Нема грошей, бомж!", "error"); return; }
-        
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => {
-            let clan = snap.val(); if(clan && clan.isCollecting) {
-                database.ref(`clans/${user.clanId}/fund`).set((clan.fund || 0) + amt).then(() => {
-                    user.balance -= amt; saveDB(); updateBalanceDisplayQuiet();
-                    addTransaction("Внесок у клан", -amt, '🛡️'); showToast("Внесок зроблено!", "success");
-                    document.getElementById('clan-donate-amount').value = ''; refreshClanData();
-                });
-            } else { showToast("Збір закрито!", "error"); }
-        });
-    }
+    function donateToClan() { const user = getState(); if(!user.clanId) return; let amt = parseFloat(document.getElementById('clan-donate-amount').value); if(!amt || amt <= 0 || amt > user.balance) { showToast("Нема грошей, бомж!", "error"); return; } database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.isCollecting) { database.ref(`clans/${user.clanId}/fund`).set((clan.fund || 0) + amt).then(() => { user.balance -= amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Внесок у клан", -amt, '🛡️'); showToast("Внесок зроблено!", "success"); document.getElementById('clan-donate-amount').value = ''; refreshClanData(); }); } else { showToast("Збір закрито!", "error"); } }); }
 
-    function kickMember(cId, uid) {
-        if(confirm("Вигнати цього уєбана?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Гравця вигнано", "success"); refreshClanData(); }); }
-    }
+    function kickMember(cId, uid) { if(confirm("Вигнати цього уєбана?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Гравця вигнано", "success"); refreshClanData(); }); } }
 
     function checkQuests() { const user = getState(); const today = new Date().toLocaleDateString(); if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; } }
     function renderQuests() {
@@ -1201,26 +1007,36 @@
         const user = getState(); const input = document.getElementById('custom-card-input').value.replace(/\s/g, '');
         if(input.length !== 16 || isNaN(input)) { showToast("Номер має бути з 16 цифр!", "error"); return; }
         if(user.balance < 500000) { showToast("Потрібно 500 000 ₴", "error"); return; }
-        
         database.ref('users').once('value').then(snap => {
-            let allUsers = snap.val() || {}; let taken = false;
-            for(let key in allUsers) { if(allUsers[key].cardNumber === input) { taken = true; break; } }
+            let allUsers = snap.val() || {}; let taken = false; for(let key in allUsers) { if(allUsers[key].cardNumber === input) { taken = true; break; } }
             if(taken) { showToast("Цей номер вже зайнятий!", "error"); return; }
-            
-            user.balance -= 500000; user.cardNumber = input; saveDB(); updateBalanceDisplayQuiet();
-            addTransaction("Купівля VIP-номера", -500000, '💳'); showToast("Ексклюзивний номер активовано!", "success");
-            document.getElementById('custom-card-input').value = '';
+            user.balance -= 500000; user.cardNumber = input; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Купівля VIP-номера", -500000, '💳'); showToast("Ексклюзивний номер активовано!", "success"); document.getElementById('custom-card-input').value = '';
             const formatted = input.match(/.{1,4}/g).join(' '); document.getElementById('full-card-num').innerText = formatted; document.getElementById('dashboard-card-num').innerText = formatted;
         });
     }
 
-    const bizConfig = [
-        { id: 'shaurma', name: 'Ларьок з шаурмою', icon: '🌯', basePrice: 500000, baseIncome: 2 },
-        { id: 'carwash', name: 'Автомийка', icon: '🚗', basePrice: 2500000, baseIncome: 15 },
-        { id: 'it', name: 'IT-стартап', icon: '💻', basePrice: 25000000, baseIncome: 150 },
-        { id: 'build', name: 'Будівельна компанія', icon: '🏗️', basePrice: 500000000, baseIncome: 3000 },
-        { id: 'bank', name: 'Банк-конкурент', icon: '🏦', basePrice: 10000000000, baseIncome: 50000 }
-    ];
+    function openUseful(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-useful', navElement); renderUsefulFull(); renderBusinesses(); }
+    
+    function renderUsefulFull() { 
+        const user = getState(); 
+        const depTimerArea = document.getElementById('deposit-timer-area'); const depInputArea = document.getElementById('deposit-input-area'); 
+        if(user.deposits && user.deposits.length > 0) { depTimerArea.style.display = 'block'; } else { depTimerArea.style.display = 'none'; } 
+        const credInputArea = document.getElementById('credit-input-area'); const credTimerArea = document.getElementById('credit-timer-area'); 
+        let cData = getCreditData(); document.getElementById('credit-score-display').innerText = cData.score; document.getElementById('credit-score-display').style.color = cData.score > 80 ? 'var(--success)' : cData.score < 40 ? 'var(--danger)' : 'var(--warning)'; document.getElementById('credit-rate-label').innerText = `Ставка: ${cData.rate}%`; 
+        
+        document.getElementById('miner-count-display').innerText = `У вас: ${user.miners || 0} шт.`;
+        if(user.hasOffshore) { document.getElementById('btn-offshore').innerText = "Офшор активний"; document.getElementById('btn-offshore').disabled = true; document.getElementById('btn-offshore').style.background = "var(--success)"; }
+
+        if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } 
+        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно -- росте рейтинг. Несплата -- банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
+        renderUsefulTimersOnly(); 
+    }
+    
+    function renderUsefulTimersOnly() { 
+        const user = getState(); 
+        if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; } 
+        if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; let cData = getCreditData(); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cData.cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cData.cReturn} ₴)</button>`; } 
+    }
 
     function renderBusinesses() {
         const user = getState(); const area = document.getElementById('businesses-area'); if(!area) return; let html = "";
@@ -1240,6 +1056,22 @@
         saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
     }
 
+    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
+    function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); }
+    function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, (user.creditScore || 100) + 20); saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); }
+
+    window.buyMiner = function() {
+        const user = getState(); let count = user.miners || 0; let price = 100000 * Math.pow(1.2, count);
+        if(user.balance < price) { showToast("Грошей не вистачає!", "error"); return; }
+        user.balance -= price; user.miners = count + 1; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("ASIC куплено!", "success");
+    };
+
+    window.buyOffshore = function() {
+        const user = getState(); if(user.hasOffshore) { showToast("Офшор вже є!", "info"); return; }
+        if(user.balance < 500000) { showToast("Треба 500 000 ₴", "error"); return; }
+        user.balance -= 500000; user.hasOffshore = true; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Офшор відкрито!", "success");
+    };
+
     function updateProfileNetWorth() {
         const user = getState(); if(!user) return; let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
         for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
@@ -1258,25 +1090,6 @@
     
     function applySkin(skinName) { document.getElementById('app-root').classList.remove('skin-gold', 'skin-neon', 'skin-glass', 'skin-fire', 'skin-matrix', 'skin-plasma', 'skin-rgb', 'skin-ocean', 'skin-gold-anim', 'skin-toxic', 'skin-hologram', 'skin-lightning', 'skin-void', 'skin-dragon', 'skin-god'); if(skinName && skinName !== 'default') document.getElementById('app-root').classList.add(skinName); }
     
-    const skinsConfig = [
-        { id: 'default', name: 'Синя (Стандарт)', price: 0, style: 'background:#0047AB;' },
-        { id: 'skin-gold', name: 'Золота', price: 50000, style: 'background:linear-gradient(135deg, #FFD700, #B8860B); color:#000;' },
-        { id: 'skin-neon', name: 'Неонова', price: 100000, style: 'background:#000; color:#0f0; border:1px solid #0f0;' },
-        { id: 'skin-glass', name: 'Скляна', price: 250000, style: 'background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.2);' },
-        { id: 'skin-fire', name: '🔥 Пекельна', price: 1000000, style: 'background:linear-gradient(270deg, #8b0000, #ff4500); color:#fff; animation: fireAnim 3s infinite;' },
-        { id: 'skin-matrix', name: '💻 Хакерська', price: 2500000, style: 'background:#000; color:#0f0;' },
-        { id: 'skin-plasma', name: '🌌 Плазма', price: 5000000, style: 'background:linear-gradient(270deg, #8A2BE2, #0000FF); color:#fff;' },
-        { id: 'skin-rgb', name: '🎮 RGB Геймер', price: 7500000, style: 'background:#111; color:#fff; border:2px solid #ff0000;' },
-        { id: 'skin-ocean', name: '🌊 Океан', price: 10000000, style: 'background:linear-gradient(270deg, #001f3f, #0088cc); color:#fff;' },
-        { id: 'skin-gold-anim', name: '✨ Сяюче Золото', price: 25000000, style: 'background:linear-gradient(135deg, #FFDF00, #D4AF37); color:#000;' },
-        { id: 'skin-toxic', name: '☣️ Токсична', price: 50000000, style: 'background:#0a0a0a; color:#7FFF00; border:1px solid #7FFF00;' },
-        { id: 'skin-hologram', name: '💠 Голограма', price: 100000000, style: 'background:linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3); color:#fff;' },
-        { id: 'skin-lightning', name: '⚡ Блискавка', price: 250000000, style: 'background:#001133; color:#0ff; border:2px solid #0ff;' },
-        { id: 'skin-void', name: '🌌 Пустота', price: 500000000, style: 'background:radial-gradient(circle, #2e004f, #000); color:#a9a9a9;' },
-        { id: 'skin-dragon', name: '🐉 Дихання Дракона', price: 1000000000, style: 'background:linear-gradient(45deg, #8b0000, #ff4500); color:#ffd700;' },
-        { id: 'skin-god', name: '👼 Божественна', price: 5000000000, style: 'background:radial-gradient(circle, #fff, #ffd700); color:#000;' }
-    ];
-
     function openSkinsModal() { 
         document.getElementById('skins-modal').classList.add('active'); 
         let currentSkin = getState().skin || 'default'; 
@@ -1291,7 +1104,7 @@
         skinsConfig.forEach(s => {
             const isOwned = user.ownedSkins && user.ownedSkins.includes(s.id);
             const isActive = user.skin === s.id;
-            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} — ${s.price.toLocaleString('uk-UA')} ₴`;
+            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} -- ${s.price.toLocaleString('uk-UA')} ₴`;
             let badge = isOwned ? `<span style="color:var(--success); font-weight:bold; margin-right:5px;">[+]</span> ` : '';
             html += `<button class="btn-main" style="${s.style} opacity:${isActive ? '0.6' : '1'}; margin-bottom: 5px;" onclick="previewAndBuySkin('${s.id}', ${s.price})" ${isActive ? 'disabled' : ''}>${badge}${btnText}</button>`;
         });
@@ -1299,23 +1112,11 @@
     }
     
     function previewAndBuySkin(skinName, price) { 
-        const user = getState(); 
-        document.getElementById('skin-preview-container').className = skinName; 
-        
+        const user = getState(); document.getElementById('skin-preview-container').className = skinName; 
         if(user.skin === skinName) return; 
-        
-        if(user.ownedSkins && user.ownedSkins.includes(skinName)) {
-            user.skin = skinName; saveDB(); applySkin(skinName); renderSkinsList(); showToast("Дизайн застосовано!", "success"); return;
-        }
-        
+        if(user.ownedSkins && user.ownedSkins.includes(skinName)) { user.skin = skinName; saveDB(); applySkin(skinName); renderSkinsList(); showToast("Дизайн застосовано!", "success"); return; }
         if(user.balance < price) { showToast("Недостатньо коштів, хулі ти тицяєш?", "error"); return; } 
-        if(confirm(`Придбати дизайн за ${price.toLocaleString('uk-UA')} ₴?`)) { 
-            user.balance -= price; 
-            user.skin = skinName; 
-            if(!user.ownedSkins) user.ownedSkins = ['default'];
-            user.ownedSkins.push(skinName);
-            saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); renderSkinsList(); showToast("Дизайн придбано!", "success"); 
-        }
+        if(confirm(`Придбати дизайн за ${price.toLocaleString('uk-UA')} ₴?`)) { user.balance -= price; user.skin = skinName; if(!user.ownedSkins) user.ownedSkins = ['default']; user.ownedSkins.push(skinName); saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); renderSkinsList(); showToast("Дизайн придбано!", "success"); }
     }
 
     function openUpgrades() { renderUpgrades(); document.getElementById('upgrades-modal').classList.add('active'); }
@@ -1333,31 +1134,15 @@
         saveDB(); updateBalanceDisplayQuiet(); renderUpgrades(); showToast("Успішна прокачка!", "success");
     }
 
-    let lastClickTime = 0;
-    let clicksInSecond = 0;
-
+    let lastClickTime = 0; let clicksInSecond = 0;
     window.earnMoney = function(event) { 
         if (event && !event.isTrusted) { showToast("Пішов нахуй зі своїми скриптами!", "error"); return; }
-
-        const user = getState(); 
-        if(!user) return;
+        const user = getState(); if(!user) return;
         if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } 
-        
         const now = Date.now();
-        if (now - lastClickTime < 1000) {
-            clicksInSecond++;
-            if (clicksInSecond > 10) { showToast("Занадто швидко! Спрацював анти-клікер.", "error"); return; }
-        } else {
-            clicksInSecond = 1;
-            lastClickTime = now;
-        }
-
-        checkQuests(); 
-        user.quests.clicks++; 
-        user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); 
-        saveDB(); 
-        updateBalanceDisplayQuiet(); 
-        renderQuests(); 
+        if (now - lastClickTime < 1000) { clicksInSecond++; if (clicksInSecond > 10) { showToast("Занадто швидко! Спрацював анти-клікер.", "error"); return; } } 
+        else { clicksInSecond = 1; lastClickTime = now; }
+        checkQuests(); user.quests.clicks++; user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); 
     };
 
     function updateBalanceDisplayQuiet() { const user = getState(); if(!user) return; const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${(user.cardNumber || "0000").slice(-4)} (${formatted})`; checkTransferForm(); }
@@ -1370,56 +1155,21 @@
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
     
     function executeTransfer() { 
-        const sender = getState(); 
-        const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
-        const amount = parseFloat(document.getElementById('transfer-amount').value); 
-        const btn = document.getElementById('btn-transfer');
-
+        const sender = getState(); const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value); const btn = document.getElementById('btn-transfer');
         if(cardInput === sender.cardNumber) { showToast("Самому собі переказувати не можна.", "error"); return; } 
-        
-        btn.innerText = "⏳ Обробка..."; 
-        btn.disabled = true;
-
-        database.ref('users').orderByChild('cardNumber').equalTo(cardInput).once('value')
-        .then(snapshot => {
+        btn.innerText = "⏳ Обробка..."; btn.disabled = true;
+        database.ref('users').orderByChild('cardNumber').equalTo(cardInput).once('value').then(snapshot => {
             if(snapshot.exists()) {
-                let receiverKey = Object.keys(snapshot.val())[0];
-                let receiverData = snapshot.val()[receiverKey];
-
-                database.ref('users/' + receiverKey + '/incoming_transfers').push({
-                    amount: amount,
-                    senderName: sender.name,
-                    date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'})
-                }).then(() => { 
-                    sender.balance -= amount; 
-                    sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
-                    saveDB(); 
-                    
-                    document.getElementById('transfer-card').value = ''; 
-                    document.getElementById('transfer-amount').value = ''; 
-                    btn.innerText = "Надіслати"; btn.disabled = false; 
-                    updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
-                    showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
-                }).catch(() => { 
-                    showToast("Помилка мережі.", "error"); 
-                    btn.innerText = "Надіслати"; btn.disabled = false; 
-                });
+                let receiverKey = Object.keys(snapshot.val())[0]; let receiverData = snapshot.val()[receiverKey];
+                database.ref('users/' + receiverKey + '/incoming_transfers').push({ amount: amount, senderName: sender.name, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}) }).then(() => { 
+                    sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
+                    document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
+                }).catch(() => { showToast("Помилка мережі.", "error"); btn.innerText = "Надіслати"; btn.disabled = false; });
             } else { 
-                sender.balance -= amount; 
-                sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
-                saveDB(); 
-                
-                document.getElementById('transfer-card').value = ''; 
-                document.getElementById('transfer-amount').value = ''; 
-                btn.innerText = "Надіслати"; btn.disabled = false; 
-                
-                updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
-                showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
+                sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
+                document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
             }
-        }).catch(err => { 
-            showToast("Слабкий інтернет. Спробуй ще раз.", "error"); 
-            btn.innerText = "Надіслати"; btn.disabled = false; 
-        });
+        }).catch(err => { showToast("Слабкий інтернет. Спробуй ще раз.", "error"); btn.innerText = "Надіслати"; btn.disabled = false; });
     }
 
     setInterval(() => {
@@ -1439,8 +1189,8 @@
             if(user.credit && user.credit.active) {
                 if(now >= user.credit.dueTime) { showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true); for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; } user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true; user.creditScore = 10; user.miners = 0; user.hasOffshore = false; user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' }); applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`; if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true; }
             }
-            if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-products').classList.contains('active')) { renderProductsFull(); } } 
-            else { if(document.getElementById('screen-products').classList.contains('active')) renderProductsTimersOnly(); }
+            if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-useful').classList.contains('active')) { renderUsefulFull(); } } 
+            else { if(document.getElementById('screen-useful').classList.contains('active')) renderUsefulTimersOnly(); }
         } catch (e) { console.error("Помилка основного таймера: ", e); }
     }, 1000);
 
@@ -1449,27 +1199,15 @@
             const user = getState(); if(!user || user.isLocked) return; let needsUpdate = false;
             
             if(user.balance > 100000 && !user.hasOffshore) {
-                let tax = Math.floor(user.balance * 0.01);
-                user.balance -= tax;
-                addTransaction("Податок на багатство", -tax, '🏛️');
-                showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️");
-                needsUpdate = true;
+                let tax = Math.floor(user.balance * 0.01); user.balance -= tax; addTransaction("Податок на багатство", -tax, '🏛️'); showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️"); needsUpdate = true;
             }
             
             if(user.balance > 50000 && !user.hasOffshore && Math.random() < 0.1) {
-                let raidTax = Math.floor(user.balance * 0.2);
-                user.balance -= raidTax;
-                addTransaction("Податкова облава", -raidTax, '👮');
-                showPush("Податкова", `Облава! Здерли 20% (${raidTax} ₴). Відкрий офшор!`, "👮", true);
-                needsUpdate = true;
+                let raidTax = Math.floor(user.balance * 0.2); user.balance -= raidTax; addTransaction("Податкова облава", -raidTax, '👮'); showPush("Податкова", `Облава! Здерли 20% (${raidTax} ₴). Відкрий офшор!`, "👮", true); needsUpdate = true;
             }
 
             if(user.miners && user.miners > 0) {
-                let mined = parseFloat((user.miners * 0.01).toFixed(4));
-                let btc = user.portfolio['bite'] || {qty: 0, avgPrice: 0};
-                btc.qty = parseFloat((btc.qty + mined).toFixed(4));
-                user.portfolio['bite'] = btc;
-                needsUpdate = true;
+                let mined = parseFloat((user.miners * 0.01).toFixed(4)); let btc = user.portfolio['bite'] || {qty: 0, avgPrice: 0}; btc.qty = parseFloat((btc.qty + mined).toFixed(4)); user.portfolio['bite'] = btc; needsUpdate = true;
             }
 
             if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks(); }
