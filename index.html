@@ -263,7 +263,7 @@
         </div>
 
         <div class="quick-actions">
-            <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
+            <button type="button" class="action-btn" onclick="openTransfer(document.querySelectorAll('.nav-item')[1])"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
             <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
             <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
             <button type="button" class="action-btn" onclick="openClansScreen()"><div class="action-icon" style="background:var(--primary);">🛡️</div><div class="action-text">Клан</div></button>
@@ -598,7 +598,7 @@
 
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Головна</span></div>
-        <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежі</span></div>
+        <div class="nav-item" onclick="openTransfer(this)"><div class="nav-icon">💸</div><span>Платежі</span></div>
         <div class="nav-item" onclick="openStocks(this)"><div class="nav-icon">📈</div><span>Біржа</span></div>
         <div class="nav-item" onclick="openUseful(this)"><div class="nav-icon">🎒</div><span>Корисне</span></div>
         <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профіль</span></div>
@@ -709,7 +709,7 @@
         database.ref('users/' + emailKey).once('value').then((snapshot) => {
             if(snapshot.exists() && snapshot.val().password === pass) {
                 if(snapshot.val().isBanned) {
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
                     setTimeout(logout, 3000); return; 
                 }
                 db.users[emailKey] = snapshot.val(); currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showAppPinScreen();
@@ -722,7 +722,7 @@
             database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
                 if(snapshot.exists()) {
                     if(snapshot.val().isBanned) {
-                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ</div>";
+                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
                         logout(); return; 
                     } 
                     db.users[currentUserKey] = snapshot.val(); showAppPinScreen(); 
@@ -752,7 +752,7 @@
             if(user.clanId) {
                 database.ref(`clans/${user.clanId}/members/${currentUserKey}`).set(user.name);
             }
-            showToast("Ім'я змінено!", "success");
+            showToast("Ім'я успішно змінено!", "success");
         }
     }
 
@@ -760,7 +760,7 @@
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState(); 
         
-        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ</div>"; logout(); return; }
+        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>"; logout(); return; }
         
         if(user.prestigeMultiplier) { delete user.prestigeMultiplier; }
         if(user.miners === undefined) user.miners = 0;
@@ -779,7 +779,7 @@
             database.ref('users/' + currentUserKey + '/isBanned').on('value', snap => {
                 if(snap.exists() && snap.val() === true) { 
                     logout();
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>ВИ ЗАБАНЕНІ</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
                 }
             });
 
@@ -809,13 +809,6 @@
         document.getElementById('set-notifs').checked = user.settings.notifications;
         document.getElementById('set-news').checked = user.settings.newsNotifications;
 
-        document.getElementById('miner-count-display').innerText = `У вас: ${user.miners || 0} шт.`;
-        if(user.hasOffshore) {
-            document.getElementById('btn-offshore').innerText = "Офшор активний";
-            document.getElementById('btn-offshore').disabled = true;
-            document.getElementById('btn-offshore').style.background = "var(--success)";
-        }
-
         applySkin(user.skin); applyLockStatusVisually(); updateBalanceDisplayQuiet(); renderHistory(); renderQuests(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]);
     }
 
@@ -826,9 +819,9 @@
 
     window.banUser = function(targetKey) { 
         if(currentUserKey !== 'danildovz1@gmail,com') return; 
-        if(confirm("Точно забанити цього гравця назавжди?")) { 
+        if(confirm("Ви впевнені, що хочете заблокувати цього гравця назавжди?")) { 
             database.ref('users/' + targetKey).update({ isBanned: true }).then(() => { 
-                showToast("Гравця заблоковано!", "success"); 
+                showToast("Гравця успішно заблоковано!", "success"); 
                 openLeaderboard(); 
             }); 
         } 
@@ -836,7 +829,7 @@
 
     window.wipeUser = function(targetKey) {
         if(currentUserKey !== 'danildovz1@gmail,com') return;
-        if(confirm("Точно обнулити цього гравця? Всі гроші, бізнеси та активи зникнуть!")) {
+        if(confirm("Ви впевнені, що хочете обнулити цього гравця? Всі його кошти та активи будуть видалені!")) {
             database.ref('users/' + targetKey).update({
                 balance: 0,
                 portfolio: {},
@@ -849,7 +842,7 @@
                 miners: 0,
                 hasOffshore: false
             }).then(() => {
-                showToast("Гравця обнулено!", "success");
+                showToast("Акаунт гравця обнулено!", "success");
                 openLeaderboard();
             });
         }
@@ -883,7 +876,13 @@
         saveDB();
     }
 
-    function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
+    function openStocks(navElement) { 
+        if(getState().isLocked) { showToast("Будь ласка, зніміть щит!", "error"); return; } 
+        if(!navElement) navElement = document.querySelectorAll('.nav-item')[2];
+        switchTab('screen-stocks', navElement); 
+        renderStocks(); 
+    }
+    
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
     
     function renderStocks() { 
@@ -943,7 +942,7 @@
     function executeSellStock() {
         const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } 
         const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const revenue = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); 
-        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Немає стільки активів!", "error"); return; }
+        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Недостатня кількість активів!", "error"); return; }
         user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
     }
 
@@ -958,7 +957,7 @@
         }
     }
 
-    // --- CASINO ---
+    // --- КАЗИНО ТА ДАРКНЕТ ---
     window.playCasino = function(color) {
         const user = getState();
         const bet = parseFloat(document.getElementById('casino-bet').value);
@@ -973,7 +972,7 @@
             let win = color === 'green' ? bet * 14 : bet * 2;
             user.balance += win;
             addTransaction("Казино (Перемога)", win - bet, '🎰');
-            showPush("Казино", `Чудово! Випало ${resultColor}. +${win} ₴`, "🎰");
+            showPush("Казино", `Успіх! Випало ${resultColor}. Отримано ${win} ₴`, "🎰");
         } else {
             addTransaction("Казино (Програш)", -bet, '🎰');
             showPush("Казино", `На жаль, випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true);
@@ -981,10 +980,9 @@
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('casino-modal').classList.remove('active');
     };
 
-    // --- DARKNET (DDoS) ---
     window.buyDdos = function() {
         const user = getState();
-        if(user.balance < 50000) { showToast("Потрібно 50 000 ₴ на хакерів!", "error"); return; }
+        if(user.balance < 50000) { showToast("Потрібно 50 000 ₴ для атаки!", "error"); return; }
         user.balance -= 50000;
         if(Math.random() > 0.5) {
             let stolen = 10000 + Math.floor(Math.random() * 90000);
@@ -993,12 +991,12 @@
             showPush("Даркнет", `Атака успішна! Отримано ${stolen} ₴`, "🏴‍☠️");
         } else {
             addTransaction("Невдалий DDoS", -50000, '🏴‍☠️');
-            showPush("Даркнет", "Спроба невдала. Гроші втрачено.", "🏴‍☠️", true);
+            showPush("Даркнет", "Атака провалилася! Гроші втрачено.", "🏴‍☠️", true);
         }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('darknet-modal').classList.remove('active');
     };
 
-    // --- CLANS ---
+    // --- КЛАНИ ---
     function openClansScreen() {
         const user = getState(); switchTab('screen-clans', null);
         if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); } 
@@ -1042,7 +1040,7 @@
 
     function leaveClan() {
         const user = getState(); if(!user.clanId) return;
-        if(confirm("Точно хочете покинути клан?")) {
+        if(confirm("Ви впевнені, що хочете покинути клан?")) {
             database.ref(`clans/${user.clanId}`).once('value').then(snap => {
                 let clan = snap.val();
                 if(clan && clan.ownerId === currentUserKey) {
@@ -1079,7 +1077,7 @@
             let clan = snap.val();
             if(clan && clan.ownerId === currentUserKey) {
                 let maxAmt = clan.fund || 0;
-                if(maxAmt <= 0) { showToast("Общак клану порожній!", "error"); return; }
+                if(maxAmt <= 0) { showToast("Общак порожній!", "error"); return; }
                 let amtStr = prompt(`Скільки зняти? (Доступно: ${maxAmt.toFixed(2)} ₴)`);
                 let amt = parseFloat(amtStr);
                 if(amt && amt > 0 && amt <= maxAmt) {
@@ -1102,7 +1100,7 @@
         const user = getState();
         if(!user.clanId) return;
         const targetId = document.getElementById('clan-attack-id').value.trim();
-        if(!targetId || targetId === user.clanId) { showToast("Невірний ID!", "error"); return; }
+        if(!targetId || targetId === user.clanId) { showToast("Некоректний ID!", "error"); return; }
         
         database.ref(`clans/${user.clanId}`).once('value').then(snap => {
             let myClan = snap.val();
@@ -1183,7 +1181,7 @@
         if(confirm("Вигнати цього гравця?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Гравця вигнано", "success"); refreshClanData(); }); }
     }
 
-    // --- НАЛАШТУВАННЯ ТА ПРОФІЛЬ ---
+    // --- НАЛАШТУВАННЯ ТА КВЕСТИ ---
     function checkQuests() { const user = getState(); const today = new Date().toLocaleDateString(); if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; } }
     function renderQuests() {
         const user = getState(); if(!user) return; checkQuests(); const q = user.quests; const container = document.getElementById('quest-container'); if(!container) return;
@@ -1211,34 +1209,14 @@
         });
     }
 
-    // --- ПРОДУКТИ / КОРИСНЕ ---
-    const bizConfig = [
-        { id: 'shaurma', name: 'Ларьок з шаурмою', icon: '🌯', basePrice: 500000, baseIncome: 2 },
-        { id: 'carwash', name: 'Автомийка', icon: '🚗', basePrice: 2500000, baseIncome: 15 },
-        { id: 'it', name: 'IT-стартап', icon: '💻', basePrice: 25000000, baseIncome: 150 },
-        { id: 'build', name: 'Будівельна компанія', icon: '🏗️', basePrice: 500000000, baseIncome: 3000 },
-        { id: 'bank', name: 'Банк-конкурент', icon: '🏦', basePrice: 10000000000, baseIncome: 50000 }
-    ];
-
-    function renderBusinesses() {
-        const user = getState(); const area = document.getElementById('businesses-area'); if(!area) return; let html = "";
-        bizConfig.forEach(biz => {
-            let count = user.businesses && user.businesses[biz.id] ? user.businesses[biz.id] : 0;
-            let price = biz.basePrice * Math.pow(1.5, count); let inc = biz.baseIncome;
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px;"><div><div>${biz.icon} <b>${biz.name}</b> (Шт: ${count})</div><div style="font-size:12px; color:var(--success);">+${inc} ₴ / сек за кожен</div></div><button class="btn-main" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyBusiness('${biz.id}')">${price.toLocaleString('uk-UA', {maximumFractionDigits:0})} ₴</button></div>`;
-        });
-        area.innerHTML = html;
+    // --- РОЗДІЛ "КОРИСНЕ" ---
+    function openUseful(navElement) { 
+        if(getState().isLocked) { showToast("Будь ласка, зніміть щит!", "error"); return; } 
+        if(!navElement) navElement = document.querySelectorAll('.nav-item')[3];
+        switchTab('screen-useful', navElement); 
+        renderUsefulFull(); 
+        renderBusinesses(); 
     }
-    
-    function buyBusiness(type) {
-        const user = getState(); let bizDef = bizConfig.find(b => b.id === type); if(!bizDef) return;
-        let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
-        let price = bizDef.basePrice * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; }
-        user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
-        saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
-    }
-
-    function openUseful(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-useful', navElement); renderUsefulFull(); renderBusinesses(); }
     
     function renderUsefulFull() { 
         const user = getState(); 
@@ -1261,12 +1239,49 @@
         if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; let cData = getCreditData(); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cData.cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cData.cReturn} ₴)</button>`; } 
     }
 
-    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
-    function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); }
-    function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, (user.creditScore || 100) + 20); saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); }
+    function renderBusinesses() {
+        const user = getState(); const area = document.getElementById('businesses-area'); if(!area) return; let html = "";
+        bizConfig.forEach(biz => {
+            let count = user.businesses && user.businesses[biz.id] ? user.businesses[biz.id] : 0;
+            let price = biz.basePrice * Math.pow(1.5, count); let inc = biz.baseIncome;
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px;"><div><div>${biz.icon} <b>${biz.name}</b> (Шт: ${count})</div><div style="font-size:12px; color:var(--success);">+${inc} ₴ / сек за кожен</div></div><button class="btn-main" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyBusiness('${biz.id}')">${price.toLocaleString('uk-UA', {maximumFractionDigits:0})} ₴</button></div>`;
+        });
+        area.innerHTML = html;
+    }
+    
+    function buyBusiness(type) {
+        const user = getState(); let bizDef = bizConfig.find(b => b.id === type); if(!bizDef) return;
+        let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
+        let price = bizDef.basePrice * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; }
+        user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
+        saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
+    }
 
-    // --- КАРТКА ТА СКІНИ ---
+    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спочатку погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
+    function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас вже є активний кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); }
+    function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, (user.creditScore || 100) + 20); saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит успішно погашено! Рейтинг зріс.", "success"); }
+
+    window.buyMiner = function() {
+        const user = getState(); let count = user.miners || 0; let price = 100000 * Math.pow(1.2, count);
+        if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; }
+        user.balance -= price; user.miners = count + 1; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("ASIC куплено!", "success");
+    };
+
+    window.buyOffshore = function() {
+        const user = getState(); if(user.hasOffshore) { showToast("Офшор вже відкрито!", "info"); return; }
+        if(user.balance < 500000) { showToast("Потрібно 500 000 ₴", "error"); return; }
+        user.balance -= 500000; user.hasOffshore = true; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Офшор успішно відкрито!", "success");
+    };
+
+    function updateProfileNetWorth() {
+        const user = getState(); if(!user) return; let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
+        for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
+        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+    }
+
+    // --- КЕРУВАННЯ КАРТКОЮ ---
     function openCardDetails() { switchTab('screen-card-details', document.querySelectorAll('.nav-item')[0]); flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; }
+    
     const flipCardInner = document.getElementById('flip-card-inner'); const flipCard = document.getElementById('flip-card');
     function triggerFlip(direction) { if (!isFlipped) { flipCardInner.style.transform = direction === 'left' ? 'rotateY(-180deg)' : 'rotateY(180deg)'; isFlipped = true; } else { flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; isPinVisible = false; document.getElementById('card-pin-display').innerText = "****"; } }
     flipCard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }); flipCard.addEventListener('touchend', e => { let diff = e.changedTouches[0].screenX - touchstartX; if (Math.abs(diff) > 40) triggerFlip(diff > 0 ? 'right' : 'left'); }); flipCard.addEventListener('click', e => { if(e.target.innerText === '👁') return; triggerFlip('right'); });
@@ -1276,8 +1291,48 @@
     function applyLockStatusVisually() { const user = getState(); const mainShield = document.getElementById('main-iron-shield'); const detailShield = document.getElementById('detail-iron-shield'); const btnLock = document.getElementById('btn-lock'); if(user.isLocked) { mainShield.classList.add('active'); detailShield.classList.add('active'); btnLock.innerText = "Розблокувати картку 🔓"; btnLock.classList.remove('btn-danger'); btnLock.style.background = "var(--success)"; } else { mainShield.classList.remove('active'); detailShield.classList.remove('active'); btnLock.innerText = "Блокувати картку 🔒"; btnLock.classList.add('btn-danger'); btnLock.style.background = ""; } }
     
     function applySkin(skinName) { document.getElementById('app-root').classList.remove('skin-gold', 'skin-neon', 'skin-glass', 'skin-fire', 'skin-matrix', 'skin-plasma', 'skin-rgb', 'skin-ocean', 'skin-gold-anim', 'skin-toxic', 'skin-hologram', 'skin-lightning', 'skin-void', 'skin-dragon', 'skin-god'); if(skinName && skinName !== 'default') document.getElementById('app-root').classList.add(skinName); }
+    
+    function openSkinsModal() { 
+        document.getElementById('skins-modal').classList.add('active'); 
+        let currentSkin = getState().skin || 'default'; 
+        document.getElementById('skin-preview-container').className = currentSkin;
+        renderSkinsList();
+    }
 
-    // --- ПРОКАЧКА ---
+    function renderSkinsList() {
+        const user = getState();
+        const container = document.getElementById('skins-list-container');
+        let html = '';
+        skinsConfig.forEach(s => {
+            const isOwned = user.ownedSkins && user.ownedSkins.includes(s.id);
+            const isActive = user.skin === s.id;
+            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} — ${s.price.toLocaleString('uk-UA')} ₴`;
+            let badge = isOwned ? `<span style="color:var(--success); font-weight:bold; margin-right:5px;">[+]</span> ` : '';
+            html += `<button class="btn-main" style="${s.style} opacity:${isActive ? '0.6' : '1'}; margin-bottom: 5px;" onclick="previewAndBuySkin('${s.id}', ${s.price})" ${isActive ? 'disabled' : ''}>${badge}${btnText}</button>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function previewAndBuySkin(skinName, price) { 
+        const user = getState(); 
+        document.getElementById('skin-preview-container').className = skinName; 
+        
+        if(user.skin === skinName) return; 
+        
+        if(user.ownedSkins && user.ownedSkins.includes(skinName)) {
+            user.skin = skinName; saveDB(); applySkin(skinName); renderSkinsList(); showToast("Дизайн застосовано!", "success"); return;
+        }
+        
+        if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; } 
+        if(confirm(`Придбати дизайн за ${price.toLocaleString('uk-UA')} ₴?`)) { 
+            user.balance -= price; 
+            user.skin = skinName; 
+            if(!user.ownedSkins) user.ownedSkins = ['default'];
+            user.ownedSkins.push(skinName);
+            saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); renderSkinsList(); showToast("Дизайн успішно придбано!", "success"); 
+        }
+    }
+
     function openUpgrades() { renderUpgrades(); document.getElementById('upgrades-modal').classList.add('active'); }
     function renderUpgrades() {
         const user = getState();
@@ -1297,11 +1352,11 @@
     let clicksInSecond = 0;
 
     window.earnMoney = function(event) { 
-        if (event && !event.isTrusted) { showToast("Використання скриптів заборонено!", "error"); return; }
+        if (event && !event.isTrusted) { showToast("Використання автоклікерів заборонено!", "error"); return; }
 
         const user = getState(); 
         if(!user) return;
-        if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } 
+        if(user.isLocked) { showToast("Картку заблоковано!", "error"); return; } 
         
         const now = Date.now();
         if (now - lastClickTime < 1000) {
@@ -1319,12 +1374,6 @@
         updateBalanceDisplayQuiet(); 
         renderQuests(); 
     };
-
-    function updateProfileNetWorth() {
-        const user = getState(); if(!user) return; let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
-        for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
-        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
-    }
 
     function updateBalanceDisplayQuiet() { const user = getState(); if(!user) return; const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; document.getElementById('dashboard-balance').innerText = formatted; document.getElementById('detail-balance').innerText = formatted; document.getElementById('top-balance').innerText = formatted; document.getElementById('from-card-input').value = `VISA **** ${(user.cardNumber || "0000").slice(-4)} (${formatted})`; checkTransferForm(); }
     
@@ -1357,6 +1406,7 @@
         }); 
     }
 
+    // --- ДІЇ З ІСТОРІЄЮ ---
     window.openHistoryAction = function(index) {
         const user = getState();
         const t = user.history[index];
@@ -1368,8 +1418,10 @@
         if (t.icon === '💸') {
             if (t.type === 'minus' && t.title.startsWith('Переказ ')) {
                 let targetName = t.title.replace('Переказ ', '');
-                if(targetName.startsWith('*')) targetName = ''; 
-                buttonsHtml += `<button class="btn-main" style="background:var(--primary);" onclick="repeatTransfer('${targetName}', ${Math.abs(t.amount)})">Повторити переказ</button>`;
+                if(targetName.startsWith('*')) targetName = ''; // Не можемо повторити на зовнішню карту
+                if (targetName) {
+                    buttonsHtml += `<button class="btn-main" style="background:var(--primary);" onclick="repeatTransfer('${targetName}', ${Math.abs(t.amount)})">Повторити переказ</button>`;
+                }
             } else if (t.type === 'plus' && t.title.startsWith('Переказ від ')) {
                 let senderName = t.title.replace('Переказ від ', '');
                 buttonsHtml += `<button class="btn-main" style="background:var(--primary);" onclick="replyTransfer('${senderName}')">Відповісти</button>`;
@@ -1427,7 +1479,67 @@
         });
     };
 
-    // --- РЕШТА ФУНКЦІЙ (ТАЙМЕРИ ТА Т.Д.) ---
+    function openTransfer(navElement) { 
+        if(getState().isLocked) { showToast("Будь ласка, зніміть щит!", "error"); return; } 
+        if(!navElement) navElement = document.querySelectorAll('.nav-item')[1];
+        switchTab('screen-payments', navElement); 
+    }
+
+    function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
+    function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
+    
+    function executeTransfer() { 
+        const sender = getState(); 
+        const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); 
+        const amount = parseFloat(document.getElementById('transfer-amount').value); 
+        const btn = document.getElementById('btn-transfer');
+
+        if(cardInput === sender.cardNumber) { showToast("Переказ на свою картку неможливий.", "error"); return; } 
+        
+        btn.innerText = "⏳ Обробка..."; 
+        btn.disabled = true;
+
+        database.ref('users').orderByChild('cardNumber').equalTo(cardInput).once('value')
+        .then(snapshot => {
+            if(snapshot.exists()) {
+                let receiverKey = Object.keys(snapshot.val())[0];
+                let receiverData = snapshot.val()[receiverKey];
+
+                database.ref('users/' + receiverKey + '/incoming_transfers').push({
+                    amount: amount,
+                    senderName: sender.name,
+                    date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'})
+                }).then(() => { 
+                    sender.balance -= amount; 
+                    sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
+                    saveDB(); 
+                    
+                    document.getElementById('transfer-card').value = ''; 
+                    document.getElementById('transfer-amount').value = ''; 
+                    btn.innerText = "Надіслати"; btn.disabled = false; 
+                    updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                    showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
+                }).catch(() => { 
+                    showToast("Помилка мережі.", "error"); 
+                    btn.innerText = "Надіслати"; btn.disabled = false; 
+                });
+            } else { 
+                sender.balance -= amount; 
+                sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); 
+                saveDB(); 
+                
+                document.getElementById('transfer-card').value = ''; 
+                document.getElementById('transfer-amount').value = ''; 
+                btn.innerText = "Надіслати"; btn.disabled = false; 
+                
+                updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); 
+                showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
+            }
+        }).catch(err => { 
+            showToast("Слабке з'єднання з інтернетом.", "error"); 
+            btn.innerText = "Надіслати"; btn.disabled = false; 
+        });
+    }
 
     setInterval(() => {
         try {
@@ -1444,7 +1556,7 @@
                 for(let i = user.deposits.length - 1; i >= 0; i--) { let dep = user.deposits[i]; if(now >= dep.endTime) { let payout = parseFloat((dep.amount * 1.05).toFixed(2)); user.balance = parseFloat((user.balance + payout).toFixed(2)); user.history.unshift({ icon: '🌾', title: "Виплата депозиту (5%)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: payout, type: 'plus' }); showPush("Депозит закрито", `Отримано <b>${payout} ₴</b>`, "🌾"); user.deposits.splice(i, 1); needsUpdate = true; } }
             }
             if(user.credit && user.credit.active) {
-                if(now >= user.credit.dueTime) { showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true); for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; } user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true; user.creditScore = 10; user.miners = 0; user.hasOffshore = false; user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' }); applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`; if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true; }
+                if(now >= user.credit.dueTime) { showPush("Банкрутство!", "Час кредиту вийшов. Ви втратили кошти!", "🚨", true); for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; } user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true; user.creditScore = 10; user.miners = 0; user.hasOffshore = false; user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' }); applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`; if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true; }
             }
             if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-useful').classList.contains('active')) { renderUsefulFull(); } } 
             else { if(document.getElementById('screen-useful').classList.contains('active')) renderUsefulTimersOnly(); }
@@ -1456,15 +1568,27 @@
             const user = getState(); if(!user || user.isLocked) return; let needsUpdate = false;
             
             if(user.balance > 100000 && !user.hasOffshore) {
-                let tax = Math.floor(user.balance * 0.01); user.balance -= tax; addTransaction("Податок на багатство", -tax, '🏛️'); showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️"); needsUpdate = true;
+                let tax = Math.floor(user.balance * 0.01);
+                user.balance -= tax;
+                addTransaction("Податок на багатство", -tax, '🏛️');
+                showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️");
+                needsUpdate = true;
             }
             
             if(user.balance > 50000 && !user.hasOffshore && Math.random() < 0.1) {
-                let raidTax = Math.floor(user.balance * 0.2); user.balance -= raidTax; addTransaction("Податкова облава", -raidTax, '👮'); showPush("Податкова", `Облава! Здерли 20% (${raidTax} ₴). Відкрий офшор!`, "👮", true); needsUpdate = true;
+                let raidTax = Math.floor(user.balance * 0.2);
+                user.balance -= raidTax;
+                addTransaction("Податкова облава", -raidTax, '👮');
+                showPush("Податкова", `Облава! Списано 20% (${raidTax} ₴).`, "👮", true);
+                needsUpdate = true;
             }
 
             if(user.miners && user.miners > 0) {
-                let mined = parseFloat((user.miners * 0.01).toFixed(4)); let btc = user.portfolio['bite'] || {qty: 0, avgPrice: 0}; btc.qty = parseFloat((btc.qty + mined).toFixed(4)); user.portfolio['bite'] = btc; needsUpdate = true;
+                let mined = parseFloat((user.miners * 0.01).toFixed(4));
+                let btc = user.portfolio['bite'] || {qty: 0, avgPrice: 0};
+                btc.qty = parseFloat((btc.qty + mined).toFixed(4));
+                user.portfolio['bite'] = btc;
+                needsUpdate = true;
             }
 
             if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks(); }
@@ -1490,3 +1614,5 @@
 
     window.addEventListener('load', checkAuthState);
 </script>
+</body>
+</html>
