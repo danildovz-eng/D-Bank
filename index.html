@@ -276,11 +276,11 @@
         <div class="quick-actions">
             <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
             <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
-            <button type="button" class="action-btn" onclick="openRPS()"><div class="action-icon" style="background:#8b5cf6;">✌️</div><div class="action-text">КНБ</div></button>
             <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
             <button type="button" class="action-btn" onclick="openClansScreen()"><div class="action-icon" style="background:var(--primary);">🛡️</div><div class="action-text">Клан</div></button>
             <button type="button" class="action-btn" onclick="openModal('casino-modal')"><div class="action-icon" style="background:#E53935;">🎰</div><div class="action-text">Казино</div></button>
             <button type="button" class="action-btn" onclick="openModal('darknet-modal')"><div class="action-icon" style="background:#111; border:1px solid #0f0; color:#0f0;">🏴‍☠️</div><div class="action-text">Даркнет</div></button>
+            <button type="button" class="action-btn" onclick="openRPS()"><div class="action-icon" style="background:#8b5cf6;">✌️</div><div class="action-text">КНП</div></button>
         </div>
 
         <div style="background:var(--bg-surface); padding:15px; border-radius:16px; margin-bottom:20px;">
@@ -614,7 +614,7 @@
         <div class="modal-content" style="text-align:center; background:#0a0a0a; border:1px solid #0f0; box-shadow:0 0 20px #0f0;">
             <div class="close-modal" onclick="document.getElementById('darknet-modal').classList.remove('active')" style="color:#0f0; border:1px solid #0f0; background:#000;">✕</div>
             <h3 style="color:#0f0; text-shadow:0 0 5px #0f0; margin-bottom:10px;">🏴‍☠️ Даркнет</h3>
-            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Замов DDoS-атаку. Якщо успішно -- ти отримаєш гроші. Провал = штраф + розшук.<br><br><b>Шанс успіху: 10%</b><br><b>Вартість: 50 000 ₴ (Вимагає 20⚡)</b></p>
+            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Замов DDoS-атаку. Якщо успішно — ти отримаєш гроші. Провал = штраф + розшук.<br><br><b>Шанс успіху: 10%</b><br><b>Вартість: 50 000 ₴ (Вимагає 20⚡)</b></p>
             <button class="btn-main" style="background:#000; border:2px solid #0f0; color:#0f0; font-weight:bold; box-shadow:0 0 10px #0f0;" onclick="buyDdos()">Запустити атаку</button>
         </div>
     </div>
@@ -642,7 +642,7 @@
     <div class="modal-overlay" id="hack-modal">
         <div class="modal-content" style="text-align:center;">
             <h3>Злам системи 💻</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше -- штраф 10%, блок картки та розшук!<br><b>Вимагає: 15⚡</b></p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10%, блок картки та розшук!<br><b>Вимагає: 15⚡</b></p>
             <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
             <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
             <div class="form-group"><input type="number" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
@@ -678,7 +678,7 @@
         {id: 'clicks', icon: '🖱', desc: 'Зробити кліків', target: 100},
         {id: 'stocks', icon: '📈', desc: 'Купити активів', target: 5},
         {id: 'deposits', icon: '🌾', desc: 'Відкрити депозитів', target: 1},
-        {id: 'casino', icon: '🎰', desc: 'Зіграти в казино/КНБ', target: 3},
+        {id: 'casino', icon: '🎰', desc: 'Зіграти в казино/КНП', target: 3},
         {id: 'hack', icon: '💻', desc: 'Успішних зламів', target: 1},
         {id: 'ddos', icon: '🏴‍☠️', desc: 'Запустити DDoS', target: 1}
     ];
@@ -805,7 +805,7 @@
     
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value; const emailKey = tempRegEmail.replace(/\./g, ',');
-        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0 };
+        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null };
         database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Акаунт готовий!", "success"); startApp(); });
     }
 
@@ -870,6 +870,8 @@
         if(user.miners === undefined) user.miners = 0;
         if(user.hasOffshore === undefined) user.hasOffshore = false;
         if(user.wantedLevel === undefined) user.wantedLevel = 0;
+        if(user.raidScheduledLevel === undefined) user.raidScheduledLevel = 0;
+        if(user.nextRaidTime === undefined) user.nextRaidTime = null;
         if(!user.smuggling) user.smuggling = {active: false};
         if(!user.businesses) user.businesses = {}; if(!user.deposits) user.deposits = []; if(!user.credit) user.credit = { active: false }; if(!user.portfolio) user.portfolio = {}; if(!user.history) user.history = []; if(user.creditScore === undefined) user.creditScore = 100; if(user.clanId === undefined) user.clanId = null;
         if(!user.settings) user.settings = { sounds: true, notifications: true, newsNotifications: true };
@@ -926,7 +928,7 @@
     window.wipeUser = function(targetKey) {
         if(currentUserKey !== 'danildovz1@gmail,com') return;
         if(confirm("ОБНУЛИТИ цього гравця? Всі гроші, бізнеси та активи зникнуть!")) {
-            database.ref('users/' + targetKey).update({ balance: 0, portfolio: {}, businesses: {}, deposits: [], credit: {active: false}, clickTier: 0, clickPower: 0.10, autoClicker: 0, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0 }).then(() => { showToast("Гравця обнулено повністю!", "success"); openLeaderboard(); });
+            database.ref('users/' + targetKey).update({ balance: 0, portfolio: {}, businesses: {}, deposits: [], credit: {active: false}, clickTier: 0, clickPower: 0.10, autoClicker: 0, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null }).then(() => { showToast("Гравця обнулено повністю!", "success"); openLeaderboard(); });
         }
     };
 
@@ -1083,9 +1085,9 @@
                 else if((p1Move==='rock'&&p2Move==='scissors') || (p1Move==='paper'&&p2Move==='rock') || (p1Move==='scissors'&&p2Move==='paper')) winner = 1;
                 else winner = 2;
                 database.ref('rps_rooms/' + matchId).update({status: 'finished', p2: currentUserKey, p2Move: move, winner: winner}).then(() => {
-                    if(winner === 2) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Перемога)", winAmt - bet, '✌️'); showPush("КНБ", `Ви перемогли! Суперник: ${getTranslateMove(p1Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
-                    else if(winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Нічия)", 0, '✌️'); showPush("КНБ", `Нічия! Суперник теж вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); } 
-                    else { addTransaction("КНБ (Програш)", -bet, '✌️'); showPush("КНБ", `Програш! Суперник вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); }
+                    if(winner === 2) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Перемога)", winAmt - bet, '✌️'); showPush("КНП", `Ви перемогли! Суперник: ${getTranslateMove(p1Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
+                    else if(winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Нічия)", 0, '✌️'); showPush("КНП", `Нічия! Суперник теж вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); } 
+                    else { addTransaction("КНП (Програш)", -bet, '✌️'); showPush("КНП", `Програш! Суперник вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); }
                 });
             } else {
                 let newRoom = database.ref('rps_rooms').push();
@@ -1094,9 +1096,9 @@
                     let rData = rSnap.val();
                     if(rData && rData.status === 'finished') {
                         newRoom.off();
-                        if(rData.winner === 1) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Перемога)", winAmt - bet, '✌️'); showPush("КНБ", `Ви перемогли! Суперник: ${getTranslateMove(rData.p2Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
-                        else if(rData.winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Нічия)", 0, '✌️'); showPush("КНБ", `Нічия! Суперник теж вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); } 
-                        else { addTransaction("КНБ (Програш)", -bet, '✌️'); showPush("КНБ", `Програш! Суперник вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); }
+                        if(rData.winner === 1) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Перемога)", winAmt - bet, '✌️'); showPush("КНП", `Ви перемогли! Суперник: ${getTranslateMove(rData.p2Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
+                        else if(rData.winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Нічия)", 0, '✌️'); showPush("КНП", `Нічия! Суперник теж вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); } 
+                        else { addTransaction("КНП (Програш)", -bet, '✌️'); showPush("КНП", `Програш! Суперник вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); }
                         newRoom.remove();
                     }
                 });
@@ -1269,7 +1271,7 @@
         if(user.hasOffshore) { document.getElementById('btn-offshore').innerText = "Офшор активний"; document.getElementById('btn-offshore').disabled = true; document.getElementById('btn-offshore').style.background = "var(--success)"; }
 
         if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } 
-        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно -- росте рейтинг. Несплата -- банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
+        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно — росте рейтинг. Несплата — банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
         
         let bribeCost = (user.wantedLevel || 0) * 50000;
         if(user.wantedLevel > 0) {
@@ -1378,7 +1380,7 @@
         skinsConfig.forEach(s => {
             const isOwned = user.ownedSkins && user.ownedSkins.includes(s.id);
             const isActive = user.skin === s.id;
-            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} -- ${s.price.toLocaleString('uk-UA')} ₴`;
+            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} — ${s.price.toLocaleString('uk-UA')} ₴`;
             let badge = isOwned ? `<span style="color:var(--success); font-weight:bold; margin-right:5px;">[+]</span> ` : '';
             html += `<button class="btn-main" style="${s.style} opacity:${isActive ? '0.6' : '1'}; margin-bottom: 5px;" onclick="previewAndBuySkin('${s.id}', ${s.price})" ${isActive ? 'disabled' : ''}>${badge}${btnText}</button>`;
         });
@@ -1541,13 +1543,30 @@
                 }
             }
 
-            // Поліцейські облави (якщо є розшук)
-            if(user.wantedLevel > 0 && Math.random() < (user.wantedLevel * 0.1)) {
-                let raidTax = Math.floor(user.balance * 0.3); // Забирають 30% грошей
-                user.balance -= raidTax;
-                user.wantedLevel = 0; // Скидання розшуку після облави
-                addTransaction("Арешт та конфіскація", -raidTax, '🚓');
-                showPush("Облава поліції!", `Вас заарештували! Конфісковано 30% (${raidTax.toLocaleString('uk-UA')} ₴)`, "🚓", true);
+            // Поліцейські облави (за таймером)
+            if(user.wantedLevel > 0) {
+                if(!user.nextRaidTime || user.raidScheduledLevel !== user.wantedLevel) {
+                    let maxMins = 10;
+                    if(user.wantedLevel === 1) maxMins = 10;
+                    else if(user.wantedLevel === 2 || user.wantedLevel === 3) maxMins = 7;
+                    else if(user.wantedLevel === 4) maxMins = 3;
+                    else maxMins = 1;
+                    user.nextRaidTime = Date.now() + (Math.random() * maxMins * 60 * 1000);
+                    user.raidScheduledLevel = user.wantedLevel;
+                    needsUpdate = true;
+                } else if(Date.now() >= user.nextRaidTime) {
+                    let raidTax = Math.floor(user.balance * 0.3);
+                    user.balance -= raidTax;
+                    user.wantedLevel = 0;
+                    user.nextRaidTime = null;
+                    user.raidScheduledLevel = 0;
+                    addTransaction("Арешт та конфіскація", -raidTax, '🚓');
+                    showPush("Облава поліції!", `Вас заарештували! Конфісковано 30% (${raidTax.toLocaleString('uk-UA')} ₴)`, "🚓", true);
+                    needsUpdate = true;
+                }
+            } else if (user.nextRaidTime) {
+                user.nextRaidTime = null;
+                user.raidScheduledLevel = 0;
                 needsUpdate = true;
             }
 
