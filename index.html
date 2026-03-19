@@ -249,7 +249,10 @@
     <div id="screen-dashboard" class="screen">
         <header>
             <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 ₴</h1></div>
-            <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="text-align:right; font-size:12px; color:var(--warning); font-weight:bold;">⚡ <span id="energy-display">100</span>/100</div>
+                <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
+            </div>
         </header>
 
         <div id="wanted-level-container" style="text-align:center; font-size:18px; letter-spacing:5px; color:var(--warning); margin-bottom:10px;">☆☆☆☆☆</div>
@@ -273,6 +276,7 @@
         <div class="quick-actions">
             <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
             <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
+            <button type="button" class="action-btn" onclick="openRPS()"><div class="action-icon" style="background:#8b5cf6;">✌️</div><div class="action-text">КНБ</div></button>
             <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
             <button type="button" class="action-btn" onclick="openClansScreen()"><div class="action-icon" style="background:var(--primary);">🛡️</div><div class="action-text">Клан</div></button>
             <button type="button" class="action-btn" onclick="openModal('casino-modal')"><div class="action-icon" style="background:#E53935;">🎰</div><div class="action-text">Казино</div></button>
@@ -336,6 +340,15 @@
                     <button class="btn-main btn-danger" onclick="attackClan()" style="font-size:13px;">Атакувати (Ціна: 10 000 ₴ з общака)</button>
                 </div>
 
+                <div style="background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:15px; text-align:left;">
+                    <h3 style="margin-bottom:10px; font-size:14px;">Чат клану 💬</h3>
+                    <div id="clan-chat-messages" style="height:150px; overflow-y:auto; background:var(--bg-surface); padding:10px; border-radius:8px; margin-bottom:10px; font-size:12px; display:flex; flex-direction:column; gap:5px;"></div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="clan-chat-input" placeholder="Повідомлення..." style="flex:1; padding:8px; border-radius:8px; border:none; background:var(--bg-surface); color:#fff; outline:none;">
+                        <button class="btn-main" style="width:auto; padding:8px 12px; background:var(--primary);" onclick="sendClanChat()">➤</button>
+                    </div>
+                </div>
+
                 <button class="btn-main" style="background:transparent; border:1px solid var(--danger); color:var(--danger);" onclick="leaveClan()">Покинути клан</button>
             </div>
             <h3 style="margin-bottom:10px;">Учасники</h3>
@@ -396,7 +409,7 @@
                 <div style="font-size:12px; color:var(--warning);">Ризик 70%</div>
             </div>
             <div id="smuggling-input-area">
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Відправ фуру з товаром (мінімум 50 000 ₴). Час: 10 хв. Шанс 30% на x3 прибуток.</p>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Відправ фуру з товаром (мінімум 50 000 ₴, вимагає 30⚡). Час: 10 хв. Шанс 30% на x3 прибуток.</p>
                 <div class="form-group"><input type="number" id="smuggling-amount" placeholder="Сума (мін. 50 000 ₴)" style="width:100%;"></div>
                 <button type="button" class="btn-main" style="background:#555;" onclick="startSmuggling()">Відправити фуру</button>
             </div>
@@ -583,11 +596,25 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="rps-modal" onclick="closeModal(event, 'rps-modal')">
+        <div class="modal-content" style="text-align:center;">
+            <div class="close-modal" onclick="document.getElementById('rps-modal').classList.remove('active')">✕</div>
+            <h3 style="margin-bottom:5px;">✌️ Камінь-Ножиці-Папір</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Гра з реальними гравцями (автопідбір). Переможець забирає x2!</p>
+            <div class="form-group"><input type="number" id="rps-bet" placeholder="Ставка (₴)" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+            <div style="display:flex; justify-content:center; gap:15px; margin-bottom:10px;">
+                <button class="num-btn" style="width:60px;height:60px;font-size:30px;" onclick="playRPS('rock')">✊</button>
+                <button class="num-btn" style="width:60px;height:60px;font-size:30px;" onclick="playRPS('scissors')">✌️</button>
+                <button class="num-btn" style="width:60px;height:60px;font-size:30px;" onclick="playRPS('paper')">✋</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="darknet-modal" onclick="closeModal(event, 'darknet-modal')">
         <div class="modal-content" style="text-align:center; background:#0a0a0a; border:1px solid #0f0; box-shadow:0 0 20px #0f0;">
             <div class="close-modal" onclick="document.getElementById('darknet-modal').classList.remove('active')" style="color:#0f0; border:1px solid #0f0; background:#000;">✕</div>
             <h3 style="color:#0f0; text-shadow:0 0 5px #0f0; margin-bottom:10px;">🏴‍☠️ Даркнет</h3>
-            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Замов DDoS-атаку. Якщо успішно — ти отримаєш гроші. Провал = штраф + розшук.<br><br><b>Шанс успіху: 10%</b><br><b>Вартість: 50 000 ₴</b></p>
+            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Замов DDoS-атаку. Якщо успішно -- ти отримаєш гроші. Провал = штраф + розшук.<br><br><b>Шанс успіху: 10%</b><br><b>Вартість: 50 000 ₴ (Вимагає 20⚡)</b></p>
             <button class="btn-main" style="background:#000; border:2px solid #0f0; color:#0f0; font-weight:bold; box-shadow:0 0 10px #0f0;" onclick="buyDdos()">Запустити атаку</button>
         </div>
     </div>
@@ -615,7 +642,7 @@
     <div class="modal-overlay" id="hack-modal">
         <div class="modal-content" style="text-align:center;">
             <h3>Злам системи 💻</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10%, блок картки та розшук!</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше -- штраф 10%, блок картки та розшук!<br><b>Вимагає: 15⚡</b></p>
             <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
             <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
             <div class="form-group"><input type="number" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
@@ -639,13 +666,22 @@
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
 
     let tempRegEmail = ""; let tempRegCode = ""; let currentMarketTab = 'stocks'; let currentStockId = null; let currentChartTab = '1H'; let activeNews = null; let deleteConfirm = false; let toastTimeout; let isPinVisible = false; let isFlipped = false; let touchstartX = 0; let currentPinInput = "";
-    let hackInterval; let currentHackPin = "";
+    let hackInterval; let currentHackPin = ""; let clanChatRef = null;
 
     let currentUserKey = null;
     try { currentUserKey = localStorage.getItem('DBank_User_Key'); } catch(e) {}
 
     const clickTiers = [0.10, 0.50, 1.00, 2.00, 3.00, 5.00];
     const autoTiers = [0.50, 1.00, 2.00, 3.00];
+
+    const questTemplates = [
+        {id: 'clicks', icon: '🖱', desc: 'Зробити кліків', target: 100},
+        {id: 'stocks', icon: '📈', desc: 'Купити активів', target: 5},
+        {id: 'deposits', icon: '🌾', desc: 'Відкрити депозитів', target: 1},
+        {id: 'casino', icon: '🎰', desc: 'Зіграти в казино/КНБ', target: 3},
+        {id: 'hack', icon: '💻', desc: 'Успішних зламів', target: 1},
+        {id: 'ddos', icon: '🏴‍☠️', desc: 'Запустити DDoS', target: 1}
+    ];
 
     function getNextAuto(current) { for(let i=0; i<autoTiers.length; i++) { if(autoTiers[i] > current) return autoTiers[i]; } return null; }
 
@@ -680,6 +716,21 @@
         pushNotif.classList.add('show'); playSound(isAlert ? 'alert' : 'default'); setTimeout(() => pushNotif.classList.remove('show'), isAlert ? 6000 : 4000);
     }
     function showToast(msg, type = "success") { const toast = document.getElementById('toast'); toast.className = `toast show ${type}`; toast.innerText = msg; clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000); }
+
+    window.showSuccessEffect = function() {
+        const symbols = ['💵', '💰', '💎', '🎉'];
+        for(let i=0; i<30; i++) {
+            let el = document.createElement('div');
+            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            el.style.position = 'fixed'; el.style.left = (Math.random() * 100) + 'vw'; el.style.top = '-50px';
+            el.style.fontSize = (Math.random() * 20 + 20) + 'px'; el.style.zIndex = '9999'; el.style.pointerEvents = 'none';
+            el.style.transition = `top ${Math.random() * 2 + 2}s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 3s linear`;
+            document.body.appendChild(el);
+            void el.offsetWidth;
+            el.style.top = '120vh'; el.style.transform = `rotate(${Math.random() * 720 - 360}deg)`;
+            setTimeout(() => el.remove(), 4000);
+        }
+    };
 
     function genHist(base, len, vol) { let arr = [base]; for(let i=1; i<len; i++) { arr.push(arr[i-1] * (1 + (Math.random() * vol * 2) - vol)); } return arr; }
     
@@ -754,7 +805,7 @@
     
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value; const emailKey = tempRegEmail.replace(/\./g, ',');
-        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: { date: new Date().toLocaleDateString(), clicks: 0, stocks: 0, deposits: 0, done: false }, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0 };
+        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0 };
         database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Акаунт готовий!", "success"); startApp(); });
     }
 
@@ -815,6 +866,7 @@
         if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>"; logout(); return; }
         
         if(user.prestigeMultiplier) { delete user.prestigeMultiplier; }
+        if(user.energy === undefined) user.energy = 100;
         if(user.miners === undefined) user.miners = 0;
         if(user.hasOffshore === undefined) user.hasOffshore = false;
         if(user.wantedLevel === undefined) user.wantedLevel = 0;
@@ -953,7 +1005,7 @@
         const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } 
         const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const cost = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); 
         if(user.balance < cost) { showToast("Недостатньо коштів!", "error"); return; }
-        checkQuests(); user.quests.stocks++; renderQuests();
+        progressQuest('stocks');
         let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; pData.avgPrice = ((pData.qty * pData.avgPrice) + cost) / (pData.qty + qty); pData.qty = parseFloat((pData.qty + qty).toFixed(2)); user.balance -= cost; user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Купівля ${qty} ${stock.name}`, -cost, '📉'); updateBalanceDisplayQuiet(); showPush("Біржа", `Куплено <b>${qty} шт.</b> ${stock.name}`, stock.icon); openStockModal(stock.id, false);
     }
 
@@ -972,8 +1024,14 @@
         user.balance -= bet; const roll = Math.random(); let resultColor = 'green';
         if (roll < 0.48) resultColor = 'red'; else if (roll < 0.96) resultColor = 'black';
 
-        if (color === resultColor) { let win = color === 'green' ? bet * 14 : bet * 2; user.balance += win; addTransaction("Казино (Перемога)", win - bet, '🎰'); showPush("Казино", `Чудово! Випало ${resultColor}. +${win} ₴`, "🎰"); } 
-        else { addTransaction("Казино (Програш)", -bet, '🎰'); showPush("Казино", `Програш. Випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true); }
+        progressQuest('casino');
+        if (color === resultColor) { 
+            let win = color === 'green' ? bet * 14 : bet * 2; user.balance += win; 
+            addTransaction("Казино (Перемога)", win - bet, '🎰'); showPush("Казино", `Чудово! Випало ${resultColor}. +${win} ₴`, "🎰"); 
+            showSuccessEffect();
+        } else { 
+            addTransaction("Казино (Програш)", -bet, '🎰'); showPush("Казино", `Програш. Випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true); 
+        }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('casino-modal').classList.remove('active');
     };
 
@@ -989,28 +1047,75 @@
             let win = cost * 2; user.balance += win;
             addTransaction("Лотерея (Виграш)", win - cost, '🎟');
             showPush("Лотерея", `Непогано! Виграш: ${win} ₴`, "💵");
+            showSuccessEffect();
         } else if(roll < 0.999) {
             let win = cost * 10; user.balance += win;
             addTransaction("Лотерея (Крупний виграш)", win - cost, '🎟');
             showPush("Лотерея", `Клас! Виграш: ${win} ₴`, "💰");
+            showSuccessEffect();
         } else {
             let win = cost * 50; user.balance += win;
             addTransaction("Лотерея (ДЖЕКПОТ)", win - cost, '🎟');
             showPush("Лотерея", `ДЖЕКПОТ! Виграно ${win} ₴!`, "💎");
+            showSuccessEffect();
         }
         saveDB(); updateBalanceDisplayQuiet(); 
         document.getElementById('casino-modal').classList.remove('active');
     };
 
+    window.openRPS = function() { document.getElementById('rps-modal').classList.add('active'); };
+
+    window.playRPS = function(move) {
+        const bet = parseFloat(document.getElementById('rps-bet').value);
+        const user = getState();
+        if(!bet || bet < 100 || bet > user.balance) { showToast("Крива ставка! Мін. 100", "error"); return; }
+        user.balance -= bet; saveDB(); updateBalanceDisplayQuiet();
+        document.getElementById('rps-modal').classList.remove('active');
+        showToast("Шукаємо суперника...", "info");
+        
+        database.ref('rps_rooms').once('value').then(snap => {
+            let rooms = snap.val() || {}; let matchId = null;
+            for(let id in rooms) { if(rooms[id].status === 'waiting' && rooms[id].bet === bet && rooms[id].p1 !== currentUserKey) { matchId = id; break; } }
+            progressQuest('casino');
+            if(matchId) {
+                let p1Move = rooms[matchId].p1Move; let p2Move = move; let winner = 0;
+                if(p1Move === p2Move) winner = 0;
+                else if((p1Move==='rock'&&p2Move==='scissors') || (p1Move==='paper'&&p2Move==='rock') || (p1Move==='scissors'&&p2Move==='paper')) winner = 1;
+                else winner = 2;
+                database.ref('rps_rooms/' + matchId).update({status: 'finished', p2: currentUserKey, p2Move: move, winner: winner}).then(() => {
+                    if(winner === 2) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Перемога)", winAmt - bet, '✌️'); showPush("КНБ", `Ви перемогли! Суперник: ${getTranslateMove(p1Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
+                    else if(winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Нічия)", 0, '✌️'); showPush("КНБ", `Нічия! Суперник теж вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); } 
+                    else { addTransaction("КНБ (Програш)", -bet, '✌️'); showPush("КНБ", `Програш! Суперник вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); }
+                });
+            } else {
+                let newRoom = database.ref('rps_rooms').push();
+                newRoom.set({ status: 'waiting', bet: bet, p1: currentUserKey, p1Move: move, createdAt: Date.now() });
+                newRoom.on('value', rSnap => {
+                    let rData = rSnap.val();
+                    if(rData && rData.status === 'finished') {
+                        newRoom.off();
+                        if(rData.winner === 1) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Перемога)", winAmt - bet, '✌️'); showPush("КНБ", `Ви перемогли! Суперник: ${getTranslateMove(rData.p2Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
+                        else if(rData.winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Нічия)", 0, '✌️'); showPush("КНБ", `Нічия! Суперник теж вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); } 
+                        else { addTransaction("КНБ (Програш)", -bet, '✌️'); showPush("КНБ", `Програш! Суперник вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); }
+                        newRoom.remove();
+                    }
+                });
+            }
+        });
+    };
+    function getTranslateMove(m) { return m==='rock'?'Камінь':m==='paper'?'Папір':'Ножиці'; }
+
     window.buyDdos = function() {
         const user = getState(); if(user.balance < 50000) { showToast("Треба 50 000 ₴ на хакерів!", "error"); return; }
-        user.balance -= 50000;
+        if(user.energy < 20) { showToast("Мало енергії! Потрібно 20⚡", "error"); return; }
+        user.balance -= 50000; user.energy -= 20;
+        progressQuest('ddos');
         if(Math.random() < 0.10) { 
             let stolen = 10000 + Math.floor(Math.random() * 90000); user.balance += stolen; 
             addTransaction("Успішний DDoS", stolen, '🏴‍☠️'); 
             showPush("Даркнет", `Атака успішна! Ти вкрав ${stolen} ₴`, "🏴‍☠️"); 
-        } 
-        else { 
+            showSuccessEffect();
+        } else { 
             user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 1);
             addTransaction("Невдалий DDoS", -50000, '🏴‍☠️'); 
             showPush("Даркнет", "Вас викрили! Гроші втрачено. +1 зірка розшуку", "🏴‍☠️", true); 
@@ -1030,7 +1135,7 @@
         showToast("Розшук знято!", "success");
     }
 
-    function openClansScreen() { const user = getState(); switchTab('screen-clans', null); if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); } else { document.getElementById('clan-no-clan').style.display = 'block'; document.getElementById('clan-active').style.display = 'none'; } }
+    function openClansScreen() { const user = getState(); switchTab('screen-clans', null); if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); initClanChat(user.clanId); } else { document.getElementById('clan-no-clan').style.display = 'block'; document.getElementById('clan-active').style.display = 'none'; } }
     
     function createClan() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } let cName = prompt("Введіть назву клану:"); if(!cName || cName.trim() === '') return; user.balance -= 10000; let newClanRef = database.ref('clans').push(); let clanData = { name: cName, ownerId: currentUserKey, members: {}, fund: 0, isCollecting: false }; clanData.members[currentUserKey] = user.name; newClanRef.set(clanData).then(() => { user.clanId = newClanRef.key; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Створення клану", -10000, '🛡️'); showToast("Клан створено!", "success"); openClansScreen(); }); }
 
@@ -1038,7 +1143,7 @@
 
     function joinClan(cId, cName) { const user = getState(); database.ref(`clans/${cId}/members/${currentUserKey}`).set(user.name).then(() => { user.clanId = cId; saveDB(); showToast(`Ви вступили в ${cName}!`, "success"); openClansScreen(); }); }
 
-    function leaveClan() { const user = getState(); if(!user.clanId) return; if(confirm("Точно хочеш покинути клан?")) { database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}`).remove(); } else { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove(); } user.clanId = null; saveDB(); showToast("Ти покинув клан", "info"); openClansScreen(); }); } }
+    function leaveClan() { const user = getState(); if(!user.clanId) return; if(confirm("Точно хочеш покинути клан?")) { database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}`).remove(); } else { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove(); } user.clanId = null; saveDB(); if(clanChatRef) { clanChatRef.off(); clanChatRef = null; } showToast("Ти покинув клан", "info"); openClansScreen(); }); } }
 
     function changeClanName() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let newName = prompt("Введіть нову назву клану:", clan.name); if(newName && newName.trim() !== "") { database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => { showToast("Назву змінено!", "success"); refreshClanData(); }); } } }); }
 
@@ -1071,21 +1176,66 @@
         });
     }
 
+    function initClanChat(clanId) {
+        if(clanChatRef) clanChatRef.off();
+        clanChatRef = database.ref(`clans/${clanId}/chat`);
+        document.getElementById('clan-chat-messages').innerHTML = '';
+        clanChatRef.limitToLast(20).on('child_added', snap => {
+            let msg = snap.val(); let box = document.getElementById('clan-chat-messages'); let isMe = msg.uid === currentUserKey;
+            box.innerHTML += `<div style="text-align:${isMe?'right':'left'}"><span style="opacity:0.5; font-size:10px;">${msg.name}</span><br><div style="background:${isMe?'var(--primary)':'#333'}; display:inline-block; padding:5px 10px; border-radius:8px; margin-top:2px;">${msg.text}</div></div>`;
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    window.sendClanChat = function() {
+        let input = document.getElementById('clan-chat-input'); let text = input.value.trim(); const user = getState();
+        if(!text || !user.clanId) return;
+        database.ref(`clans/${user.clanId}/chat`).push({ uid: currentUserKey, name: user.name, text: text, time: Date.now() });
+        input.value = '';
+    }
+
     function toggleClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}/isCollecting`).set(!clan.isCollecting).then(refreshClanData); } }); }
 
     function donateToClan() { const user = getState(); if(!user.clanId) return; let amt = parseFloat(document.getElementById('clan-donate-amount').value); if(!amt || amt <= 0 || amt > user.balance) { showToast("Недостатньо грошей!", "error"); return; } database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.isCollecting) { database.ref(`clans/${user.clanId}/fund`).set((clan.fund || 0) + amt).then(() => { user.balance -= amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Внесок у клан", -amt, '🛡️'); showToast("Внесок зроблено!", "success"); document.getElementById('clan-donate-amount').value = ''; refreshClanData(); }); } else { showToast("Збір закрито!", "error"); } }); }
 
     function kickMember(cId, uid) { if(confirm("Вигнати цього гравця?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Гравця вигнано", "success"); refreshClanData(); }); } }
 
-    function checkQuests() { const user = getState(); const today = new Date().toLocaleDateString(); if(!user.quests || user.quests.date !== today) { user.quests = { date: today, clicks: 0, stocks: 0, deposits: 0, done: false }; } }
+    function checkQuests() { 
+        const user = getState(); const today = new Date().toLocaleDateString(); 
+        if(!user.quests || user.quests.date !== today || !user.quests.list) { 
+            let shuffled = [...questTemplates].sort(() => 0.5 - Math.random()).slice(0, 3);
+            let activeList = shuffled.map(q => ({id: q.id, icon: q.icon, desc: q.desc, target: q.target, progress: 0}));
+            user.quests = { date: today, list: activeList, done: false }; 
+        } 
+    }
+    
     function renderQuests() {
         const user = getState(); if(!user) return; checkQuests(); const q = user.quests; const container = document.getElementById('quest-container'); if(!container) return;
         if(q.done) { container.innerHTML = '<div style="color:var(--success); font-weight:bold; text-align:center;">Всі квести виконані!</div>'; return; }
-        let cProg = Math.min(q.clicks, 100); let sProg = Math.min(q.stocks, 5); let dProg = Math.min(q.deposits, 1);
-        container.innerHTML = `<div style="font-size:12px; margin-bottom:5px;">🖱 Зробити 100 кліків (${cProg}/100)</div><div style="font-size:12px; margin-bottom:5px;">📈 Купити 5 активів на біржі (${sProg}/5)</div><div style="font-size:12px; margin-bottom:10px;">🌾 Відкрити 1 депозит (${dProg}/1)</div>`;
-        if(cProg >= 100 && sProg >= 5 && dProg >= 1) { container.innerHTML += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (250 ₴)</button>`; }
+        let html = ''; let allDone = true;
+        q.list.forEach(item => {
+            let prog = Math.min(item.progress, item.target);
+            if(prog < item.target) allDone = false;
+            html += `<div style="font-size:12px; margin-bottom:5px;">${item.icon} ${item.desc} (${prog}/${item.target})</div>`;
+        });
+        if(allDone) { html += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (500 ₴)</button>`; }
+        container.innerHTML = html;
     }
-    function claimQuests() { const user = getState(); user.quests.done = true; let win = 250; user.balance += win; addTransaction("Квести виконано", win, '🎯'); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); showPush("Квести", `Отримано ${win} ₴`, "🎯"); }
+
+    window.progressQuest = function(id) {
+        const user = getState();
+        if(!user || !user.quests || user.quests.done || !user.quests.list) return;
+        let qItem = user.quests.list.find(q => q.id === id);
+        if(qItem && qItem.progress < qItem.target) { qItem.progress++; saveDB(); renderQuests(); }
+    }
+
+    window.claimQuests = function() { 
+        const user = getState(); user.quests.done = true; let win = 500; user.balance += win; 
+        addTransaction("Квести виконано", win, '🎯'); 
+        saveDB(); updateBalanceDisplayQuiet(); renderQuests(); 
+        showPush("Квести", `Отримано ${win} ₴`, "🎯"); 
+        showSuccessEffect();
+    }
 
     function buyCustomCard() {
         const user = getState(); const input = document.getElementById('custom-card-input').value.replace(/\s/g, '');
@@ -1119,7 +1269,7 @@
         if(user.hasOffshore) { document.getElementById('btn-offshore').innerText = "Офшор активний"; document.getElementById('btn-offshore').disabled = true; document.getElementById('btn-offshore').style.background = "var(--success)"; }
 
         if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } 
-        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно — росте рейтинг. Несплата — банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
+        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно -- росте рейтинг. Несплата -- банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
         
         let bribeCost = (user.wantedLevel || 0) * 50000;
         if(user.wantedLevel > 0) {
@@ -1167,7 +1317,7 @@
         saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
     }
 
-    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } checkQuests(); user.quests.deposits++; renderQuests(); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
+    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } progressQuest('deposits'); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
     function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); }
     function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, Number(user.creditScore || 100) + 20); saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); }
 
@@ -1175,8 +1325,9 @@
         const amt = parseFloat(document.getElementById('smuggling-amount').value);
         const user = getState();
         if(user.smuggling && user.smuggling.active) { showToast("Фура вже в дорозі!", "error"); return; }
+        if(user.energy < 30) { showToast("Мало енергії! Потрібно 30⚡", "error"); return; }
         if(!amt || amt < 50000 || amt > user.balance) { showToast("Мінімум 50 000 ₴ або недостатньо коштів!", "error"); return; }
-        user.balance -= amt;
+        user.balance -= amt; user.energy -= 30;
         user.smuggling = { active: true, amount: amt, endTime: Date.now() + (10 * 60 * 1000) };
         saveDB(); addTransaction("Контрабанда (Відправка)", -amt, '🚚');
         updateBalanceDisplayQuiet(); document.getElementById('smuggling-amount').value = ''; renderUsefulFull();
@@ -1227,7 +1378,7 @@
         skinsConfig.forEach(s => {
             const isOwned = user.ownedSkins && user.ownedSkins.includes(s.id);
             const isActive = user.skin === s.id;
-            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} — ${s.price.toLocaleString('uk-UA')} ₴`;
+            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} -- ${s.price.toLocaleString('uk-UA')} ₴`;
             let badge = isOwned ? `<span style="color:var(--success); font-weight:bold; margin-right:5px;">[+]</span> ` : '';
             html += `<button class="btn-main" style="${s.style} opacity:${isActive ? '0.6' : '1'}; margin-bottom: 5px;" onclick="previewAndBuySkin('${s.id}', ${s.price})" ${isActive ? 'disabled' : ''}>${badge}${btnText}</button>`;
         });
@@ -1265,7 +1416,7 @@
         const now = Date.now();
         if (now - lastClickTime < 1000) { clicksInSecond++; if (clicksInSecond > 10) { showToast("Занадто швидко! Спрацював анти-клікер.", "error"); return; } } 
         else { clicksInSecond = 1; lastClickTime = now; }
-        checkQuests(); user.quests.clicks++; user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet(); renderQuests(); 
+        progressQuest('clicks'); user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet();
     };
 
     function updateBalanceDisplayQuiet() { 
@@ -1280,6 +1431,8 @@
         let wl = user.wantedLevel || 0;
         for(let i=0; i<5; i++) stars += (i < wl) ? "★" : "☆";
         document.getElementById('wanted-level-container').innerText = stars;
+        
+        document.getElementById('energy-display').innerText = user.energy || 0;
 
         checkTransferForm(); 
     }
@@ -1375,6 +1528,7 @@
                         user.balance += win;
                         user.history.unshift({ icon: '🚚', title: "Контрабанда (Успіх)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: win, type: 'plus' });
                         showPush("Контрабанда", `Фура доїхала! Прибуток: ${win.toLocaleString('uk-UA')} ₴`, "🚚");
+                        showSuccessEffect();
                     } else {
                         user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 2);
                         let fine = Math.floor(amt * 0.5);
@@ -1401,6 +1555,17 @@
             else { if(document.getElementById('screen-useful').classList.contains('active')) renderUsefulTimersOnly(); }
         } catch (e) { console.error("Помилка основного таймера: ", e); }
     }, 1000);
+    
+    // Енергія реген
+    setInterval(() => {
+        try {
+            const user = getState(); if(!user) return;
+            if(user.energy < 100) {
+                user.energy = Math.min(100, (user.energy || 0) + 5);
+                saveDB(); updateBalanceDisplayQuiet();
+            }
+        } catch(e){}
+    }, 60000);
 
     setInterval(() => {
         try {
@@ -1433,10 +1598,10 @@
         } catch (e) { console.error("Помилка оновлення ринку: ", e); }
     }, 5000);
 
-    function openSafe() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } user.balance -= 10000; const rand = Math.random(); let win = 0; let msg = ""; let icon = "📦"; if(rand < 0.90) { win = 1; msg = "Тобі випала 1 ₴. Не щастить."; icon = "🗑️"; } else if(rand < 0.98) { win = 15000; msg = "Непогано! 15 000 ₴."; icon = "💵"; } else if(rand < 0.999) { win = 50000; msg = "Крупний куш! 50 000 ₴."; icon = "💰"; } else { win = 100000; msg = "ДЖЕКПОТ! 100 000 ₴!"; icon = "💎"; } user.balance += win; addTransaction("Секретний сейф", win - 10000, icon); saveDB(); updateBalanceDisplayQuiet(); showPush("Сейф", msg, icon); }
+    function openSafe() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } user.balance -= 10000; const rand = Math.random(); let win = 0; let msg = ""; let icon = "📦"; if(rand < 0.90) { win = 1; msg = "Тобі випала 1 ₴. Не щастить."; icon = "🗑️"; } else if(rand < 0.98) { win = 15000; msg = "Непогано! 15 000 ₴."; icon = "💵"; } else if(rand < 0.999) { win = 50000; msg = "Крупний куш! 50 000 ₴."; icon = "💰"; showSuccessEffect(); } else { win = 100000; msg = "ДЖЕКПОТ! 100 000 ₴!"; icon = "💎"; showSuccessEffect(); } user.balance += win; addTransaction("Секретний сейф", win - 10000, icon); saveDB(); updateBalanceDisplayQuiet(); showPush("Сейф", msg, icon); }
     function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
-    function openHackMiniGame() { const user = getState(); if(user.isLocked) { showToast("Спочатку зніміть щит з картки!", "error"); return; } if(user.balance < 500) { showToast("Немає 500 ₴ для входу", "error"); return; } user.balance -= 500; saveDB(); updateBalanceDisplayQuiet(); document.getElementById('hack-modal').classList.add('active'); currentHackPin = generateRandomNum(6); document.getElementById('hack-pin-display').innerText = currentHackPin; document.getElementById('hack-input').value = ''; document.getElementById('hack-input').focus(); let timeLeft = 5; document.getElementById('hack-timer').innerText = timeLeft; clearInterval(hackInterval); hackInterval = setInterval(() => { timeLeft--; document.getElementById('hack-timer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(hackInterval); failHack(); } }, 1000); }
-    function submitHack() { if(document.getElementById('hack-input').value === currentHackPin) { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); let win = 500 + Math.floor(Math.random() * 701); const user = getState(); user.balance += win; saveDB(); addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet(); showPush("Взлом", `Ти отримав ${win} ₴!`, "💻"); } else { failHack(); } }
+    function openHackMiniGame() { const user = getState(); if(user.isLocked) { showToast("Спочатку зніміть щит з картки!", "error"); return; } if(user.energy < 15) { showToast("Мало енергії! Потрібно 15⚡", "error"); return; } if(user.balance < 500) { showToast("Немає 500 ₴ для входу", "error"); return; } user.balance -= 500; user.energy -= 15; saveDB(); updateBalanceDisplayQuiet(); document.getElementById('hack-modal').classList.add('active'); currentHackPin = generateRandomNum(6); document.getElementById('hack-pin-display').innerText = currentHackPin; document.getElementById('hack-input').value = ''; document.getElementById('hack-input').focus(); let timeLeft = 5; document.getElementById('hack-timer').innerText = timeLeft; clearInterval(hackInterval); hackInterval = setInterval(() => { timeLeft--; document.getElementById('hack-timer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(hackInterval); failHack(); } }, 1000); }
+    function submitHack() { if(document.getElementById('hack-input').value === currentHackPin) { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); let win = 500 + Math.floor(Math.random() * 701); const user = getState(); user.balance += win; progressQuest('hack'); saveDB(); addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet(); showPush("Взлом", `Ти отримав ${win} ₴!`, "💻"); showSuccessEffect(); } else { failHack(); } }
     function failHack() { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); const user = getState(); user.isLocked = true; let penalty = Math.floor(user.balance * 0.1); user.balance -= penalty; user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 2); saveDB(); applyLockStatusVisually(); updateBalanceDisplayQuiet(); addTransaction("Провал зламу (Штраф)", -penalty, '🚨'); showPush("Провал!", "Вас засікли! Штраф 10%, блок картки та +2 зірки розшуку.", "🚨", true); }
 
     window.addEventListener('load', checkAuthState);
