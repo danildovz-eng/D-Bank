@@ -817,15 +817,34 @@
 
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     
-    function sendVerificationCode() { 
+function sendVerificationCode() { 
         tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
-        if(!tempRegEmail.includes('@')) { showToast("Некоректний email! Введіть правильний.", "error"); return; }
+        if(!tempRegEmail.includes('@')) { showToast("Некорректный email! Введите правильный.", "error"); return; }
         const emailKey = tempRegEmail.replace(/\./g, ',');
+        
         database.ref('users/' + emailKey).once('value').then(snapshot => {
-            if(snapshot.exists()) { showToast("Такий акаунт вже є!", "error"); return; }
+            if(snapshot.exists()) { showToast("Такой аккаунт уже есть!", "error"); 
+                
             tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
-            showToast("Код: " + tempRegCode, "success"); switchAuthScreen('screen-verify');
-        }).catch(() => showToast("Помилка підключення до сервера", "error"));
+            
+            showToast("Отправка письма...", "info");
+
+            let templateParams = {
+                to_email: tempRegEmail,
+                code: tempRegCode       
+            };
+
+            
+            emailjs.send("service_862mpzq", "template_gk4i88d", templateParams)
+                .then(function(response) {
+                    showToast("Код отправлен на почту!", "success");
+                    switchAuthScreen('screen-verify');
+                }, function(error) {
+                    showToast("Ошибка отправки письма!", "error");
+                    console.log("Ошибка EmailJS:", error);
+                });
+
+        }).catch(() => showToast("Ошибка подключения к серверу", "error"));
     }
     
     function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Кривий код!", "error"); }
