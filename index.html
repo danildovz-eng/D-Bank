@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -10,15 +10,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="D-Bank">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
         (function() {
             emailjs.init("5PrybHl8VLuz3mf5");
         })();
     </script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root { --bg-main: #161B22; --bg-surface: #232A38; --primary: #0047AB; --text-dark: #FFFFFF; --text-muted: #A0ABBB; --success: #10B981; --danger: #EF4444; --warning: #F59E0B; --border: #333C4D; }
@@ -171,41 +173,41 @@
 <body ontouchstart="">
 
 <div class="app-container" id="app-root">
-    <div id="toast" class="toast">Повідомлення</div>
+    <div id="toast" class="toast">Уведомление</div>
     
     <div id="push-notif" class="push-notif">
         <div class="push-icon" id="push-icon">✉️</div>
         <div>
-            <div style="font-weight: 700; font-size: 14px;" id="push-title">Вхідний лист</div>
+            <div style="font-weight: 700; font-size: 14px;" id="push-title">Входящее письмо</div>
             <div style="font-size: 12px; color: var(--text-muted);" id="push-desc">Текст</div>
         </div>
     </div>
 
     <div class="modal-overlay" id="history-menu-modal" onclick="closeModal(event, 'history-menu-modal')">
         <div class="modal-content" style="text-align:center;">
-            <h3 style="margin-bottom:15px;">Дія з операцією</h3>
+            <h3 style="margin-bottom:15px;">Действие с операцией</h3>
             <div id="history-menu-actions" style="display:flex; flex-direction:column; gap:10px;"></div>
-            <button class="btn-main" style="background:var(--bg-main); border:1px solid var(--border); margin-top:10px;" onclick="document.getElementById('history-menu-modal').classList.remove('active')">Скасувати</button>
+            <button class="btn-main" style="background:var(--bg-main); border:1px solid var(--border); margin-top:10px;" onclick="document.getElementById('history-menu-modal').classList.remove('active')">Отмена</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="pwa-prompt">
         <div class="modal-content" style="text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">📱</div>
-            <h3 style="margin-bottom:10px;">Встановіть додаток</h3>
+            <h3 style="margin-bottom:10px;">Установите приложение</h3>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
-                Додайте D-Bank на головний екран для зручного доступу та збереження даних!
+                Добавьте D-Bank на главный экран для удобного доступа и сохранения данных!
             </p>
-            <button class="btn-main" style="background:var(--success); margin-bottom:10px;" onclick="installPWA()">Встановити</button>
-            <button class="btn-main" style="background:var(--bg-main); border:1px solid var(--border); color:var(--text-muted);" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Пізніше</button>
+            <button class="btn-main" style="background:var(--success); margin-bottom:10px;" onclick="installPWA()">Установить</button>
+            <button class="btn-main" style="background:var(--bg-main); border:1px solid var(--border); color:var(--text-muted);" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Позже</button>
         </div>
     </div>
 
     <div id="screen-app-pin" class="screen auth-screen">
         <div style="text-align: center; margin-top: 30px;">
             <div class="avatar" style="width:70px; height:70px; font-size:30px; margin:0 auto 15px;" id="pin-avatar">👤</div>
-            <h2 id="pin-name" style="margin-bottom: 5px;">Ім'я</h2>
-            <p style="color:var(--text-muted); margin-bottom: 40px;">Введіть PIN-код для входу</p>
+            <h2 id="pin-name" style="margin-bottom: 5px;">Имя</h2>
+            <p style="color:var(--text-muted); margin-bottom: 40px;">Введите PIN-код для входа</p>
             <div class="pin-dots" id="pin-dots">
                 <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
             </div>
@@ -215,46 +217,46 @@
                 <button class="num-btn" onclick="enterPin('7')">7</button><button class="num-btn" onclick="enterPin('8')">8</button><button class="num-btn" onclick="enterPin('9')">9</button>
                 <div></div><button class="num-btn" onclick="enterPin('0')">0</button><button class="num-btn" onclick="deletePin()" style="background:transparent; color:var(--text-muted); font-size:30px;">⌫</button>
             </div>
-            <div style="margin-top:40px; color:var(--danger); cursor:pointer; font-size:14px; font-weight:600;" onclick="logout()">Вийти з акаунту</div>
+            <div style="margin-top:40px; color:var(--danger); cursor:pointer; font-size:14px; font-weight:600;" onclick="logout()">Выйти из аккаунта</div>
         </div>
     </div>
 
     <div id="screen-login" class="screen auth-screen">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏦</div>
-        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">З поверненням!</div>
-        <div class="form-group"><label>Електронна пошта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
-        <div class="form-group"><label>Пароль</label><input type="password" id="login-pass" placeholder="Введіть пароль"></div>
-        <button type="button" class="btn-main" onclick="processLogin()">Увійти</button>
-        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Немає акаунту? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Зареєструватися</span></div>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">С возвращением!</div>
+        <div class="form-group"><label>Электронная почта</label><input type="email" id="login-email" placeholder="mail@example.com"></div>
+        <div class="form-group"><label>Пароль</label><input type="password" id="login-pass" placeholder="Введите пароль"></div>
+        <button type="button" class="btn-main" onclick="processLogin()">Войти</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Нет аккаунта? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Зарегистрироваться</span></div>
     </div>
 
     <div id="screen-register" class="screen auth-screen">
         <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">👋</div>
-        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Створити акаунт</div>
-        <div class="form-group"><label>Електронна пошта</label><input type="email" id="reg-email" placeholder="mail@example.com"></div>
-        <button type="button" class="btn-main" onclick="sendVerificationCode()">Надіслати код</button>
-        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Вже є акаунт? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-login')">Увійти</span></div>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Создать аккаунт</div>
+        <div class="form-group"><label>Электронная почта</label><input type="email" id="reg-email" placeholder="mail@example.com"></div>
+        <button type="button" class="btn-main" onclick="sendVerificationCode()">Отправить код</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);">Уже есть аккаунт? <span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-login')">Войти</span></div>
     </div>
 
     <div id="screen-verify" class="screen auth-screen">
-        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 5px; font-weight: 700;">Код підтвердження</div>
-        <div style="text-align:center; font-size:14px; margin-bottom:20px; color:var(--text-muted)">Ми надіслали код на вашу пошту</div>
-        <div class="form-group"><label>Введіть 4-значний код</label><input type="number" id="reg-code" placeholder="0000"></div>
-        <button type="button" class="btn-main" onclick="verifyCode()">Підтвердити</button>
-        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);"><span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Скасувати</span></div>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 5px; font-weight: 700;">Код подтверждения</div>
+        <div style="text-align:center; font-size:14px; margin-bottom:20px; color:var(--text-muted)">Мы отправили код на вашу почту</div>
+        <div class="form-group"><label>Введите 4-значный код</label><input type="number" id="reg-code" placeholder="0000"></div>
+        <button type="button" class="btn-main" onclick="verifyCode()">Подтвердить</button>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted);"><span style="color: var(--primary); font-weight: 600; cursor: pointer; padding: 10px;" onclick="switchAuthScreen('screen-register')">Отмена</span></div>
     </div>
 
     <div id="screen-setup" class="screen auth-screen">
-        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Останній крок</div>
-        <div class="form-group"><label>Ваше Ім'я</label><input type="text" id="reg-name" placeholder="Наприклад: Олексій"></div>
-        <div class="form-group"><label>Пароль акаунту</label><input type="password" id="reg-pass" placeholder="Мінімум 4 символи"></div>
-        <div class="form-group"><label>PIN-код для входу (4 цифри)</label><input type="password" id="reg-app-pin" placeholder="****" inputmode="numeric" maxlength="4"></div>
-        <button type="button" class="btn-main" onclick="completeRegistration()">Завершити реєстрацію</button>
+        <div style="text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 20px; font-weight: 700;">Последний шаг</div>
+        <div class="form-group"><label>Ваше Имя</label><input type="text" id="reg-name" placeholder="Например: Алексей"></div>
+        <div class="form-group"><label>Пароль аккаунта</label><input type="password" id="reg-pass" placeholder="Минимум 4 символа"></div>
+        <div class="form-group"><label>PIN-код для входа (4 цифры)</label><input type="password" id="reg-app-pin" placeholder="****" inputmode="numeric" maxlength="4"></div>
+        <button type="button" class="btn-main" onclick="completeRegistration()">Завершить регистрацию</button>
     </div>
 
     <div id="screen-dashboard" class="screen">
         <header>
-            <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 ₴</h1></div>
+            <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 $</h1></div>
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="text-align:right; font-size:12px; color:var(--warning); font-weight:bold;">⚡ <span id="energy-display">100</span>/100</div>
                 <div class="avatar" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])" id="dashboard-avatar">👤</div>
@@ -267,97 +269,97 @@
             <div class="flip-card-inner" id="flip-card-inner-main">
                 <div class="flip-card-front">
                     <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
-                    <div><div class="balance-label">Доступно</div><div class="balance-value" id="dashboard-balance">0.00 ₴</div></div>
+                    <div><div class="balance-label">Доступно</div><div class="balance-value" id="dashboard-balance">0.00 $</div></div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px;"><span id="dashboard-card-num">**** **** **** ****</span><span>12/28</span></div>
-                    <div class="iron-shield" id="main-iron-shield"><div style="font-size:30px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКОВАНО</div></div>
+                    <div class="iron-shield" id="main-iron-shield"><div style="font-size:30px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКИРОВАНО</div></div>
                 </div>
             </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-bottom: 25px;">
-            <button type="button" class="btn-main" style="flex:1; background: linear-gradient(135deg, #10B981, #059669);" onclick="earnMoney(event)" id="btn-earn">+ Заробити 0.10 ₴</button>
+            <button type="button" class="btn-main" style="flex:1; background: linear-gradient(135deg, #10B981, #059669);" onclick="earnMoney(event)" id="btn-earn">+ Заработать 0.10 $</button>
             <button type="button" class="btn-main" style="width:50px; padding:0; background: var(--bg-surface); color:var(--text-dark);" onclick="openUpgrades()">🚀</button>
         </div>
 
         <div class="quick-actions">
-            <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Переказ</div></button>
-            <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Термінал</div></button>
-            <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Злам</div></button>
+            <button type="button" class="action-btn" onclick="openTransfer()"><div class="action-icon">💸</div><div class="action-text">Перевод</div></button>
+            <button type="button" class="action-btn" onclick="openModal('topup-modal')"><div class="action-icon">📥</div><div class="action-text">Терминал</div></button>
+            <button type="button" class="action-btn" onclick="openHackMiniGame()"><div class="action-icon">💻</div><div class="action-text">Взлом</div></button>
             <button type="button" class="action-btn" onclick="openClansScreen()"><div class="action-icon" style="background:var(--primary);">🛡️</div><div class="action-text">Клан</div></button>
             <button type="button" class="action-btn" onclick="openModal('casino-modal')"><div class="action-icon" style="background:#E53935;">🎰</div><div class="action-text">Казино</div></button>
             <button type="button" class="action-btn" onclick="openModal('darknet-modal')"><div class="action-icon" style="background:#111; border:1px solid #0f0; color:#0f0;">🏴‍☠️</div><div class="action-text">Даркнет</div></button>
-            <button type="button" class="action-btn" onclick="openRPS()"><div class="action-icon" style="background:#8b5cf6;">✌️</div><div class="action-text">КНП</div></button>
+            <button type="button" class="action-btn" onclick="openRPS()"><div class="action-icon" style="background:#8b5cf6;">✌️</div><div class="action-text">КНБ</div></button>
         </div>
 
         <div style="background:var(--bg-surface); padding:15px; border-radius:16px; margin-bottom:20px;">
-            <h3 style="margin-bottom:10px; font-size:14px;">Щоденні квести 🎯</h3>
+            <h3 style="margin-bottom:10px; font-size:14px;">Ежедневные квесты 🎯</h3>
             <div id="quest-container"></div>
         </div>
 
-        <div style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Історія операцій</div>
-        <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Натисніть на запис, щоб відкрити меню</p>
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">История операций</div>
+        <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Нажмите на запись, чтобы открыть меню</p>
         <div id="history-container"></div>
     </div>
 
     <div id="screen-clans" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
-            <div style="font-weight: 600; font-size:18px;">Клани (Союзи) 🛡️</div>
+            <div style="font-weight: 600; font-size:18px;">Кланы (Союзы) 🛡️</div>
             <div style="width:24px;"></div>
         </div>
         
         <div id="clan-no-clan">
             <div style="background:var(--bg-surface); padding:15px; border-radius:16px; margin-bottom:20px; text-align:center;">
-                <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Вступи в клан або створи свій, щоб збирати спільний капітал!</p>
-                <button class="btn-main" onclick="createClan()">Створити свій за 10 000 ₴</button>
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Вступи в клан или создай свой, чтобы собирать общий капитал!</p>
+                <button class="btn-main" onclick="createClan()">Создать свой за 10 000 $</button>
             </div>
             <div class="form-group">
-                <input type="text" id="clan-search-input" placeholder="Введіть назву клану...">
-                <button class="btn-main" style="margin-top:10px;" onclick="searchClans()">Знайти клан</button>
+                <input type="text" id="clan-search-input" placeholder="Введите название клана...">
+                <button class="btn-main" style="margin-top:10px;" onclick="searchClans()">Найти клан</button>
             </div>
             <div id="clan-search-results" style="margin-top:15px;"></div>
         </div>
 
         <div id="clan-active" style="display:none;">
             <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px; text-align:center;">
-                <h2 id="clan-name-display" style="margin-bottom:5px;">Назва Клану</h2>
-                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px;" id="clan-role-display">Роль: Учасник</div>
+                <h2 id="clan-name-display" style="margin-bottom:5px;">Название Клана</h2>
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px;" id="clan-role-display">Роль: Участник</div>
                 
                 <div style="background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:15px;">
-                    <div style="font-size:12px; color:var(--text-muted);">Общак клану</div>
-                    <div id="clan-fund-display" style="font-size:24px; font-weight:bold; color:var(--success); margin:5px 0;">0.00 ₴</div>
-                    <div id="clan-fund-status" style="font-size:12px; color:var(--warning);">Збір коштів закритий</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Общак клана</div>
+                    <div id="clan-fund-display" style="font-size:24px; font-weight:bold; color:var(--success); margin:5px 0;">0.00 $</div>
+                    <div id="clan-fund-status" style="font-size:12px; color:var(--warning);">Сбор средств закрыт</div>
                 </div>
 
                 <div id="clan-donate-area" style="display:none; margin-bottom:15px;">
-                    <div class="form-group"><input type="number" id="clan-donate-amount" placeholder="Сума внеску"></div>
-                    <button class="btn-main" style="background:var(--success);" onclick="donateToClan()">Скинути в общак</button>
+                    <div class="form-group"><input type="number" id="clan-donate-amount" placeholder="Сумма взноса"></div>
+                    <button class="btn-main" style="background:var(--success);" onclick="donateToClan()">Скинуть в общак</button>
                 </div>
 
                 <div id="clan-owner-controls" style="display:none; gap:10px; flex-direction:column; margin-bottom:15px;">
-                    <button class="btn-main" style="background:var(--warning); color:#000;" onclick="toggleClanFund()">Відкрити/Закрити збір</button>
-                    <button class="btn-main" style="background:var(--primary); color:#fff;" onclick="withdrawClanFund()">Зняти кошти з общака</button>
-                    <button class="btn-main" style="background:var(--bg-surface); color:#fff; border: 1px solid var(--border);" onclick="changeClanName()">Змінити назву клану</button>
+                    <button class="btn-main" style="background:var(--warning); color:#000;" onclick="toggleClanFund()">Открыть/Закрыть сбор</button>
+                    <button class="btn-main" style="background:var(--primary); color:#fff;" onclick="withdrawClanFund()">Снять средства из общака</button>
+                    <button class="btn-main" style="background:var(--bg-surface); color:#fff; border: 1px solid var(--border);" onclick="changeClanName()">Изменить название клана</button>
                 </div>
                 
                 <div style="background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:15px; text-align:left;">
-                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px; font-weight:bold;">⚔️ Війна кланів</div>
-                    <div class="form-group" style="margin-bottom:10px;"><input type="text" id="clan-attack-id" placeholder="ID клану для атаки (З пошуку)"></div>
-                    <button class="btn-main btn-danger" onclick="attackClan()" style="font-size:13px;">Атакувати (Ціна: 10 000 ₴ з общака)</button>
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px; font-weight:bold;">⚔️ Война кланов</div>
+                    <div class="form-group" style="margin-bottom:10px;"><input type="text" id="clan-attack-id" placeholder="ID клана для атаки (Из поиска)"></div>
+                    <button class="btn-main btn-danger" onclick="attackClan()" style="font-size:13px;">Атаковать (Цена: 10 000 $ из общака)</button>
                 </div>
 
                 <div style="background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:15px; text-align:left;">
-                    <h3 style="margin-bottom:10px; font-size:14px;">Чат клану 💬</h3>
+                    <h3 style="margin-bottom:10px; font-size:14px;">Чат клана 💬</h3>
                     <div id="clan-chat-messages" style="height:150px; overflow-y:auto; background:var(--bg-surface); padding:10px; border-radius:8px; margin-bottom:10px; font-size:12px; display:flex; flex-direction:column; gap:5px;"></div>
                     <div style="display:flex; gap:5px;">
-                        <input type="text" id="clan-chat-input" placeholder="Повідомлення..." style="flex:1; padding:8px; border-radius:8px; border:none; background:var(--bg-surface); color:#fff; outline:none;">
+                        <input type="text" id="clan-chat-input" placeholder="Сообщение..." style="flex:1; padding:8px; border-radius:8px; border:none; background:var(--bg-surface); color:#fff; outline:none;">
                         <button class="btn-main" style="width:auto; padding:8px 12px; background:var(--primary);" onclick="sendClanChat()">➤</button>
                     </div>
                 </div>
 
-                <button class="btn-main" style="background:transparent; border:1px solid var(--danger); color:var(--danger);" onclick="leaveClan()">Покинути клан</button>
+                <button class="btn-main" style="background:transparent; border:1px solid var(--danger); color:var(--danger);" onclick="leaveClan()">Покинуть клан</button>
             </div>
-            <h3 style="margin-bottom:10px;">Учасники</h3>
+            <h3 style="margin-bottom:10px;">Участники</h3>
             <div id="clan-members-list"></div>
         </div>
     </div>
@@ -365,59 +367,59 @@
     <div id="screen-leaderboard" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-profile', document.querySelectorAll('.nav-item')[4])">←</div>
-            <div style="font-weight: 600; font-size:18px;">Рейтинг Багатіїв 🏆</div>
+            <div style="font-weight: 600; font-size:18px;">Рейтинг Богачей 🏆</div>
             <div style="width:24px;"></div>
         </div>
-        <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:15px;">Рейтинг враховує баланс та вартість усіх активів</p>
-        <div id="leaderboard-container">Завантаження бази...</div>
+        <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:15px;">Рейтинг учитывает баланс и стоимость всех активов</p>
+        <div id="leaderboard-container">Загрузка базы...</div>
     </div>
 
     <div id="screen-payments" class="screen">
-        <header><div class="greeting"><h1>Переказ на картку</h1></div></header>
-        <div class="form-group"><label>З картки</label><input type="text" id="from-card-input" disabled style="background: var(--bg-main);"></div>
-        <div class="form-group"><label>Номер картки отримувача</label><input type="text" id="transfer-card" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)"></div>
-        <div class="form-group"><label>Сума переказу (₴)</label><input type="number" id="transfer-amount" placeholder="0.00" oninput="checkTransferForm()"></div>
-        <button type="button" class="btn-main" id="btn-transfer" disabled onclick="executeTransfer()">Надіслати</button>
+        <header><div class="greeting"><h1>Перевод на карту</h1></div></header>
+        <div class="form-group"><label>С карты</label><input type="text" id="from-card-input" disabled style="background: var(--bg-main);"></div>
+        <div class="form-group"><label>Номер карты получателя</label><input type="text" id="transfer-card" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)"></div>
+        <div class="form-group"><label>Сумма перевода ($)</label><input type="number" id="transfer-amount" placeholder="0.00" oninput="checkTransferForm()"></div>
+        <button type="button" class="btn-main" id="btn-transfer" disabled onclick="executeTransfer()">Отправить</button>
     </div>
 
     <div id="screen-stocks" class="screen">
-        <header><div class="greeting"><p>Мій портфель</p><h1 id="portfolio-total">0.00 ₴</h1></div></header>
+        <header><div class="greeting"><p>Мой портфель</p><h1 id="portfolio-total">0.00 $</h1></div></header>
         <div class="tabs-header">
-            <div class="tab-btn active" onclick="setMarketTab('stocks', this)">Акції 📈</div>
+            <div class="tab-btn active" onclick="setMarketTab('stocks', this)">Акции 📈</div>
             <div class="tab-btn" onclick="setMarketTab('crypto', this)">Крипта ₿</div>
-            <div class="tab-btn" onclick="setMarketTab('news', this)">Новини 📰</div>
+            <div class="tab-btn" onclick="setMarketTab('news', this)">Новости 📰</div>
         </div>
         <div id="stocks-container"></div>
     </div>
 
     <div id="screen-useful" class="screen">
-        <header><div class="greeting"><h1>Корисне 🎒</h1></div></header>
+        <header><div class="greeting"><h1>Полезное 🎒</h1></div></header>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;" id="bribe-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">👮</div><div style="font-weight:bold;">Дати хабар</div></div>
-                <div style="font-size:12px; color:var(--text-muted);">Зняти розшук</div>
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">👮</div><div style="font-weight:bold;">Дать взятку</div></div>
+                <div style="font-size:12px; color:var(--text-muted);">Снять розыск</div>
             </div>
-            <button type="button" class="btn-main" id="btn-bribe" style="background:#555;" onclick="payBribe()">Заплатити</button>
+            <button type="button" class="btn-main" id="btn-bribe" style="background:#555;" onclick="payBribe()">Заплатить</button>
         </div>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">📦</div><div style="font-weight:bold;">Секретний Сейф</div></div>
-                <div style="font-size:12px; color:var(--warning); font-weight:bold;">Ризик!</div>
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">📦</div><div style="font-weight:bold;">Секретный Сейф</div></div>
+                <div style="font-size:12px; color:var(--warning); font-weight:bold;">Риск!</div>
             </div>
-            <button type="button" class="btn-main" style="background:#8b5cf6;" onclick="openSafe()">Відкрити за 10 000 ₴</button>
+            <button type="button" class="btn-main" style="background:#8b5cf6;" onclick="openSafe()">Открыть за 10 000 $</button>
         </div>
         
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🚚</div><div style="font-weight:bold;">Контрабанда</div></div>
-                <div style="font-size:12px; color:var(--warning);">Ризик 70%</div>
+                <div style="font-size:12px; color:var(--warning);">Риск 70%</div>
             </div>
             <div id="smuggling-input-area">
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Відправ фуру з товаром (мінімум 50 000 ₴, вимагає 30⚡). Час: 10 хв. Шанс 30% на x3 прибуток.</p>
-                <div class="form-group"><input type="number" id="smuggling-amount" placeholder="Сума (мін. 50 000 ₴)" style="width:100%;"></div>
-                <button type="button" class="btn-main" style="background:#555;" onclick="startSmuggling()">Відправити фуру</button>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Отправь фуру с товаром (минимум 50 000 $, требует 30⚡). Время: 10 мин. Шанс 30% на x3 прибыль.</p>
+                <div class="form-group"><input type="number" id="smuggling-amount" placeholder="Сумма (мин. 50 000 $)" style="width:100%;"></div>
+                <button type="button" class="btn-main" style="background:#555;" onclick="startSmuggling()">Отправить фуру</button>
             </div>
             <div id="smuggling-timer-area" style="margin-top:15px; display:none;"></div>
         </div>
@@ -425,23 +427,23 @@
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">⛏️</div><div style="font-weight:bold;">Криптоферма (ASIC)</div></div>
-                <div style="font-size:12px; color:var(--success);">+0.01 BiteCoin / хв</div>
+                <div style="font-size:12px; color:var(--success);">+0.01 BiteCoin / мин</div>
             </div>
-            <button type="button" class="btn-main" id="btn-buy-miner" style="background:#E65100;" onclick="buyMiner()">Купити за 100 000 ₴</button>
+            <button type="button" class="btn-main" id="btn-buy-miner" style="background:#E65100;" onclick="buyMiner()">Купить за 100 000 $</button>
             <div style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;" id="miner-count-display">У вас: 0 шт.</div>
         </div>
         
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🏝️</div><div style="font-weight:bold;">Офшорний рахунок</div></div>
-                <div style="font-size:12px; color:var(--text-muted);">Захист від податків</div>
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🏝️</div><div style="font-weight:bold;">Офшорный счет</div></div>
+                <div style="font-size:12px; color:var(--text-muted);">Защита от налогов</div>
             </div>
-            <button type="button" class="btn-main" id="btn-offshore" style="background:#3949AB;" onclick="buyOffshore()">Відкрити за 500 000 ₴</button>
+            <button type="button" class="btn-main" id="btn-offshore" style="background:#3949AB;" onclick="buyOffshore()">Открыть за 500 000 $</button>
         </div>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🏢</div><div style="font-weight:bold;">Імперія Бізнесів</div></div>
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🏢</div><div style="font-weight:bold;">Империя Бизнесов</div></div>
             </div>
             <div id="businesses-area" style="display:flex; flex-direction:column; gap:10px;"></div>
         </div>
@@ -449,24 +451,24 @@
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px; margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">🌾</div><div style="font-weight:bold;">Депозит 5%</div></div>
-                <div style="font-size:12px; color:var(--text-muted);">На 5 хвилин</div>
+                <div style="font-size:12px; color:var(--text-muted);">На 5 минут</div>
             </div>
             <div id="deposit-input-area">
-                <div class="form-group"><input type="number" id="deposit-amount" placeholder="Сума (мінімум 10 ₴)" style="width:100%;"></div>
-                <button type="button" class="btn-main" onclick="openDeposit()">Відкрити депозит</button>
+                <div class="form-group"><input type="number" id="deposit-amount" placeholder="Сумма (минимум 10 $)" style="width:100%;"></div>
+                <button type="button" class="btn-main" onclick="openDeposit()">Открыть депозит</button>
             </div>
             <div id="deposit-timer-area" style="margin-top:15px; display:none;"></div>
         </div>
 
         <div style="background:var(--bg-surface); padding:20px; border-radius:16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит готівкою</div></div>
+                <div style="display:flex; align-items:center; gap:10px;"><div style="font-size:24px;">💳</div><div style="font-weight:bold;">Кредит наличными</div></div>
                 <div style="font-size:12px; font-weight:bold;" id="credit-rate-label">Ставка: --%</div>
             </div>
             <div id="credit-input-area">
                 <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">Ваш рейтинг: <b id="credit-score-display" style="color:var(--success);">100</b></div>
                 <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;" id="credit-desc-text"></p>
-                <button type="button" class="btn-main" id="btn-take-credit" onclick="takeCredit()">Взяти кредит</button>
+                <button type="button" class="btn-main" id="btn-take-credit" onclick="takeCredit()">Взять кредит</button>
             </div>
             <div id="credit-timer-area" style="display:none;"></div>
         </div>
@@ -475,111 +477,111 @@
     <div id="screen-card-details" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <div style="font-size: 24px; cursor: pointer; font-weight: bold;" onclick="switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0])">←</div>
-            <div style="font-weight: 600;">Управління карткою</div>
+            <div style="font-weight: 600;">Управление картой</div>
             <div style="width:24px;"></div>
         </div>
         <div class="flip-card" id="flip-card">
             <div class="flip-card-inner" id="flip-card-inner">
                 <div class="flip-card-front">
                     <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
-                    <div><div class="balance-label">Баланс</div><div class="balance-value" id="detail-balance" style="font-size: 24px;">0.00 ₴</div></div>
+                    <div><div class="balance-label">Баланс</div><div class="balance-value" id="detail-balance" style="font-size: 24px;">0.00 $</div></div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px;"><span id="full-card-num">****</span><span>12/28</span></div>
-                    <div class="iron-shield" id="detail-iron-shield"><div style="font-size:40px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКОВАНО</div></div>
+                    <div class="iron-shield" id="detail-iron-shield"><div style="font-size:40px;">🔒</div><div style="font-weight:bold;">ЗАБЛОКИРОВАНО</div></div>
                 </div>
                 <div class="flip-card-back">
                     <div class="magnetic-stripe"></div>
                     <div style="text-align: right; padding-right: 20px; font-size: 12px; margin-top: 10px;" id="card-cvv-display">CVV: ***</div>
                     <div class="pin-container">
-                        <div><div style="font-size: 10px; color: #888; margin-bottom: 2px;">PIN-код картки:</div><div class="pin-text" id="card-pin-display">****</div></div>
+                        <div><div style="font-size: 10px; color: #888; margin-bottom: 2px;">PIN-код карты:</div><div class="pin-text" id="card-pin-display">****</div></div>
                         <div style="font-size:24px; cursor:pointer;" onclick="togglePin(event)">👁</div>
                     </div>
                 </div>
             </div>
         </div>
-        <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Натисніть або свайпніть, щоб перевернути</p>
+        <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Нажмите или свайпните, чтобы перевернуть</p>
         
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-weight: 600; margin-bottom: 5px;">Ексклюзивний номер картки</div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Створи свій унікальний IBAN (16 цифр). Вартість: 500 000 ₴</p>
+            <div style="font-weight: 600; margin-bottom: 5px;">Эксклюзивный номер карты</div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Создай свой уникальный IBAN (16 цифр). Стоимость: 500 000 $</p>
             <div class="form-group"><input type="number" id="custom-card-input" placeholder="0000 0000 0000 0000"></div>
-            <button class="btn-main" onclick="buyCustomCard()">Придбати номер</button>
+            <button class="btn-main" onclick="buyCustomCard()">Купить номер</button>
         </div>
 
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align:center;">
-            <button class="btn-main" style="background: var(--primary);" onclick="openSkinsModal()">🎨 Каталог дизайнів картки</button>
+            <button class="btn-main" style="background: var(--primary);" onclick="openSkinsModal()">🎨 Каталог дизайнов карты</button>
         </div>
 
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 10px;">
-            <button type="button" class="btn-main btn-danger" id="btn-lock" onclick="toggleLockCard()">Блокувати картку 🔒</button>
+            <button type="button" class="btn-main btn-danger" id="btn-lock" onclick="toggleLockCard()">Блокировать карту 🔒</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="skins-modal">
         <div class="modal-content" style="background: var(--bg-main); padding-top:10px;">
             <div class="close-modal" onclick="closeModal(event, 'skins-modal')" id="skins-modal">✕</div>
-            <h3 style="margin-bottom:15px; text-align:center; padding-top:10px;">Дизайн картки</h3>
+            <h3 style="margin-bottom:15px; text-align:center; padding-top:10px;">Дизайн карты</h3>
             
             <div id="skin-preview-container" class="default" style="pointer-events:none; transform: scale(0.85); margin-top:-20px; margin-bottom:-20px; transition: 0.3s;">
                 <div class="bank-card">
                     <div style="display:flex; justify-content:space-between;"><span>Universal Bank</span><span style="font-weight: bold;">VISA</span></div>
-                    <div><div class="balance-label">Прев'ю дизайну</div><div class="balance-value">0.00 ₴</div></div>
+                    <div><div class="balance-label">Превью дизайна</div><div class="balance-value">0.00 $</div></div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:16px; margin-top:20px;"><span>**** **** **** ****</span><span>12/28</span></div>
                 </div>
             </div>
 
             <div id="skins-list-container" style="height: 250px; overflow-y: auto; padding-right:5px; display:flex; flex-direction:column; gap:10px;"></div>
-            <p style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:10px;">Натисни на дизайн, щоб купити та застосувати</p>
+            <p style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:10px;">Нажми на дизайн, чтобы купить и применить</p>
         </div>
     </div>
 
     <div id="screen-profile" class="screen">
-        <header><div class="greeting"><h1>Профіль</h1></div></header>
+        <header><div class="greeting"><h1>Профиль</h1></div></header>
         <div style="background:var(--bg-surface); border-radius:16px; padding:20px; margin-bottom:20px; text-align:center;">
             <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 10px;" id="profile-avatar-main">👤</div>
-            <h2 id="profile-name" style="display:inline-block; margin-bottom:5px;">Ім'я</h2>
+            <h2 id="profile-name" style="display:inline-block; margin-bottom:5px;">Имя</h2>
             <span style="cursor:pointer; font-size:16px; margin-left:5px; vertical-align:top;" onclick="changeProfileName()">✏️</span>
             <p id="profile-email" style="color:var(--text-muted); font-size:14px; margin-bottom: 15px;">email</p>
             <div style="background: var(--bg-main); padding: 10px; border-radius: 8px; display: inline-block;">
-                <div style="font-size: 12px; color: var(--text-muted);">Загальний статок (Гроші + Активи)</div>
-                <div id="profile-net-worth" style="font-size: 18px; font-weight: bold; color: var(--success); margin-top: 5px;">0.00 ₴</div>
+                <div style="font-size: 12px; color: var(--text-muted);">Общее состояние (Деньги + Активы)</div>
+                <div id="profile-net-worth" style="font-size: 18px; font-weight: bold; color: var(--success); margin-top: 5px;">0.00 $</div>
             </div>
         </div>
 
-        <button type="button" class="btn-main" style="background:var(--warning); color:#000; margin-bottom: 20px;" onclick="openLeaderboard()">🏆 Топ Багатіїв</button>
+        <button type="button" class="btn-main" style="background:var(--warning); color:#000; margin-bottom: 20px;" onclick="openLeaderboard()">🏆 Топ Богачей</button>
 
         <div style="background: var(--bg-surface); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
-            <div style="font-weight: 600; margin-bottom: 10px;">Налаштування</div>
+            <div style="font-weight: 600; margin-bottom: 10px;">Настройки</div>
             <div class="toggle-row"><div style="font-size:14px;">Звуки</div><label class="switch"><input type="checkbox" id="set-sounds" onchange="toggleSetting('sounds')" checked><span class="slider"></span></label></div>
-            <div class="toggle-row"><div style="font-size:14px;">Push-сповіщення</div><label class="switch"><input type="checkbox" id="set-notifs" onchange="toggleSetting('notifications')" checked><span class="slider"></span></label></div>
-            <div class="toggle-row"><div style="font-size:14px;">Новини ринку</div><label class="switch"><input type="checkbox" id="set-news" onchange="toggleSetting('newsNotifications')" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><div style="font-size:14px;">Push-уведомления</div><label class="switch"><input type="checkbox" id="set-notifs" onchange="toggleSetting('notifications')" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><div style="font-size:14px;">Новости рынка</div><label class="switch"><input type="checkbox" id="set-news" onchange="toggleSetting('newsNotifications')" checked><span class="slider"></span></label></div>
         </div>
-        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--text-dark); border:1px solid var(--border); margin-bottom: 10px;" onclick="logout()">Вийти з акаунту</button>
-        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--danger); border:1px solid var(--danger);" onclick="deleteAccount()">Видалити акаунт назавжди</button>
+        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--text-dark); border:1px solid var(--border); margin-bottom: 10px;" onclick="logout()">Выйти из аккаунта</button>
+        <button type="button" class="btn-main" style="background:var(--bg-main); color:var(--danger); border:1px solid var(--danger);" onclick="deleteAccount()">Удалить аккаунт навсегда</button>
     </div>
 
     <div class="modal-overlay" id="stock-modal" onclick="closeModal(event, 'stock-modal')">
         <div class="modal-content" style="padding:15px;">
             <div class="close-modal" onclick="document.getElementById('stock-modal').classList.remove('active')">✕</div>
             <div id="modal-stock-icon" style="font-size: 30px; margin-bottom:5px; text-align:center;">📈</div>
-            <h2 id="modal-stock-name" style="text-align:center; font-size:18px;">Акція</h2>
-            <div style="text-align:center; font-size: 24px; font-weight: bold; margin-bottom:10px;" id="modal-stock-price">0.00 ₴</div>
+            <h2 id="modal-stock-name" style="text-align:center; font-size:18px;">Акция</h2>
+            <div style="text-align:center; font-size: 24px; font-weight: bold; margin-bottom:10px;" id="modal-stock-price">0.00 $</div>
             <div style="display: flex; justify-content: space-between; background: var(--bg-main); border-radius: 8px; padding: 4px; margin-bottom: 10px;">
-                <div class="tab-btn active chart-tab" onclick="setChartTab('1H', this)">1Г</div>
+                <div class="tab-btn active chart-tab" onclick="setChartTab('1H', this)">1Ч</div>
                 <div class="tab-btn chart-tab" onclick="setChartTab('1D', this)">1Д</div>
-                <div class="tab-btn chart-tab" onclick="setChartTab('1W', this)">1Т</div>
+                <div class="tab-btn chart-tab" onclick="setChartTab('1W', this)">1Н</div>
                 <div class="tab-btn chart-tab" onclick="setChartTab('1M', this)">1М</div>
             </div>
             <div class="chart-container"><svg id="stock-chart-svg" width="100%" height="100%" preserveAspectRatio="none"></svg></div>
             <div style="display:flex; justify-content:space-between; margin-bottom: 10px; font-size:14px; align-items:center;">
-                <span>В портфелі: <b id="modal-user-owned">0</b> шт.</span>
-                <button class="btn-main" style="width:auto; padding:4px 8px; font-size:12px; background:var(--primary);" onclick="sellAllCurrentStock()">Продати все</button>
+                <span>В портфеле: <b id="modal-user-owned">0</b> шт.</span>
+                <button class="btn-main" style="width:auto; padding:4px 8px; font-size:12px; background:var(--primary);" onclick="sellAllCurrentStock()">Продать все</button>
             </div>
-            <div class="form-group"><input type="number" id="stock-qty" placeholder="Кількість" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
+            <div class="form-group"><input type="number" id="stock-qty" placeholder="Количество" step="0.1" min="0.1" value="1" oninput="updateStockCalc()"></div>
             <div style="display:flex; gap:10px;">
-                <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продати</button>
-                <button type="button" class="btn-main" style="background:var(--success); padding:10px;" onclick="executeBuyStock()">Купити</button>
+                <button type="button" class="btn-main" style="background:var(--danger); padding:10px;" onclick="executeSellStock()">Продать</button>
+                <button type="button" class="btn-main" style="background:var(--success); padding:10px;" onclick="executeBuyStock()">Купить</button>
             </div>
-            <div id="stock-calc-total" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">Разом: 0.00 ₴</div>
+            <div id="stock-calc-total" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">Итого: 0.00 $</div>
         </div>
     </div>
 
@@ -587,27 +589,27 @@
         <div class="modal-content" style="text-align:center;">
             <div class="close-modal" onclick="document.getElementById('casino-modal').classList.remove('active')">✕</div>
             <h3 style="margin-bottom:5px;">🎰 Казино</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Зробіть ставку та оберіть колір!</p>
-            <div class="form-group"><input type="number" id="casino-bet" placeholder="Ваша ставка (₴)" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Сделайте ставку и выберите цвет!</p>
+            <div class="form-group"><input type="number" id="casino-bet" placeholder="Ваша ставка ($)" style="text-align:center; font-size:20px; font-weight:bold;"></div>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn-main" style="background:#E53935; font-size:14px;" onclick="playCasino('red')">Червоне (x2)</button>
-                <button class="btn-main" style="background:#1E1E1E; font-size:14px; border:1px solid #555;" onclick="playCasino('black')">Чорне (x2)</button>
+                <button class="btn-main" style="background:#E53935; font-size:14px;" onclick="playCasino('red')">Красное (x2)</button>
+                <button class="btn-main" style="background:#1E1E1E; font-size:14px; border:1px solid #555;" onclick="playCasino('black')">Черное (x2)</button>
             </div>
-            <button class="btn-main" style="background:#43A047; font-size:14px;" onclick="playCasino('green')">Зелене (x14)</button>
+            <button class="btn-main" style="background:#43A047; font-size:14px;" onclick="playCasino('green')">Зеленое (x14)</button>
             
             <hr style="border:none; border-top:1px solid #333; margin:20px 0;">
             <h3 style="margin-bottom:5px;">🎟 Лотерея</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Скретч-карта за 5 000 ₴ (Шанс: 5%)</p>
-            <button class="btn-main" style="background:#FF9800; font-size:14px; color:#000;" onclick="playLottery()">Купити білет та стерти</button>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Скретч-карта за 5 000 $ (Шанс: 5%)</p>
+            <button class="btn-main" style="background:#FF9800; font-size:14px; color:#000;" onclick="playLottery()">Купить билет и стереть</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="rps-modal" onclick="closeModal(event, 'rps-modal')">
         <div class="modal-content" style="text-align:center;">
             <div class="close-modal" onclick="document.getElementById('rps-modal').classList.remove('active')">✕</div>
-            <h3 style="margin-bottom:5px;">✌️ Камінь-Ножиці-Папір</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Гра з реальними гравцями (автопідбір). Переможець забирає x2!</p>
-            <div class="form-group"><input type="number" id="rps-bet" placeholder="Ставка (₴)" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+            <h3 style="margin-bottom:5px;">✌️ Камень-Ножницы-Бумага</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Игра с реальными игроками (автоподбор). Победитель забирает x2!</p>
+            <div class="form-group"><input type="number" id="rps-bet" placeholder="Ставка ($)" style="text-align:center; font-size:20px; font-weight:bold;"></div>
             <div style="display:flex; justify-content:center; gap:15px; margin-bottom:10px;">
                 <button class="num-btn" style="width:60px;height:60px;font-size:30px;" onclick="playRPS('rock')">✊</button>
                 <button class="num-btn" style="width:60px;height:60px;font-size:30px;" onclick="playRPS('scissors')">✌️</button>
@@ -620,8 +622,8 @@
         <div class="modal-content" style="text-align:center; background:#0a0a0a; border:1px solid #0f0; box-shadow:0 0 20px #0f0;">
             <div class="close-modal" onclick="document.getElementById('darknet-modal').classList.remove('active')" style="color:#0f0; border:1px solid #0f0; background:#000;">✕</div>
             <h3 style="color:#0f0; text-shadow:0 0 5px #0f0; margin-bottom:10px;">🏴‍☠️ Даркнет</h3>
-            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Замов DDoS-атаку. Якщо успішно — ти отримаєш гроші. Провал = штраф + розшук.<br><br><b>Шанс успіху: 10%</b><br><b>Вартість: 50 000 ₴ (Вимагає 20⚡)</b></p>
-            <button class="btn-main" style="background:#000; border:2px solid #0f0; color:#0f0; font-weight:bold; box-shadow:0 0 10px #0f0;" onclick="buyDdos()">Запустити атаку</button>
+            <p style="font-size:12px; color:#0f0; opacity:0.8; margin-bottom:20px;">Закажи DDoS-атаку. Если успешно — ты получишь деньги. Провал = штраф + розыск.<br><br><b>Шанс успеха: 10%</b><br><b>Стоимость: 50 000 $ (Требует 20⚡)</b></p>
+            <button class="btn-main" style="background:#000; border:2px solid #0f0; color:#0f0; font-weight:bold; box-shadow:0 0 10px #0f0;" onclick="buyDdos()">Запустить атаку</button>
         </div>
     </div>
 
@@ -629,43 +631,76 @@
         <div class="modal-content">
             <div class="close-modal" onclick="document.getElementById('upgrades-modal').classList.remove('active')">✕</div>
             <h3>Прокачка 🚀</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Інвестуй, щоб заробляти більше!</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Инвестируй, чтобы зарабатывать больше!</p>
             <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px; margin-bottom:10px;">
-                <div style="text-align:left;"><b>Посилений клік</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-click-desc"></span></div>
+                <div style="text-align:left;"><b>Усиленный клик</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-click-desc"></span></div>
                 <button class="btn-main" style="width:auto; padding:10px 15px;" id="upg-click-btn" onclick="buyUpgrade('click')"></button>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:15px; border-radius:12px;">
-                <div style="text-align:left;"><b>Автоклікер</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-auto-desc"></span></div>
+                <div style="text-align:left;"><b>Автокликер</b><br><span style="font-size:12px;color:var(--text-muted)" id="upg-auto-desc"></span></div>
                 <button class="btn-main" style="width:auto; padding:10px 15px; background:var(--success);" id="upg-auto-btn" onclick="buyUpgrade('auto')"></button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="topup-modal" onclick="closeModal(event, 'topup-modal')">
-        <div class="modal-content"><h3>Термінал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз на 5 годин.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 ₴</button></div>
+        <div class="modal-content"><h3>Терминал</h3><p style="font-size: 12px; color: var(--text-muted); margin: 10px 0;">Доступно раз в 5 часов.</p><button type="button" class="btn-main" onclick="simulateTopUp()">Внести 100 $</button></div>
     </div>
     
     <div class="modal-overlay" id="hack-modal">
         <div class="modal-content" style="text-align:center;">
-            <h3>Злам системи 💻</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишіть код за 5 секунд, інакше — штраф 10%, блок картки та розшук!<br><b>Вимагає: 15⚡</b></p>
+            <h3>Взлом системы 💻</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Перепишите код за 5 секунд, иначе — штраф 10%, блок карты и розыск!<br><b>Требует: 15⚡</b></p>
             <div style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:10px; color:var(--success);" id="hack-pin-display">000000</div>
             <div style="font-size:20px; color:var(--danger); margin-bottom:15px; font-weight:bold;" id="hack-timer">5</div>
-            <div class="form-group"><input type="number" id="hack-input" placeholder="Введіть код сюди..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
-            <button type="button" class="btn-main" onclick="submitHack()">Зламати</button>
+            <div class="form-group"><input type="number" id="hack-input" placeholder="Введите код сюда..." style="text-align:center; font-size:24px; letter-spacing:5px;"></div>
+            <button type="button" class="btn-main" onclick="submitHack()">Взломать</button>
         </div>
     </div>
 
     <nav class="bottom-nav" id="main-nav">
-        <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Головна</span></div>
-        <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежі</span></div>
-        <div class="nav-item" onclick="openStocks(this)"><div class="nav-icon">📈</div><span>Біржа</span></div>
-        <div class="nav-item" onclick="openUseful(this)"><div class="nav-icon">🎒</div><span>Корисне</span></div>
-        <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профіль</span></div>
+        <div class="nav-item active" onclick="switchTab('screen-dashboard', this)"><div class="nav-icon">🏠</div><span>Главная</span></div>
+        <div class="nav-item" onclick="openTransfer()"><div class="nav-icon">💸</div><span>Платежи</span></div>
+        <div class="nav-item" onclick="openStocks(this)"><div class="nav-icon">📈</div><span>Биржа</span></div>
+        <div class="nav-item" onclick="openUseful(this)"><div class="nav-icon">🎒</div><span>Полезное</span></div>
+        <div class="nav-item" onclick="switchTab('screen-profile', this)"><div class="nav-icon">⚙️</div><span>Профиль</span></div>
     </nav>
 </div>
 <script>
-    // РЕЄСТРАЦІЯ SERVICE WORKER ТА PWA
+    function sendVerificationCode() { 
+        tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
+        if(!tempRegEmail.includes('@')) { showToast("Некорректный email! Введите правильный.", "error"); return; }
+        const emailKey = tempRegEmail.replace(/\./g, ',');
+        
+        database.ref('users/' + emailKey).once('value').then(snapshot => {
+            if(snapshot.exists()) { showToast("Такой аккаунт уже есть!", "error"); return; }
+            
+            // Генерируем 4-значный код
+            tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
+            
+            showToast("Отправка письма...", "info"); // Показываем, что процесс пошел
+
+            // Параметры для шаблона EmailJS
+            let templateParams = {
+                to_email: tempRegEmail, // Кому отправляем (email игрока)
+                code: tempRegCode       // Сам код
+            };
+
+            // ОТПРАВКА РЕАЛЬНОГО ПИСЬМА
+            // Используем твои Service ID и Template ID
+            emailjs.send("service_862mpzq", "template_gk4i88d", templateParams)
+                .then(function(response) {
+                    showToast("Код отправлен на почту!", "success");
+                    switchAuthScreen('screen-verify');
+                }, function(error) {
+                    showToast("Ошибка отправки письма!", "error");
+                    console.log("Ошибка EmailJS:", error);
+                });
+
+        }).catch(() => showToast("Ошибка подключения к серверу", "error"));
+    }
+
+    // РЕГИСТРАЦИЯ SERVICE WORKER И PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
@@ -702,12 +737,12 @@
     const autoTiers = [0.50, 1.00, 2.00, 3.00];
 
     const questTemplates = [
-        {id: 'clicks', icon: '🖱', desc: 'Зробити кліків', target: 100},
-        {id: 'stocks', icon: '📈', desc: 'Купити активів', target: 5},
-        {id: 'deposits', icon: '🌾', desc: 'Відкрити депозитів', target: 1},
-        {id: 'casino', icon: '🎰', desc: 'Зіграти в казино/КНП', target: 3},
-        {id: 'hack', icon: '💻', desc: 'Успішних зламів', target: 1},
-        {id: 'ddos', icon: '🏴‍☠️', desc: 'Запустити DDoS', target: 1}
+        {id: 'clicks', icon: '🖱', desc: 'Сделать кликов', target: 100},
+        {id: 'stocks', icon: '📈', desc: 'Купить активов', target: 5},
+        {id: 'deposits', icon: '🌾', desc: 'Открыть депозитов', target: 1},
+        {id: 'casino', icon: '🎰', desc: 'Сыграть в казино/КНБ', target: 3},
+        {id: 'hack', icon: '💻', desc: 'Успешных взломов', target: 1},
+        {id: 'ddos', icon: '🏴‍☠️', desc: 'Запустить DDoS', target: 1}
     ];
 
     function getNextAuto(current) { for(let i=0; i<autoTiers.length; i++) { if(autoTiers[i] > current) return autoTiers[i]; } return null; }
@@ -789,70 +824,40 @@
     ];
 
     const bizConfig = [
-        { id: 'shaurma', name: 'Ларьок з шаурмою', icon: '🌯', basePrice: 500000, baseIncome: 2 },
-        { id: 'carwash', name: 'Автомийка', icon: '🚗', basePrice: 2500000, baseIncome: 15 },
+        { id: 'shaurma', name: 'Ларек с шаурмой', icon: '🌯', basePrice: 500000, baseIncome: 2 },
+        { id: 'carwash', name: 'Автомойка', icon: '🚗', basePrice: 2500000, baseIncome: 15 },
         { id: 'it', name: 'IT-стартап', icon: '💻', basePrice: 25000000, baseIncome: 150 },
-        { id: 'build', name: 'Будівельна компанія', icon: '🏗️', basePrice: 500000000, baseIncome: 3000 },
+        { id: 'build', name: 'Строительная компания', icon: '🏗️', basePrice: 500000000, baseIncome: 3000 },
         { id: 'bank', name: 'Банк-конкурент', icon: '🏦', basePrice: 10000000000, baseIncome: 50000 }
     ];
 
     const skinsConfig = [
-        { id: 'default', name: 'Синя (Стандарт)', price: 0, style: 'background:#0047AB;' },
-        { id: 'skin-gold', name: 'Золота', price: 50000, style: 'background:linear-gradient(135deg, #FFD700, #B8860B); color:#000;' },
-        { id: 'skin-neon', name: 'Неонова', price: 100000, style: 'background:#000; color:#0f0; border:1px solid #0f0;' },
-        { id: 'skin-glass', name: 'Скляна', price: 250000, style: 'background:rgba(255,255,255,0.05); color:#fff; backdrop-filter: blur(15px); border:1px solid rgba(255,255,255,0.2);' },
-        { id: 'skin-fire', name: '🔥 Пекельна', price: 1000000, style: 'background:linear-gradient(270deg, #8b0000, #ff4500); color:#fff; animation: fireAnim 3s infinite;' },
-        { id: 'skin-matrix', name: '💻 Хакерська', price: 2500000, style: 'background:#000; color:#0f0;' },
+        { id: 'default', name: 'Синяя (Стандарт)', price: 0, style: 'background:#0047AB;' },
+        { id: 'skin-gold', name: 'Золотая', price: 50000, style: 'background:linear-gradient(135deg, #FFD700, #B8860B); color:#000;' },
+        { id: 'skin-neon', name: 'Неоновая', price: 100000, style: 'background:#000; color:#0f0; border:1px solid #0f0;' },
+        { id: 'skin-glass', name: 'Стеклянная', price: 250000, style: 'background:rgba(255,255,255,0.05); color:#fff; backdrop-filter: blur(15px); border:1px solid rgba(255,255,255,0.2);' },
+        { id: 'skin-fire', name: '🔥 Адская', price: 1000000, style: 'background:linear-gradient(270deg, #8b0000, #ff4500); color:#fff; animation: fireAnim 3s infinite;' },
+        { id: 'skin-matrix', name: '💻 Хакерская', price: 2500000, style: 'background:#000; color:#0f0;' },
         { id: 'skin-plasma', name: '🌌 Плазма', price: 5000000, style: 'background:linear-gradient(270deg, #8A2BE2, #0000FF); color:#fff;' },
         { id: 'skin-rgb', name: '🎮 RGB Геймер', price: 7500000, style: 'background:#111; color:#fff; border:2px solid #ff0000;' },
         { id: 'skin-ocean', name: '🌊 Океан', price: 10000000, style: 'background:linear-gradient(270deg, #001f3f, #0088cc); color:#fff;' },
-        { id: 'skin-gold-anim', name: '✨ Сяюче Золото', price: 25000000, style: 'background:linear-gradient(135deg, #FFDF00, #D4AF37); color:#000;' },
-        { id: 'skin-toxic', name: '☣️ Токсична', price: 50000000, style: 'background:#0a0a0a; color:#7FFF00; border:1px solid #7FFF00;' },
-        { id: 'skin-hologram', name: '💠 Голограма', price: 100000000, style: 'background:linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3); color:#fff;' },
-        { id: 'skin-lightning', name: '⚡ Блискавка', price: 250000000, style: 'background:#001133; color:#0ff; border:2px solid #0ff;' },
+        { id: 'skin-gold-anim', name: '✨ Сияющее Золото', price: 25000000, style: 'background:linear-gradient(135deg, #FFDF00, #D4AF37); color:#000;' },
+        { id: 'skin-toxic', name: '☣️ Токсичная', price: 50000000, style: 'background:#0a0a0a; color:#7FFF00; border:1px solid #7FFF00;' },
+        { id: 'skin-hologram', name: '💠 Голограмма', price: 100000000, style: 'background:linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3); color:#fff;' },
+        { id: 'skin-lightning', name: '⚡ Молния', price: 250000000, style: 'background:#001133; color:#0ff; border:2px solid #0ff;' },
         { id: 'skin-void', name: '🌌 Пустота', price: 500000000, style: 'background:radial-gradient(circle, #2e004f, #000); color:#a9a9a9;' },
-        { id: 'skin-dragon', name: '🐉 Дихання Дракона', price: 1000000000, style: 'background:linear-gradient(45deg, #8b0000, #ff4500); color:#ffd700;' },
-        { id: 'skin-god', name: '👼 Божественна', price: 5000000000, style: 'background:radial-gradient(circle, #fff, #ffd700); color:#000;' }
+        { id: 'skin-dragon', name: '🐉 Дыхание Дракона', price: 1000000000, style: 'background:linear-gradient(45deg, #8b0000, #ff4500); color:#ffd700;' },
+        { id: 'skin-god', name: '👼 Божественная', price: 5000000000, style: 'background:radial-gradient(circle, #fff, #ffd700); color:#000;' }
     ];
 
     function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     
-function sendVerificationCode() { 
-        tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
-        if(!tempRegEmail.includes('@')) { showToast("Некорректный email! Введите правильный.", "error"); return; }
-        const emailKey = tempRegEmail.replace(/\./g, ',');
-        
-        database.ref('users/' + emailKey).once('value').then(snapshot => {
-            if(snapshot.exists()) { showToast("Такой аккаунт уже есть!", "error"); 
-                
-            tempRegCode = Math.floor(1000 + Math.random() * 9000).toString(); 
-            
-            showToast("Отправка письма...", "info");
-
-            let templateParams = {
-                to_email: tempRegEmail,
-                code: tempRegCode       
-            };
-
-            
-            emailjs.send("service_862mpzq", "template_gk4i88d", templateParams)
-                .then(function(response) {
-                    showToast("Код отправлен на почту!", "success");
-                    switchAuthScreen('screen-verify');
-                }, function(error) {
-                    showToast("Ошибка отправки письма!", "error");
-                    console.log("Ошибка EmailJS:", error);
-                });
-
-        }).catch(() => showToast("Ошибка подключения к серверу", "error"));
-    }
-    
-    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Кривий код!", "error"); }
+    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Неверный код!", "error"); }
     
     function completeRegistration() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value; const emailKey = tempRegEmail.replace(/\./g, ',');
         const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null };
-        database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Акаунт готовий!", "success"); startApp(); });
+        database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Аккаунт готов!", "success"); startApp(); });
     }
 
     function processLogin() {
@@ -860,11 +865,11 @@ function sendVerificationCode() {
         database.ref('users/' + emailKey).once('value').then((snapshot) => {
             if(snapshot.exists() && snapshot.val().password === pass) {
                 if(snapshot.val().isBanned) {
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АККАУНТ ЗАБЛОКИРОВАН</div>";
                     setTimeout(logout, 3000); return; 
                 }
                 db.users[emailKey] = snapshot.val(); currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showAppPinScreen();
-            } else { showToast("Невірна пошта або пароль!", "error"); }
+            } else { showToast("Неверная почта или пароль!", "error"); }
         });
     }
 
@@ -873,7 +878,7 @@ function sendVerificationCode() {
             database.ref('users/' + currentUserKey).once('value').then((snapshot) => {
                 if(snapshot.exists()) {
                     if(snapshot.val().isBanned) {
-                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
+                        document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АККАУНТ ЗАБЛОКИРОВАН</div>";
                         logout(); return; 
                     } 
                     db.users[currentUserKey] = snapshot.val(); showAppPinScreen(); 
@@ -883,25 +888,25 @@ function sendVerificationCode() {
     }
     
     function logout() { if(currentUserKey) database.ref('users/' + currentUserKey).off('value'); window.dbListenerAttached = false; currentUserKey = null; try { localStorage.removeItem('DBank_User_Key'); } catch(e) {} document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
-    function deleteAccount() { if(!deleteConfirm) { showToast("Натисніть ще раз, якщо впевнені", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
+    function deleteAccount() { if(!deleteConfirm) { showToast("Нажмите еще раз, если уверены", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
 
     function showAppPinScreen() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); }
     function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
     function deletePin() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
     function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
-    function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Кривий PIN!", "error"); currentPinInput = ""; updatePinDots(); } }
+    function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Неверный PIN!", "error"); currentPinInput = ""; updatePinDots(); } }
 
     function getCreditData() { const user = getState(); let score = user.creditScore || 100; let limit = 1000 + (score * 50); let interestRate = Math.max(0.05, 0.25 - (score * 0.001)); let cReturn = Math.floor(limit * (1 + interestRate)); return { limit, cReturn, rate: (interestRate * 100).toFixed(1), score }; }
 
     function changeProfileName() {
         const user = getState();
-        let newName = prompt("Як тебе називати:", user.name);
+        let newName = prompt("Как тебя называть:", user.name);
         if(newName && newName.trim() !== "") {
             user.name = newName.trim();
             saveDB();
             document.getElementById('profile-name').innerText = user.name;
             if(user.clanId) { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).set(user.name); }
-            showToast("Ім'я змінено!", "success");
+            showToast("Имя изменено!", "success");
         }
     }
 
@@ -909,7 +914,7 @@ function sendVerificationCode() {
         document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById('main-nav').classList.add('active');
         const user = getState(); 
         
-        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>"; logout(); return; }
+        if (user.isBanned) { document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АККАУНТ ЗАБЛОКИРОВАН</div>"; logout(); return; }
         
         if(user.prestigeMultiplier) { delete user.prestigeMultiplier; }
         if(user.energy === undefined) user.energy = 100;
@@ -931,7 +936,7 @@ function sendVerificationCode() {
             database.ref('users/' + currentUserKey + '/isBanned').on('value', snap => {
                 if(snap.exists() && snap.val() === true) { 
                     logout();
-                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АКАУНТ ЗАБЛОКОВАНО</div>";
+                    document.body.innerHTML = "<div style='color:var(--danger); text-align:center; margin-top:40vh; font-size:24px; font-weight:bold;'>АККАУНТ ЗАБЛОКИРОВАН</div>";
                 }
             });
 
@@ -939,8 +944,8 @@ function sendVerificationCode() {
                 let tx = snap.val();
                 let u = db.users[currentUserKey];
                 u.balance = parseFloat((u.balance + tx.amount).toFixed(2));
-                u.history.unshift({ icon: '💸', title: `Переказ від ${tx.senderName}`, date: tx.date, amount: tx.amount, type: 'plus' });
-                showPush("Отримано гроші!", `Вам надійшло ${tx.amount} ₴`, "💸");
+                u.history.unshift({ icon: '💸', title: `Перевод от ${tx.senderName}`, date: tx.date, amount: tx.amount, type: 'plus' });
+                showPush("Получены деньги!", `Вам поступило ${tx.amount} $`, "💸");
                 playSound('default');
                 saveDB(); updateBalanceDisplayQuiet();
                 if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory();
@@ -948,9 +953,9 @@ function sendVerificationCode() {
             });
         }
 
-        document.getElementById('profile-name').innerText = user.name || "Користувач"; 
+        document.getElementById('profile-name').innerText = user.name || "Пользователь"; 
         const formattedCard = user.cardNumber ? user.cardNumber.match(/.{1,4}/g).join(' ') : "0000 0000 0000 0000"; document.getElementById('full-card-num').innerText = formattedCard; document.getElementById('dashboard-card-num').innerText = formattedCard; document.getElementById('card-cvv-display').innerText = "CVV: " + (user.cvv || "000"); 
-        let currentClickVal = (user.clickPower).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${currentClickVal} ₴`; 
+        let currentClickVal = (user.clickPower).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заработать ${currentClickVal} $`; 
         
         document.getElementById('set-sounds').checked = user.settings.sounds;
         document.getElementById('set-notifs').checked = user.settings.notifications;
@@ -966,41 +971,41 @@ function sendVerificationCode() {
 
     window.banUser = function(targetKey) { 
         if(currentUserKey !== 'danildovz1@gmail,com') return; 
-        if(confirm("Точно забанити цього гравця назавжди?")) { 
-            database.ref('users/' + targetKey).update({ isBanned: true }).then(() => { showToast("Гравця заблоковано!", "success"); openLeaderboard(); }); 
+        if(confirm("Точно забанить этого игрока навсегда?")) { 
+            database.ref('users/' + targetKey).update({ isBanned: true }).then(() => { showToast("Игрок заблокирован!", "success"); openLeaderboard(); }); 
         } 
     };
 
     window.wipeUser = function(targetKey) {
         if(currentUserKey !== 'danildovz1@gmail,com') return;
-        if(confirm("ОБНУЛИТИ цього гравця? Всі гроші, бізнеси та активи зникнуть!")) {
-            database.ref('users/' + targetKey).update({ balance: 0, portfolio: {}, businesses: {}, deposits: [], credit: {active: false}, clickTier: 0, clickPower: 0.10, autoClicker: 0, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null }).then(() => { showToast("Гравця обнулено повністю!", "success"); openLeaderboard(); });
+        if(confirm("ОБНУЛИТЬ этого игрока? Все деньги, бизнесы и активы исчезнут!")) {
+            database.ref('users/' + targetKey).update({ balance: 0, portfolio: {}, businesses: {}, deposits: [], credit: {active: false}, clickTier: 0, clickPower: 0.10, autoClicker: 0, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null }).then(() => { showToast("Игрок полностью обнулен!", "success"); openLeaderboard(); });
         }
     };
 
     function openLeaderboard() {
-        switchTab('screen-leaderboard', null); document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; margin-top:20px; color:var(--text-muted);">Завантаження бази...</div>';
+        switchTab('screen-leaderboard', null); document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; margin-top:20px; color:var(--text-muted);">Загрузка базы...</div>';
         database.ref('users').once('value').then(snapshot => {
             let allUsers = snapshot.val() || {}; let arr = [];
             for(let key in allUsers) {
                 if (allUsers[key].isBanned) continue; let u = allUsers[key]; let netWorth = u.balance || 0;
                 if(u.portfolio) { const allAssets = [...stocksMarket, ...cryptoMarket]; for(let id in u.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && u.portfolio[id].qty > 0) netWorth += u.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; } }
-                arr.push({ key: key, name: u.name || "Анонім", nw: netWorth });
+                arr.push({ key: key, name: u.name || "Аноним", nw: netWorth });
             }
             arr.sort((a,b) => b.nw - a.nw); let html = ''; const isAdmin = currentUserKey === 'danildovz1@gmail,com';
             arr.forEach((item, idx) => { 
                 let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<b>${idx+1}.</b>`; 
                 let banBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--danger); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:10px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="banUser('${item.key}')">BAN</button>` : ''; 
-                let wipeBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--primary); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:5px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="wipeUser('${item.key}')">ОБНУЛИТИ</button>` : '';
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:15px; border-radius:12px; margin-bottom:10px;"><div style="font-size:15px; display:flex; align-items:center;">${medal} ${item.name} ${banBtn} ${wipeBtn}</div><div style="color:var(--success); font-weight:bold;">${item.nw.toLocaleString('uk-UA', {minimumFractionDigits:2, maximumFractionDigits:2})} ₴</div></div>`; 
+                let wipeBtn = isAdmin && item.key !== currentUserKey ? `<button style="background:var(--primary); border:none; color:white; padding:4px 8px; border-radius:6px; margin-left:5px; cursor:pointer; font-size:10px; font-weight:bold;" onclick="wipeUser('${item.key}')">ОБНУЛИТЬ</button>` : '';
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:15px; border-radius:12px; margin-bottom:10px;"><div style="font-size:15px; display:flex; align-items:center;">${medal} ${item.name} ${banBtn} ${wipeBtn}</div><div style="color:var(--success); font-weight:bold;">${item.nw.toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2})} $</div></div>`; 
             });
-            document.getElementById('leaderboard-container').innerHTML = html || '<div style="text-align:center;">Немає гравців</div>';
-        }).catch(() => document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; color:var(--danger);">Помилка підключення</div>');
+            document.getElementById('leaderboard-container').innerHTML = html || '<div style="text-align:center;">Нет игроков</div>';
+        }).catch(() => document.getElementById('leaderboard-container').innerHTML = '<div style="text-align:center; color:var(--danger);">Ошибка подключения</div>');
     }
 
     function toggleSetting(settingName) { const user = getState(); if(settingName === 'sounds') user.settings.sounds = document.getElementById('set-sounds').checked; if(settingName === 'notifications') user.settings.notifications = document.getElementById('set-notifs').checked; if(settingName === 'newsNotifications') user.settings.newsNotifications = document.getElementById('set-news').checked; saveDB(); }
 
-    function openStocks(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
+    function openStocks(navElement) { if(getState().isLocked) { showToast("Снимите щит!", "error"); return; } switchTab('screen-stocks', navElement); renderStocks(); }
     function setMarketTab(tab, el) { currentMarketTab = tab; document.querySelectorAll('.tabs-header .tab-btn').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderStocks(); }
     
     function renderStocks() { 
@@ -1008,7 +1013,7 @@ function sendVerificationCode() {
         try { 
             container.innerHTML = ''; 
             if(currentMarketTab === 'news') { 
-                if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новин поки немає.</div>'; return; } 
+                if(globalNews.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:20px;">Новостей пока нет.</div>'; return; } 
                 globalNews.forEach(n => { container.innerHTML += `<div class="news-item ${n.isGood ? 'good' : 'bad'}"><div style="font-size:24px;">${n.icon}</div><div style="flex:1;"><b>${n.title}</b><br><span style="color:var(--text-muted);">${n.text}</span></div><div style="font-size:10px; color:var(--text-muted);">${n.time}</div></div>`; }); return; 
             } 
             let totalPortfolioValue = 0; const marketData = currentMarketTab === 'stocks' ? stocksMarket : cryptoMarket; 
@@ -1019,9 +1024,9 @@ function sendVerificationCode() {
                 const diff = Math.abs(currentPrice - prevPrice).toFixed(2); 
                 const portfolioData = user.portfolio[s.id] || {qty: 0, avgPrice: 0}; totalPortfolioValue += portfolioData.qty * currentPrice; 
                 let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; 
-                container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфелі: ${qtyDisplay} шт.` : 'Немає активів'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} ₴</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; 
+                container.innerHTML += `<div class="stock-item" onclick="openStockModal('${s.id}', true)"><div class="stock-left"><div class="stock-icon">${s.icon}</div><div class="stock-info"><h4>${s.name}</h4><p>${qtyDisplay > 0 ? `В портфеле: ${qtyDisplay} шт.` : 'Нет активов'}</p></div></div><div class="stock-price-box"><div class="stock-price">${currentPrice.toFixed(2)} $</div><div class="stock-trend ${trendClass}">${trendIcon} ${diff}</div></div></div>`; 
             }); 
-            document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; 
+            document.getElementById('portfolio-total').innerText = totalPortfolioValue.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $'; 
         } catch (e) { console.error(e); } 
     }
 
@@ -1033,7 +1038,7 @@ function sendVerificationCode() {
         const portfolioData = user.portfolio[stockId] || {qty: 0, avgPrice: 0}; let qtyDisplay = portfolioData.qty > 0 ? parseFloat(portfolioData.qty.toFixed(2)) : 0; 
         const step = currentMarketTab === 'crypto' ? '0.01' : '0.1'; document.getElementById('stock-qty').step = step; document.getElementById('stock-qty').min = step; 
         if(resetTab) document.getElementById('stock-qty').value = step; 
-        document.getElementById('modal-stock-icon').innerText = stock.icon; document.getElementById('modal-stock-name').innerText = stock.name; document.getElementById('modal-stock-price').innerText = currentPrice.toFixed(2) + ' ₴'; document.getElementById('modal-user-owned').innerText = qtyDisplay; 
+        document.getElementById('modal-stock-icon').innerText = stock.icon; document.getElementById('modal-stock-name').innerText = stock.name; document.getElementById('modal-stock-price').innerText = currentPrice.toFixed(2) + ' $'; document.getElementById('modal-user-owned').innerText = qtyDisplay; 
         drawChart(stock['hist' + currentChartTab], portfolioData.avgPrice, portfolioData.qty > 0); updateStockCalc(); 
         document.getElementById('stock-modal').classList.add('active'); 
     }
@@ -1047,64 +1052,64 @@ function sendVerificationCode() {
         svg.innerHTML = html; 
     }
 
-    function updateStockCalc() { const qty = parseFloat(document.getElementById('stock-qty').value) || 0; const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); document.getElementById('stock-calc-total').innerText = `Разом: ${(qty * stock.hist1H[stock.hist1H.length-1]).toFixed(2)} ₴`; }
+    function updateStockCalc() { const qty = parseFloat(document.getElementById('stock-qty').value) || 0; const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); document.getElementById('stock-calc-total').innerText = `Итого: ${(qty * stock.hist1H[stock.hist1H.length-1]).toFixed(2)} $`; }
     
     function executeBuyStock() {
-        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } 
+        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Минимум ${minQty}!`, "error"); return; } 
         const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const cost = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); 
-        if(user.balance < cost) { showToast("Недостатньо коштів!", "error"); return; }
+        if(user.balance < cost) { showToast("Недостаточно средств!", "error"); return; }
         progressQuest('stocks');
-        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; pData.avgPrice = ((pData.qty * pData.avgPrice) + cost) / (pData.qty + qty); pData.qty = parseFloat((pData.qty + qty).toFixed(2)); user.balance -= cost; user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Купівля ${qty} ${stock.name}`, -cost, '📉'); updateBalanceDisplayQuiet(); showPush("Біржа", `Куплено <b>${qty} шт.</b> ${stock.name}`, stock.icon); openStockModal(stock.id, false);
+        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; pData.avgPrice = ((pData.qty * pData.avgPrice) + cost) / (pData.qty + qty); pData.qty = parseFloat((pData.qty + qty).toFixed(2)); user.balance -= cost; user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Покупка ${qty} ${stock.name}`, -cost, '📉'); updateBalanceDisplayQuiet(); showPush("Биржа", `Куплено <b>${qty} шт.</b> ${stock.name}`, stock.icon); openStockModal(stock.id, false);
     }
 
     function executeSellStock() {
-        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Мінімум ${minQty}!`, "error"); return; } 
+        const qtyStr = document.getElementById('stock-qty').value; const qty = parseFloat(qtyStr); const minQty = currentMarketTab === 'crypto' ? 0.01 : 0.1; if(!qty || qty < minQty) { showToast(`Минимум ${minQty}!`, "error"); return; } 
         const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId); const revenue = stock.hist1H[stock.hist1H.length-1] * qty; const user = getState(); 
-        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Недостатньо активів!", "error"); return; }
-        user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продаж ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Біржа", `Продано за ${revenue.toFixed(2)} ₴`, stock.icon); openStockModal(stock.id, false);
+        let pData = user.portfolio[stock.id] || {qty: 0, avgPrice: 0}; if(pData.qty < qty - 0.001) { showToast("Недостаточно активов!", "error"); return; }
+        user.balance += revenue; pData.qty = parseFloat((pData.qty - qty).toFixed(2)); if(pData.qty <= 0) { pData.qty = 0; pData.avgPrice = 0; } user.portfolio[stock.id] = pData; saveDB(); addTransaction(`Продажа ${qty} ${stock.name}`, revenue, '📈'); updateBalanceDisplayQuiet(); showPush("Биржа", `Продано за ${revenue.toFixed(2)} $`, stock.icon); openStockModal(stock.id, false);
     }
 
-    function sellAllCurrentStock() { const user = getState(); const pData = user.portfolio[currentStockId]; if(pData && pData.qty > 0) { document.getElementById('stock-qty').value = pData.qty; executeSellStock(); } else { showToast("Нема чого продавати!", "error"); } }
+    function sellAllCurrentStock() { const user = getState(); const pData = user.portfolio[currentStockId]; if(pData && pData.qty > 0) { document.getElementById('stock-qty').value = pData.qty; executeSellStock(); } else { showToast("Нечего продавать!", "error"); } }
 
     window.playCasino = function(color) {
         const user = getState(); const bet = parseFloat(document.getElementById('casino-bet').value);
-        if (!bet || bet <= 0 || bet > user.balance) { showToast("Крива ставка або недостатньо коштів!", "error"); return; }
+        if (!bet || bet <= 0 || bet > user.balance) { showToast("Неверная ставка или недостаточно средств!", "error"); return; }
         user.balance -= bet; const roll = Math.random(); let resultColor = 'green';
         if (roll < 0.48) resultColor = 'red'; else if (roll < 0.96) resultColor = 'black';
 
         progressQuest('casino');
         if (color === resultColor) { 
             let win = color === 'green' ? bet * 14 : bet * 2; user.balance += win; 
-            addTransaction("Казино (Перемога)", win - bet, '🎰'); showPush("Казино", `Чудово! Випало ${resultColor}. +${win} ₴`, "🎰"); 
+            addTransaction("Казино (Победа)", win - bet, '🎰'); showPush("Казино", `Отлично! Выпало ${resultColor}. +${win} $`, "🎰"); 
             showSuccessEffect();
         } else { 
-            addTransaction("Казино (Програш)", -bet, '🎰'); showPush("Казино", `Програш. Випало ${resultColor}. Втрачено ${bet} ₴`, "🎰", true); 
+            addTransaction("Казино (Проигрыш)", -bet, '🎰'); showPush("Казино", `Проигрыш. Выпало ${resultColor}. Потеряно ${bet} $`, "🎰", true); 
         }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('casino-modal').classList.remove('active');
     };
 
     window.playLottery = function() {
         const user = getState(); const cost = 5000;
-        if(user.balance < cost) { showToast("Недостатньо коштів на білет!", "error"); return; }
+        if(user.balance < cost) { showToast("Недостаточно средств на билет!", "error"); return; }
         user.balance -= cost;
         const roll = Math.random();
         if(roll < 0.95) {
-            addTransaction("Лотерея (Порожньо)", -cost, '🎟');
-            showPush("Лотерея", "Білет виявився порожнім. Спробуй ще!", "🗑️");
+            addTransaction("Лотерея (Пусто)", -cost, '🎟');
+            showPush("Лотерея", "Билет оказался пустым. Попробуй еще!", "🗑️");
         } else if(roll < 0.99) {
             let win = cost * 2; user.balance += win;
-            addTransaction("Лотерея (Виграш)", win - cost, '🎟');
-            showPush("Лотерея", `Непогано! Виграш: ${win} ₴`, "💵");
+            addTransaction("Лотерея (Выигрыш)", win - cost, '🎟');
+            showPush("Лотерея", `Неплохо! Выигрыш: ${win} $`, "💵");
             showSuccessEffect();
         } else if(roll < 0.999) {
             let win = cost * 10; user.balance += win;
-            addTransaction("Лотерея (Крупний виграш)", win - cost, '🎟');
-            showPush("Лотерея", `Клас! Виграш: ${win} ₴`, "💰");
+            addTransaction("Лотерея (Крупный выигрыш)", win - cost, '🎟');
+            showPush("Лотерея", `Класс! Выигрыш: ${win} $`, "💰");
             showSuccessEffect();
         } else {
             let win = cost * 50; user.balance += win;
             addTransaction("Лотерея (ДЖЕКПОТ)", win - cost, '🎟');
-            showPush("Лотерея", `ДЖЕКПОТ! Виграно ${win} ₴!`, "💎");
+            showPush("Лотерея", `ДЖЕКПОТ! Выиграно ${win} $!`, "💎");
             showSuccessEffect();
         }
         saveDB(); updateBalanceDisplayQuiet(); 
@@ -1116,10 +1121,10 @@ function sendVerificationCode() {
     window.playRPS = function(move) {
         const bet = parseFloat(document.getElementById('rps-bet').value);
         const user = getState();
-        if(!bet || bet < 100 || bet > user.balance) { showToast("Крива ставка! Мін. 100", "error"); return; }
+        if(!bet || bet < 100 || bet > user.balance) { showToast("Неверная ставка! Мин. 100", "error"); return; }
         user.balance -= bet; saveDB(); updateBalanceDisplayQuiet();
         document.getElementById('rps-modal').classList.remove('active');
-        showToast("Шукаємо суперника...", "info");
+        showToast("Ищем соперника...", "info");
         
         database.ref('rps_rooms').once('value').then(snap => {
             let rooms = snap.val() || {}; let matchId = null;
@@ -1131,9 +1136,9 @@ function sendVerificationCode() {
                 else if((p1Move==='rock'&&p2Move==='scissors') || (p1Move==='paper'&&p2Move==='rock') || (p1Move==='scissors'&&p2Move==='paper')) winner = 1;
                 else winner = 2;
                 database.ref('rps_rooms/' + matchId).update({status: 'finished', p2: currentUserKey, p2Move: move, winner: winner}).then(() => {
-                    if(winner === 2) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Перемога)", winAmt - bet, '✌️'); showPush("КНП", `Ви перемогли! Суперник: ${getTranslateMove(p1Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
-                    else if(winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Нічия)", 0, '✌️'); showPush("КНП", `Нічия! Суперник теж вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); } 
-                    else { addTransaction("КНП (Програш)", -bet, '✌️'); showPush("КНП", `Програш! Суперник вибрав ${getTranslateMove(p1Move)}.`, "✌️", true); }
+                    if(winner === 2) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Победа)", winAmt - bet, '✌️'); showPush("КНБ", `Вы победили! Соперник: ${getTranslateMove(p1Move)}. +${winAmt} $`, "✌️"); showSuccessEffect(); } 
+                    else if(winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Ничья)", 0, '✌️'); showPush("КНБ", `Ничья! Соперник тоже выбрал ${getTranslateMove(p1Move)}.`, "✌️", true); } 
+                    else { addTransaction("КНБ (Проигрыш)", -bet, '✌️'); showPush("КНБ", `Проигрыш! Соперник выбрал ${getTranslateMove(p1Move)}.`, "✌️", true); }
                 });
             } else {
                 let newRoom = database.ref('rps_rooms').push();
@@ -1142,68 +1147,68 @@ function sendVerificationCode() {
                     let rData = rSnap.val();
                     if(rData && rData.status === 'finished') {
                         newRoom.off();
-                        if(rData.winner === 1) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Перемога)", winAmt - bet, '✌️'); showPush("КНП", `Ви перемогли! Суперник: ${getTranslateMove(rData.p2Move)}. +${winAmt} ₴`, "✌️"); showSuccessEffect(); } 
-                        else if(rData.winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНП (Нічия)", 0, '✌️'); showPush("КНП", `Нічия! Суперник теж вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); } 
-                        else { addTransaction("КНП (Програш)", -bet, '✌️'); showPush("КНП", `Програш! Суперник вибрав ${getTranslateMove(rData.p2Move)}.`, "✌️", true); }
+                        if(rData.winner === 1) { let winAmt = bet * 2; user.balance += winAmt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Победа)", winAmt - bet, '✌️'); showPush("КНБ", `Вы победили! Соперник: ${getTranslateMove(rData.p2Move)}. +${winAmt} $`, "✌️"); showSuccessEffect(); } 
+                        else if(rData.winner === 0) { user.balance += bet; saveDB(); updateBalanceDisplayQuiet(); addTransaction("КНБ (Ничья)", 0, '✌️'); showPush("КНБ", `Ничья! Соперник тоже выбрал ${getTranslateMove(rData.p2Move)}.`, "✌️", true); } 
+                        else { addTransaction("КНБ (Проигрыш)", -bet, '✌️'); showPush("КНБ", `Проигрыш! Соперник выбрал ${getTranslateMove(rData.p2Move)}.`, "✌️", true); }
                         newRoom.remove();
                     }
                 });
             }
         });
     };
-    function getTranslateMove(m) { return m==='rock'?'Камінь':m==='paper'?'Папір':'Ножиці'; }
+    function getTranslateMove(m) { return m==='rock'?'Камень':m==='paper'?'Бумага':'Ножницы'; }
 
     window.buyDdos = function() {
-        const user = getState(); if(user.balance < 50000) { showToast("Треба 50 000 ₴ на хакерів!", "error"); return; }
-        if(user.energy < 20) { showToast("Мало енергії! Потрібно 20⚡", "error"); return; }
+        const user = getState(); if(user.balance < 50000) { showToast("Нужно 50 000 $ на хакеров!", "error"); return; }
+        if(user.energy < 20) { showToast("Мало энергии! Нужно 20⚡", "error"); return; }
         user.balance -= 50000; user.energy -= 20;
         progressQuest('ddos');
         if(Math.random() < 0.10) { 
             let stolen = 10000 + Math.floor(Math.random() * 90000); user.balance += stolen; 
-            addTransaction("Успішний DDoS", stolen, '🏴‍☠️'); 
-            showPush("Даркнет", `Атака успішна! Ти вкрав ${stolen} ₴`, "🏴‍☠️"); 
+            addTransaction("Успешный DDoS", stolen, '🏴‍☠️'); 
+            showPush("Даркнет", `Атака успешна! Ты украл ${stolen} $`, "🏴‍☠️"); 
             showSuccessEffect();
         } else { 
             user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 1);
-            addTransaction("Невдалий DDoS", -50000, '🏴‍☠️'); 
-            showPush("Даркнет", "Вас викрили! Гроші втрачено. +1 зірка розшуку", "🏴‍☠️", true); 
+            addTransaction("Неудачный DDoS", -50000, '🏴‍☠️'); 
+            showPush("Даркнет", "Вас засекли! Деньги потеряны. +1 звезда розыска", "🏴‍☠️", true); 
         }
         saveDB(); updateBalanceDisplayQuiet(); document.getElementById('darknet-modal').classList.remove('active');
     };
 
     window.payBribe = function() {
         const user = getState();
-        if(!user.wantedLevel) { showToast("Ви чисті перед законом", "success"); return; }
+        if(!user.wantedLevel) { showToast("Вы чисты перед законом", "success"); return; }
         let cost = user.wantedLevel * 50000;
-        if(user.balance < cost) { showToast(`Треба ${cost.toLocaleString()} ₴`, "error"); return; }
+        if(user.balance < cost) { showToast(`Нужно ${cost.toLocaleString()} $`, "error"); return; }
         user.balance -= cost;
         user.wantedLevel = 0;
         saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull();
-        addTransaction("Хабар поліції", -cost, '👮');
-        showToast("Розшук знято!", "success");
+        addTransaction("Взятка полиции", -cost, '👮');
+        showToast("Розыск снят!", "success");
     }
 
     function openClansScreen() { const user = getState(); switchTab('screen-clans', null); if (user.clanId) { document.getElementById('clan-no-clan').style.display = 'none'; document.getElementById('clan-active').style.display = 'block'; refreshClanData(); initClanChat(user.clanId); } else { document.getElementById('clan-no-clan').style.display = 'block'; document.getElementById('clan-active').style.display = 'none'; } }
     
-    function createClan() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } let cName = prompt("Введіть назву клану:"); if(!cName || cName.trim() === '') return; user.balance -= 10000; let newClanRef = database.ref('clans').push(); let clanData = { name: cName, ownerId: currentUserKey, members: {}, fund: 0, isCollecting: false }; clanData.members[currentUserKey] = user.name; newClanRef.set(clanData).then(() => { user.clanId = newClanRef.key; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Створення клану", -10000, '🛡️'); showToast("Клан створено!", "success"); openClansScreen(); }); }
+    function createClan() { const user = getState(); if(user.balance < 10000) { showToast("Нужно 10 000 $", "error"); return; } let cName = prompt("Введите название клана:"); if(!cName || cName.trim() === '') return; user.balance -= 10000; let newClanRef = database.ref('clans').push(); let clanData = { name: cName, ownerId: currentUserKey, members: {}, fund: 0, isCollecting: false }; clanData.members[currentUserKey] = user.name; newClanRef.set(clanData).then(() => { user.clanId = newClanRef.key; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Создание клана", -10000, '🛡️'); showToast("Клан создан!", "success"); openClansScreen(); }); }
 
-    function searchClans() { let q = document.getElementById('clan-search-input').value.toLowerCase(); let resDiv = document.getElementById('clan-search-results'); resDiv.innerHTML = "Пошук..."; database.ref('clans').once('value').then(snap => { let html = ""; let clans = snap.val() || {}; for(let id in clans) { if(clans[id].name.toLowerCase().includes(q) || id === q) { let memCount = Object.keys(clans[id].members || {}).length; html += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><b>${clans[id].name}</b><br><span style="font-size:10px; color:var(--text-muted);">ID: ${id}<br>Учасників: ${memCount}</span></div><button class="btn-main" style="width:auto; padding:6px 12px; font-size:12px; background:var(--primary);" onclick="joinClan('${id}', '${clans[id].name}')">Вступити</button></div>`; } } resDiv.innerHTML = html || "Клан не знайдено."; }); }
+    function searchClans() { let q = document.getElementById('clan-search-input').value.toLowerCase(); let resDiv = document.getElementById('clan-search-results'); resDiv.innerHTML = "Поиск..."; database.ref('clans').once('value').then(snap => { let html = ""; let clans = snap.val() || {}; for(let id in clans) { if(clans[id].name.toLowerCase().includes(q) || id === q) { let memCount = Object.keys(clans[id].members || {}).length; html += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><div><b>${clans[id].name}</b><br><span style="font-size:10px; color:var(--text-muted);">ID: ${id}<br>Участников: ${memCount}</span></div><button class="btn-main" style="width:auto; padding:6px 12px; font-size:12px; background:var(--primary);" onclick="joinClan('${id}', '${clans[id].name}')">Вступить</button></div>`; } } resDiv.innerHTML = html || "Клан не найден."; }); }
 
-    function joinClan(cId, cName) { const user = getState(); database.ref(`clans/${cId}/members/${currentUserKey}`).set(user.name).then(() => { user.clanId = cId; saveDB(); showToast(`Ви вступили в ${cName}!`, "success"); openClansScreen(); }); }
+    function joinClan(cId, cName) { const user = getState(); database.ref(`clans/${cId}/members/${currentUserKey}`).set(user.name).then(() => { user.clanId = cId; saveDB(); showToast(`Вы вступили в ${cName}!`, "success"); openClansScreen(); }); }
 
-    function leaveClan() { const user = getState(); if(!user.clanId) return; if(confirm("Точно хочеш покинути клан?")) { database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}`).remove(); } else { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove(); } user.clanId = null; saveDB(); if(clanChatRef) { clanChatRef.off(); clanChatRef = null; } showToast("Ти покинув клан", "info"); openClansScreen(); }); } }
+    function leaveClan() { const user = getState(); if(!user.clanId) return; if(confirm("Точно хочешь покинуть клан?")) { database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}`).remove(); } else { database.ref(`clans/${user.clanId}/members/${currentUserKey}`).remove(); } user.clanId = null; saveDB(); if(clanChatRef) { clanChatRef.off(); clanChatRef = null; } showToast("Ты покинул клан", "info"); openClansScreen(); }); } }
 
-    function changeClanName() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let newName = prompt("Введіть нову назву клану:", clan.name); if(newName && newName.trim() !== "") { database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => { showToast("Назву змінено!", "success"); refreshClanData(); }); } } }); }
+    function changeClanName() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let newName = prompt("Введите новое название клана:", clan.name); if(newName && newName.trim() !== "") { database.ref(`clans/${user.clanId}/name`).set(newName.trim()).then(() => { showToast("Название изменено!", "success"); refreshClanData(); }); } } }); }
 
-    function withdrawClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let maxAmt = clan.fund || 0; if(maxAmt <= 0) { showToast("Общак порожній!", "error"); return; } let amtStr = prompt(`Скільки зняти? (Доступно: ${maxAmt.toFixed(2)} ₴)`); let amt = parseFloat(amtStr); if(amt && amt > 0 && amt <= maxAmt) { database.ref(`clans/${user.clanId}/fund`).set(maxAmt - amt).then(() => { user.balance += amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Зняття з общака", amt, '🛡️'); showToast(`Знято ${amt} ₴`, "success"); refreshClanData(); }); } else if(amtStr !== null) { showToast("Крива сума!", "error"); } } }); }
+    function withdrawClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { let maxAmt = clan.fund || 0; if(maxAmt <= 0) { showToast("Общак пуст!", "error"); return; } let amtStr = prompt(`Сколько снять? (Доступно: ${maxAmt.toFixed(2)} $)`); let amt = parseFloat(amtStr); if(amt && amt > 0 && amt <= maxAmt) { database.ref(`clans/${user.clanId}/fund`).set(maxAmt - amt).then(() => { user.balance += amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Снятие из общака", amt, '🛡️'); showToast(`Снято ${amt} $`, "success"); refreshClanData(); }); } else if(amtStr !== null) { showToast("Неверная сумма!", "error"); } } }); }
 
     window.attackClan = function() {
-        const user = getState(); if(!user.clanId) return; const targetId = document.getElementById('clan-attack-id').value.trim(); if(!targetId || targetId === user.clanId) { showToast("Кривий ID!", "error"); return; }
-        database.ref(`clans/${user.clanId}`).once('value').then(snap => { let myClan = snap.val(); if(myClan.ownerId !== currentUserKey) { showToast("Тільки лідер може починати війну!", "error"); return; } if((myClan.fund || 0) < 10000) { showToast("В общаку немає 10 000 ₴ на атаку!", "error"); return; }
-            database.ref(`clans/${targetId}`).once('value').then(targetSnap => { if(!targetSnap.exists()) { showToast("Такого клану не існує!", "error"); return; } let targetClan = targetSnap.val(); let targetFund = targetClan.fund || 0;
+        const user = getState(); if(!user.clanId) return; const targetId = document.getElementById('clan-attack-id').value.trim(); if(!targetId || targetId === user.clanId) { showToast("Неверный ID!", "error"); return; }
+        database.ref(`clans/${user.clanId}`).once('value').then(snap => { let myClan = snap.val(); if(myClan.ownerId !== currentUserKey) { showToast("Только лидер может начать войну!", "error"); return; } if((myClan.fund || 0) < 10000) { showToast("В общаке нет 10 000 $ на атаку!", "error"); return; }
+            database.ref(`clans/${targetId}`).once('value').then(targetSnap => { if(!targetSnap.exists()) { showToast("Такого клана не существует!", "error"); return; } let targetClan = targetSnap.val(); let targetFund = targetClan.fund || 0;
                 database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000).then(() => {
-                    if(Math.random() > 0.4 && targetFund > 0) { let stolen = Math.floor(targetFund * 0.2); database.ref(`clans/${targetId}/fund`).set(targetFund - stolen); database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000 + stolen); showPush("Війна", `Атака успішна! Вкрадено ${stolen} ₴ з чужого общака.`, "⚔️"); } 
-                    else { showPush("Війна", "Атака відбита. Ви втратили 10к.", "⚔️", true); }
+                    if(Math.random() > 0.4 && targetFund > 0) { let stolen = Math.floor(targetFund * 0.2); database.ref(`clans/${targetId}/fund`).set(targetFund - stolen); database.ref(`clans/${user.clanId}/fund`).set(myClan.fund - 10000 + stolen); showPush("Война", `Атака успешна! Украдено ${stolen} $ из чужого общака.`, "⚔️"); } 
+                    else { showPush("Война", "Атака отбита. Вы потеряли 10к.", "⚔️", true); }
                     refreshClanData();
                 });
             });
@@ -1214,12 +1219,12 @@ function sendVerificationCode() {
         const user = getState(); if(!user.clanId) return;
         database.ref(`clans/${user.clanId}`).once('value').then(snap => {
             let clan = snap.val(); if(!clan) { user.clanId = null; saveDB(); openClansScreen(); return; }
-            document.getElementById('clan-name-display').innerText = clan.name; document.getElementById('clan-fund-display').innerText = (clan.fund || 0).toLocaleString() + " ₴";
-            let isOwner = clan.ownerId === currentUserKey; document.getElementById('clan-role-display').innerText = isOwner ? "Роль: Лідер 👑" : "Роль: Учасник"; document.getElementById('clan-owner-controls').style.display = isOwner ? 'flex' : 'none';
+            document.getElementById('clan-name-display').innerText = clan.name; document.getElementById('clan-fund-display').innerText = (clan.fund || 0).toLocaleString('ru-RU') + " $";
+            let isOwner = clan.ownerId === currentUserKey; document.getElementById('clan-role-display').innerText = isOwner ? "Роль: Лидер 👑" : "Роль: Участник"; document.getElementById('clan-owner-controls').style.display = isOwner ? 'flex' : 'none';
             let statusEl = document.getElementById('clan-fund-status'); let donateArea = document.getElementById('clan-donate-area');
-            if(clan.isCollecting) { statusEl.innerText = "Збір коштів ВІДКРИТО 💸"; statusEl.style.color = "var(--success)"; donateArea.style.display = 'block'; } else { statusEl.innerText = "Збір коштів ЗАКРИТО 🔒"; statusEl.style.color = "var(--warning)"; donateArea.style.display = 'none'; }
+            if(clan.isCollecting) { statusEl.innerText = "Сбор средств ОТКРЫТ 💸"; statusEl.style.color = "var(--success)"; donateArea.style.display = 'block'; } else { statusEl.innerText = "Сбор средств закрыт 🔒"; statusEl.style.color = "var(--warning)"; donateArea.style.display = 'none'; }
             let memHtml = "";
-            for(let uid in clan.members) { let kickBtn = (isOwner && uid !== currentUserKey) ? `<button class="btn-main btn-danger" style="width:auto; padding:4px 8px; font-size:10px;" onclick="kickMember('${user.clanId}','${uid}')">Вигнати</button>` : ''; memHtml += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${uid === clan.ownerId ? '👑 ' : ''}${clan.members[uid]}</span> ${kickBtn}</div>`; }
+            for(let uid in clan.members) { let kickBtn = (isOwner && uid !== currentUserKey) ? `<button class="btn-main btn-danger" style="width:auto; padding:4px 8px; font-size:10px;" onclick="kickMember('${user.clanId}','${uid}')">Выгнать</button>` : ''; memHtml += `<div style="background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${uid === clan.ownerId ? '👑 ' : ''}${clan.members[uid]}</span> ${kickBtn}</div>`; }
             document.getElementById('clan-members-list').innerHTML = memHtml;
         });
     }
@@ -1244,9 +1249,9 @@ function sendVerificationCode() {
 
     function toggleClanFund() { const user = getState(); if(!user.clanId) return; database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.ownerId === currentUserKey) { database.ref(`clans/${user.clanId}/isCollecting`).set(!clan.isCollecting).then(refreshClanData); } }); }
 
-    function donateToClan() { const user = getState(); if(!user.clanId) return; let amt = parseFloat(document.getElementById('clan-donate-amount').value); if(!amt || amt <= 0 || amt > user.balance) { showToast("Недостатньо грошей!", "error"); return; } database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.isCollecting) { database.ref(`clans/${user.clanId}/fund`).set((clan.fund || 0) + amt).then(() => { user.balance -= amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Внесок у клан", -amt, '🛡️'); showToast("Внесок зроблено!", "success"); document.getElementById('clan-donate-amount').value = ''; refreshClanData(); }); } else { showToast("Збір закрито!", "error"); } }); }
+    function donateToClan() { const user = getState(); if(!user.clanId) return; let amt = parseFloat(document.getElementById('clan-donate-amount').value); if(!amt || amt <= 0 || amt > user.balance) { showToast("Недостаточно средств!", "error"); return; } database.ref(`clans/${user.clanId}`).once('value').then(snap => { let clan = snap.val(); if(clan && clan.isCollecting) { database.ref(`clans/${user.clanId}/fund`).set((clan.fund || 0) + amt).then(() => { user.balance -= amt; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Взнос в клан", -amt, '🛡️'); showToast("Взнос сделан!", "success"); document.getElementById('clan-donate-amount').value = ''; refreshClanData(); }); } else { showToast("Сбор закрыт!", "error"); } }); }
 
-    function kickMember(cId, uid) { if(confirm("Вигнати цього гравця?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Гравця вигнано", "success"); refreshClanData(); }); } }
+    function kickMember(cId, uid) { if(confirm("Выгнать этого игрока?")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Игрок выгнан", "success"); refreshClanData(); }); } }
 
     function checkQuests() { 
         const user = getState(); const today = new Date().toLocaleDateString(); 
@@ -1259,14 +1264,14 @@ function sendVerificationCode() {
     
     function renderQuests() {
         const user = getState(); if(!user) return; checkQuests(); const q = user.quests; const container = document.getElementById('quest-container'); if(!container) return;
-        if(q.done) { container.innerHTML = '<div style="color:var(--success); font-weight:bold; text-align:center;">Всі квести виконані!</div>'; return; }
+        if(q.done) { container.innerHTML = '<div style="color:var(--success); font-weight:bold; text-align:center;">Все квесты выполнены!</div>'; return; }
         let html = ''; let allDone = true;
         q.list.forEach(item => {
             let prog = Math.min(item.progress, item.target);
             if(prog < item.target) allDone = false;
             html += `<div style="font-size:12px; margin-bottom:5px;">${item.icon} ${item.desc} (${prog}/${item.target})</div>`;
         });
-        if(allDone) { html += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрати нагороду (500 ₴)</button>`; }
+        if(allDone) { html += `<button class="btn-main" style="padding:10px; background:var(--success);" onclick="claimQuests()">Забрать награду (500 $)</button>`; }
         container.innerHTML = html;
     }
 
@@ -1279,25 +1284,25 @@ function sendVerificationCode() {
 
     window.claimQuests = function() { 
         const user = getState(); user.quests.done = true; let win = 500; user.balance += win; 
-        addTransaction("Квести виконано", win, '🎯'); 
+        addTransaction("Квесты выполнены", win, '🎯'); 
         saveDB(); updateBalanceDisplayQuiet(); renderQuests(); 
-        showPush("Квести", `Отримано ${win} ₴`, "🎯"); 
+        showPush("Квесты", `Получено ${win} $`, "🎯"); 
         showSuccessEffect();
     }
 
     function buyCustomCard() {
         const user = getState(); const input = document.getElementById('custom-card-input').value.replace(/\s/g, '');
-        if(input.length !== 16 || isNaN(input)) { showToast("Номер має бути з 16 цифр!", "error"); return; }
-        if(user.balance < 500000) { showToast("Потрібно 500 000 ₴", "error"); return; }
+        if(input.length !== 16 || isNaN(input)) { showToast("Номер должен состоять из 16 цифр!", "error"); return; }
+        if(user.balance < 500000) { showToast("Нужно 500 000 $", "error"); return; }
         database.ref('users').once('value').then(snap => {
             let allUsers = snap.val() || {}; let taken = false; for(let key in allUsers) { if(allUsers[key].cardNumber === input) { taken = true; break; } }
-            if(taken) { showToast("Цей номер вже зайнятий!", "error"); return; }
-            user.balance -= 500000; user.cardNumber = input; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Купівля VIP-номера", -500000, '💳'); showToast("Ексклюзивний номер активовано!", "success"); document.getElementById('custom-card-input').value = '';
+            if(taken) { showToast("Этот номер уже занят!", "error"); return; }
+            user.balance -= 500000; user.cardNumber = input; saveDB(); updateBalanceDisplayQuiet(); addTransaction("Покупка VIP-номера", -500000, '💳'); showToast("Эксклюзивный номер активирован!", "success"); document.getElementById('custom-card-input').value = '';
             const formatted = input.match(/.{1,4}/g).join(' '); document.getElementById('full-card-num').innerText = formatted; document.getElementById('dashboard-card-num').innerText = formatted;
         });
     }
 
-    function openUseful(navElement) { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-useful', navElement); renderUsefulFull(); renderBusinesses(); }
+    function openUseful(navElement) { if(getState().isLocked) { showToast("Снимите щит!", "error"); return; } switchTab('screen-useful', navElement); renderUsefulFull(); renderBusinesses(); }
     
     function renderUsefulFull() { 
         const user = getState(); 
@@ -1311,18 +1316,18 @@ function sendVerificationCode() {
         
         let minerCount = user.miners || 0;
         let minerPrice = 100000 * Math.pow(1.2, minerCount);
-        document.getElementById('btn-buy-miner').innerText = `Купити за ${minerPrice.toLocaleString('uk-UA', {maximumFractionDigits:0})} ₴`;
+        document.getElementById('btn-buy-miner').innerText = `Купить за ${minerPrice.toLocaleString('ru-RU', {maximumFractionDigits:0})} $`;
         document.getElementById('miner-count-display').innerText = `У вас: ${minerCount} шт.`;
 
-        if(user.hasOffshore) { document.getElementById('btn-offshore').innerText = "Офшор активний"; document.getElementById('btn-offshore').disabled = true; document.getElementById('btn-offshore').style.background = "var(--success)"; }
+        if(user.hasOffshore) { document.getElementById('btn-offshore').innerText = "Офшор активен"; document.getElementById('btn-offshore').disabled = true; document.getElementById('btn-offshore').style.background = "var(--success)"; }
 
         if(user.credit && user.credit.active) { credInputArea.style.display = 'none'; credTimerArea.style.display = 'block'; depInputArea.style.opacity = '0.5'; depInputArea.style.pointerEvents = 'none'; } 
-        else { document.getElementById('credit-desc-text').innerText = `Візьміть ${cData.limit} ₴ на 5 хвилин. Повернути треба ${cData.cReturn} ₴. Вчасно — росте рейтинг. Несплата — банкрутство і падіння рейтингу!`; document.getElementById('btn-take-credit').innerText = `Взяти ${cData.limit} ₴`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
+        else { document.getElementById('credit-desc-text').innerText = `Возьмите ${cData.limit} $ на 5 минут. Вернуть нужно ${cData.cReturn} $. Вовремя — растет рейтинг. Неуплата — банкротство и падение рейтинга!`; document.getElementById('btn-take-credit').innerText = `Взять ${cData.limit} $`; credInputArea.style.display = 'block'; credTimerArea.style.display = 'none'; depInputArea.style.opacity = '1'; depInputArea.style.pointerEvents = 'auto'; } 
         
         let bribeCost = (user.wantedLevel || 0) * 50000;
         if(user.wantedLevel > 0) {
             document.getElementById('bribe-container').style.display = 'flex';
-            document.getElementById('btn-bribe').innerText = `Заплатити ${bribeCost.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('btn-bribe').innerText = `Заплатить ${bribeCost.toLocaleString('ru-RU')} $`;
         } else {
             document.getElementById('bribe-container').style.display = 'none';
         }
@@ -1332,13 +1337,13 @@ function sendVerificationCode() {
     
     function renderUsefulTimersOnly() { 
         const user = getState(); 
-        if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вкладено: <b>${d.amount} ₴</b></div><div>Залишилось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; } 
-        if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; let cData = getCreditData(); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Борг: <b>${cData.cReturn} ₴</b></div><div>Час: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасити борг (${cData.cReturn} ₴)</button>`; } 
+        if(user.deposits && user.deposits.length > 0) { let html = ''; user.deposits.forEach(d => { let timeLeft = Math.max(0, Math.floor((d.endTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вложено: <b>${d.amount} $</b></div><div>Осталось: <b style="color:var(--primary);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`; }); document.getElementById('deposit-timer-area').innerHTML = html; } 
+        if(user.credit && user.credit.active) { let timeLeft = Math.max(0, Math.floor((user.credit.dueTime - Date.now()) / 1000)); let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; let cData = getCreditData(); document.getElementById('credit-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--danger); color:white; border-radius:8px;"><div>Долг: <b>${cData.cReturn} $</b></div><div>Время: <b>${m}:${s < 10 ? '0'+s : s}</b></div></div><button class="btn-main" style="background:var(--success);" onclick="payCredit()">Погасить долг (${cData.cReturn} $)</button>`; } 
         
         if(user.smuggling && user.smuggling.active) {
             let timeLeft = Math.max(0, Math.floor((user.smuggling.endTime - Date.now()) / 1000)); 
             let m = Math.floor(timeLeft / 60); let s = timeLeft % 60; 
-            document.getElementById('smuggling-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Вантаж на: <b>${user.smuggling.amount} ₴</b></div><div>В дорозі: <b style="color:var(--warning);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`;
+            document.getElementById('smuggling-timer-area').innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:10px; background:var(--bg-main); border-radius:8px;"><div>Груз на: <b>${user.smuggling.amount} $</b></div><div>В пути: <b style="color:var(--warning);">${m}:${s < 10 ? '0'+s : s}</b></div></div>`;
             document.getElementById('smuggling-timer-area').style.display = 'block';
             document.getElementById('smuggling-input-area').style.display = 'none';
         } else {
@@ -1352,7 +1357,7 @@ function sendVerificationCode() {
         bizConfig.forEach(biz => {
             let count = user.businesses && user.businesses[biz.id] ? user.businesses[biz.id] : 0;
             let price = biz.basePrice * Math.pow(1.5, count); let inc = biz.baseIncome;
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px;"><div><div>${biz.icon} <b>${biz.name}</b> (Шт: ${count})</div><div style="font-size:12px; color:var(--success);">+${inc} ₴ / сек за кожен</div></div><button class="btn-main" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyBusiness('${biz.id}')">${price.toLocaleString('uk-UA', {maximumFractionDigits:0})} ₴</button></div>`;
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px;"><div><div>${biz.icon} <b>${biz.name}</b> (Шт: ${count})</div><div style="font-size:12px; color:var(--success);">+${inc} $ / сек за каждый</div></div><button class="btn-main" style="width:auto; padding:8px 12px; font-size:12px;" onclick="buyBusiness('${biz.id}')">${price.toLocaleString('ru-RU', {maximumFractionDigits:0})} $</button></div>`;
         });
         area.innerHTML = html;
     }
@@ -1360,44 +1365,44 @@ function sendVerificationCode() {
     function buyBusiness(type) {
         const user = getState(); let bizDef = bizConfig.find(b => b.id === type); if(!bizDef) return;
         let count = user.businesses && user.businesses[type] ? user.businesses[type] : 0;
-        let price = bizDef.basePrice * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостатньо грошей!", "error"); return; }
+        let price = bizDef.basePrice * Math.pow(1.5, count); if(user.balance < price) { showToast("Недостаточно средств!", "error"); return; }
         user.balance -= price; if(!user.businesses) user.businesses = {}; user.businesses[type] = count + 1;
-        saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бізнес куплено!", "success");
+        saveDB(); updateBalanceDisplayQuiet(); renderBusinesses(); showToast("Бизнес куплен!", "success");
     }
 
-    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Спершу погасіть кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некоректна сума!", "error"); return; } progressQuest('deposits'); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Відкриття депозиту", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит відкрито!", "success"); }
-    function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас вже є кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит готівкою", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Ви отримали ${cData.limit} ₴. Поверніть за 5 хв!`, "🚨", true); }
-    function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, Number(user.creditScore || 100) + 20); saveDB(); addTransaction("Погашення кредиту", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит погашено! Рейтинг зріс.", "success"); }
+    function openDeposit() { const amt = parseFloat(document.getElementById('deposit-amount').value); const user = getState(); if(user.credit && user.credit.active) { showToast("Сначала погасите кредит!", "error"); return; } if(!amt || amt < 10 || amt > user.balance) { showToast("Некорректная сумма!", "error"); return; } progressQuest('deposits'); user.balance -= amt; user.deposits.push({ amount: amt, endTime: Date.now() + (5 * 60 * 1000) }); saveDB(); addTransaction("Открытие депозита", -amt, '🌾'); updateBalanceDisplayQuiet(); document.getElementById('deposit-amount').value = ''; renderUsefulFull(); showToast("Депозит открыт!", "success"); }
+    function takeCredit() { const user = getState(); if(user.credit && user.credit.active) { showToast("У вас уже есть кредит!", "error"); return; } let cData = getCreditData(); user.balance += cData.limit; user.credit = { active: true, dueTime: Date.now() + (5 * 60 * 1000) }; saveDB(); addTransaction("Кредит наличными", cData.limit, '💳'); updateBalanceDisplayQuiet(); renderUsefulFull(); showPush("Кредит", `Вы получили ${cData.limit} $. Верните за 5 мин!`, "🚨", true); }
+    function payCredit() { const user = getState(); let cData = getCreditData(); if(user.balance < cData.cReturn) { showToast("Недостаточно средств!", "error"); return; } user.balance -= cData.cReturn; user.credit = { active: false }; user.creditScore = Math.min(250, Number(user.creditScore || 100) + 20); saveDB(); addTransaction("Погашение кредита", -cData.cReturn, '✅'); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Кредит погашен! Рейтинг вырос.", "success"); }
 
     window.startSmuggling = function() {
         const amt = parseFloat(document.getElementById('smuggling-amount').value);
         const user = getState();
-        if(user.smuggling && user.smuggling.active) { showToast("Фура вже в дорозі!", "error"); return; }
-        if(user.energy < 30) { showToast("Мало енергії! Потрібно 30⚡", "error"); return; }
-        if(!amt || amt < 50000 || amt > user.balance) { showToast("Мінімум 50 000 ₴ або недостатньо коштів!", "error"); return; }
+        if(user.smuggling && user.smuggling.active) { showToast("Фура уже в пути!", "error"); return; }
+        if(user.energy < 30) { showToast("Мало энергии! Нужно 30⚡", "error"); return; }
+        if(!amt || amt < 50000 || amt > user.balance) { showToast("Минимум 50 000 $ или недостаточно средств!", "error"); return; }
         user.balance -= amt; user.energy -= 30;
         user.smuggling = { active: true, amount: amt, endTime: Date.now() + (10 * 60 * 1000) };
-        saveDB(); addTransaction("Контрабанда (Відправка)", -amt, '🚚');
+        saveDB(); addTransaction("Контрабанда (Отправка)", -amt, '🚚');
         updateBalanceDisplayQuiet(); document.getElementById('smuggling-amount').value = ''; renderUsefulFull();
-        showToast("Фура виїхала!", "success");
+        showToast("Фура выехала!", "success");
     }
 
     window.buyMiner = function() {
         const user = getState(); let count = user.miners || 0; let price = 100000 * Math.pow(1.2, count);
-        if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; }
-        user.balance -= price; user.miners = count + 1; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("ASIC куплено!", "success");
+        if(user.balance < price) { showToast("Недостаточно средств!", "error"); return; }
+        user.balance -= price; user.miners = count + 1; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("ASIC куплен!", "success");
     };
 
     window.buyOffshore = function() {
-        const user = getState(); if(user.hasOffshore) { showToast("Офшор вже є!", "info"); return; }
-        if(user.balance < 500000) { showToast("Треба 500 000 ₴", "error"); return; }
-        user.balance -= 500000; user.hasOffshore = true; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Офшор відкрито!", "success");
+        const user = getState(); if(user.hasOffshore) { showToast("Офшор уже есть!", "info"); return; }
+        if(user.balance < 500000) { showToast("Нужно 500 000 $", "error"); return; }
+        user.balance -= 500000; user.hasOffshore = true; saveDB(); updateBalanceDisplayQuiet(); renderUsefulFull(); showToast("Офшор открыт!", "success");
     };
 
     function updateProfileNetWorth() {
         const user = getState(); if(!user) return; let netWorth = user.balance || 0; const allAssets = [...stocksMarket, ...cryptoMarket];
         for(let id in user.portfolio) { let asset = allAssets.find(a => a.id === id); if(asset && user.portfolio[id].qty > 0) netWorth += user.portfolio[id].qty * asset.hist1H[asset.hist1H.length-1]; }
-        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+        if(document.getElementById('profile-net-worth')) document.getElementById('profile-net-worth').innerText = netWorth.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
     }
 
     function openCardDetails() { switchTab('screen-card-details', document.querySelectorAll('.nav-item')[0]); flipCardInner.style.transform = 'rotateY(0deg)'; isFlipped = false; }
@@ -1407,8 +1412,8 @@ function sendVerificationCode() {
     flipCard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }); flipCard.addEventListener('touchend', e => { let diff = e.changedTouches[0].screenX - touchstartX; if (Math.abs(diff) > 40) triggerFlip(diff > 0 ? 'right' : 'left'); }); flipCard.addEventListener('click', e => { if(e.target.innerText === '👁') return; triggerFlip('right'); });
     function togglePin(event) { if(event) event.stopPropagation(); isPinVisible = !isPinVisible; document.getElementById('card-pin-display').innerText = isPinVisible ? getState().pin : "****"; }
 
-    function toggleLockCard() { const user = getState(); user.isLocked = !user.isLocked; saveDB(); applyLockStatusVisually(); showPush("Безпека", user.isLocked ? "Картку під щитом" : "Картку розблоковано", user.isLocked ? "🔒" : "🔓"); }
-    function applyLockStatusVisually() { const user = getState(); const mainShield = document.getElementById('main-iron-shield'); const detailShield = document.getElementById('detail-iron-shield'); const btnLock = document.getElementById('btn-lock'); if(user.isLocked) { mainShield.classList.add('active'); detailShield.classList.add('active'); btnLock.innerText = "Розблокувати картку 🔓"; btnLock.classList.remove('btn-danger'); btnLock.style.background = "var(--success)"; } else { mainShield.classList.remove('active'); detailShield.classList.remove('active'); btnLock.innerText = "Блокувати картку 🔒"; btnLock.classList.add('btn-danger'); btnLock.style.background = ""; } }
+    function toggleLockCard() { const user = getState(); user.isLocked = !user.isLocked; saveDB(); applyLockStatusVisually(); showPush("Безопасность", user.isLocked ? "Карта под щитом" : "Карта разблокирована", user.isLocked ? "🔒" : "🔓"); }
+    function applyLockStatusVisually() { const user = getState(); const mainShield = document.getElementById('main-iron-shield'); const detailShield = document.getElementById('detail-iron-shield'); const btnLock = document.getElementById('btn-lock'); if(user.isLocked) { mainShield.classList.add('active'); detailShield.classList.add('active'); btnLock.innerText = "Разблокировать карту 🔓"; btnLock.classList.remove('btn-danger'); btnLock.style.background = "var(--success)"; } else { mainShield.classList.remove('active'); detailShield.classList.remove('active'); btnLock.innerText = "Блокировать карту 🔒"; btnLock.classList.add('btn-danger'); btnLock.style.background = ""; } }
     
     function applySkin(skinName) { document.getElementById('app-root').classList.remove('skin-gold', 'skin-neon', 'skin-glass', 'skin-fire', 'skin-matrix', 'skin-plasma', 'skin-rgb', 'skin-ocean', 'skin-gold-anim', 'skin-toxic', 'skin-hologram', 'skin-lightning', 'skin-void', 'skin-dragon', 'skin-god'); if(skinName && skinName !== 'default') document.getElementById('app-root').classList.add(skinName); }
     
@@ -1426,7 +1431,7 @@ function sendVerificationCode() {
         skinsConfig.forEach(s => {
             const isOwned = user.ownedSkins && user.ownedSkins.includes(s.id);
             const isActive = user.skin === s.id;
-            let btnText = isOwned ? (isActive ? "✅ Вибрано" : "Встановити") : `${s.name} — ${s.price.toLocaleString('uk-UA')} ₴`;
+            let btnText = isOwned ? (isActive ? "✅ Выбрано" : "Установить") : `${s.name} — ${s.price.toLocaleString('ru-RU')} $`;
             let badge = isOwned ? `<span style="color:var(--success); font-weight:bold; margin-right:5px;">[+]</span> ` : '';
             html += `<button class="btn-main" style="${s.style} opacity:${isActive ? '0.6' : '1'}; margin-bottom: 5px;" onclick="previewAndBuySkin('${s.id}', ${s.price})" ${isActive ? 'disabled' : ''}>${badge}${btnText}</button>`;
         });
@@ -1436,40 +1441,40 @@ function sendVerificationCode() {
     function previewAndBuySkin(skinName, price) { 
         const user = getState(); document.getElementById('skin-preview-container').className = skinName; 
         if(user.skin === skinName) return; 
-        if(user.ownedSkins && user.ownedSkins.includes(skinName)) { user.skin = skinName; saveDB(); applySkin(skinName); renderSkinsList(); showToast("Дизайн застосовано!", "success"); return; }
-        if(user.balance < price) { showToast("Недостатньо коштів!", "error"); return; } 
-        if(confirm(`Придбати дизайн за ${price.toLocaleString('uk-UA')} ₴?`)) { user.balance -= price; user.skin = skinName; if(!user.ownedSkins) user.ownedSkins = ['default']; user.ownedSkins.push(skinName); saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); renderSkinsList(); showToast("Дизайн придбано!", "success"); }
+        if(user.ownedSkins && user.ownedSkins.includes(skinName)) { user.skin = skinName; saveDB(); applySkin(skinName); renderSkinsList(); showToast("Дизайн применен!", "success"); return; }
+        if(user.balance < price) { showToast("Недостаточно средств!", "error"); return; } 
+        if(confirm(`Купить дизайн за ${price.toLocaleString('ru-RU')} $?`)) { user.balance -= price; user.skin = skinName; if(!user.ownedSkins) user.ownedSkins = ['default']; user.ownedSkins.push(skinName); saveDB(); applySkin(skinName); updateBalanceDisplayQuiet(); renderSkinsList(); showToast("Дизайн куплен!", "success"); }
     }
 
     function openUpgrades() { renderUpgrades(); document.getElementById('upgrades-modal').classList.add('active'); }
     function renderUpgrades() {
         const user = getState();
         let nextClickPower = clickTiers[user.clickTier + 1];
-        if(nextClickPower) { document.getElementById('upg-click-desc').innerText = `Зараз: ${(user.clickPower).toFixed(2)}. Буде: +${(nextClickPower).toFixed(2)} ₴`; document.getElementById('upg-click-btn').innerText = `${user.clickUpgradePrice} ₴`; document.getElementById('upg-click-btn').disabled = false; } else { document.getElementById('upg-click-desc').innerText = `Максимальний рівень прокачки!`; document.getElementById('upg-click-btn').innerText = `MAX`; document.getElementById('upg-click-btn').disabled = true; }
+        if(nextClickPower) { document.getElementById('upg-click-desc').innerText = `Сейчас: ${(user.clickPower).toFixed(2)}. Будет: +${(nextClickPower).toFixed(2)} $`; document.getElementById('upg-click-btn').innerText = `${user.clickUpgradePrice} $`; document.getElementById('upg-click-btn').disabled = false; } else { document.getElementById('upg-click-desc').innerText = `Максимальный уровень прокачки!`; document.getElementById('upg-click-btn').innerText = `MAX`; document.getElementById('upg-click-btn').disabled = true; }
         let nextAuto = getNextAuto(user.autoClicker);
-        if(nextAuto) { document.getElementById('upg-auto-desc').innerText = `Зараз: ${(user.autoClicker).toFixed(2)}. Буде: +${(nextAuto).toFixed(2)} ₴ / сек`; document.getElementById('upg-auto-btn').innerText = `${user.autoUpgradePrice} ₴`; document.getElementById('upg-auto-btn').disabled = false; } else { document.getElementById('upg-auto-desc').innerText = `Максимальний рівень автоклікера!`; document.getElementById('upg-auto-btn').innerText = `MAX`; document.getElementById('upg-auto-btn').disabled = true; }
+        if(nextAuto) { document.getElementById('upg-auto-desc').innerText = `Сейчас: ${(user.autoClicker).toFixed(2)}. Будет: +${(nextAuto).toFixed(2)} $ / сек`; document.getElementById('upg-auto-btn').innerText = `${user.autoUpgradePrice} $`; document.getElementById('upg-auto-btn').disabled = false; } else { document.getElementById('upg-auto-desc').innerText = `Максимальный уровень автокликера!`; document.getElementById('upg-auto-btn').innerText = `MAX`; document.getElementById('upg-auto-btn').disabled = true; }
     }
     function buyUpgrade(type) {
         const user = getState();
-        if(type === 'click') { let next = clickTiers[user.clickTier + 1]; if(!next) return; if(user.balance < user.clickUpgradePrice) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= user.clickUpgradePrice; user.clickTier++; user.clickPower = clickTiers[user.clickTier]; user.clickUpgradePrice = Math.floor(user.clickUpgradePrice * 2.5); document.getElementById('btn-earn').innerText = `+ Заробити ${(user.clickPower).toFixed(2)} ₴`; } 
-        else if (type === 'auto') { let next = getNextAuto(user.autoClicker); if(!next) return; if(user.balance < user.autoUpgradePrice) { showToast("Недостатньо коштів!", "error"); return; } user.balance -= user.autoUpgradePrice; user.autoClicker = next; user.autoUpgradePrice = Math.floor(user.autoUpgradePrice * 3); }
-        saveDB(); updateBalanceDisplayQuiet(); renderUpgrades(); showToast("Успішна прокачка!", "success");
+        if(type === 'click') { let next = clickTiers[user.clickTier + 1]; if(!next) return; if(user.balance < user.clickUpgradePrice) { showToast("Недостаточно средств!", "error"); return; } user.balance -= user.clickUpgradePrice; user.clickTier++; user.clickPower = clickTiers[user.clickTier]; user.clickUpgradePrice = Math.floor(user.clickUpgradePrice * 2.5); document.getElementById('btn-earn').innerText = `+ Заработать ${(user.clickPower).toFixed(2)} $`; } 
+        else if (type === 'auto') { let next = getNextAuto(user.autoClicker); if(!next) return; if(user.balance < user.autoUpgradePrice) { showToast("Недостаточно средств!", "error"); return; } user.balance -= user.autoUpgradePrice; user.autoClicker = next; user.autoUpgradePrice = Math.floor(user.autoUpgradePrice * 3); }
+        saveDB(); updateBalanceDisplayQuiet(); renderUpgrades(); showToast("Успешная прокачка!", "success");
     }
 
     let lastClickTime = 0; let clicksInSecond = 0;
     window.earnMoney = function(event) { 
-        if (event && !event.isTrusted) { showToast("Використання скриптів заборонено!", "error"); return; }
+        if (event && !event.isTrusted) { showToast("Использование скриптов запрещено!", "error"); return; }
         const user = getState(); if(!user) return;
-        if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } 
+        if(user.isLocked) { showToast("Карта под щитом!", "error"); return; } 
         const now = Date.now();
-        if (now - lastClickTime < 1000) { clicksInSecond++; if (clicksInSecond > 10) { showToast("Занадто швидко! Спрацював анти-клікер.", "error"); return; } } 
+        if (now - lastClickTime < 1000) { clicksInSecond++; if (clicksInSecond > 10) { showToast("Слишком быстро! Сработал анти-кликер.", "error"); return; } } 
         else { clicksInSecond = 1; lastClickTime = now; }
         progressQuest('clicks'); user.balance = parseFloat((user.balance + user.clickPower).toFixed(2)); saveDB(); updateBalanceDisplayQuiet();
     };
 
     function updateBalanceDisplayQuiet() { 
         const user = getState(); if(!user) return; 
-        const formatted = user.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴'; 
+        const formatted = user.balance.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $'; 
         document.getElementById('dashboard-balance').innerText = formatted; 
         document.getElementById('detail-balance').innerText = formatted; 
         document.getElementById('top-balance').innerText = formatted; 
@@ -1487,12 +1492,12 @@ function sendVerificationCode() {
     
     function addTransaction(title, amount, icon) { const user = getState(); if(!user.history) user.history = []; user.history.unshift({ icon: icon, title: title, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: amount, type: amount >= 0 ? 'plus' : 'minus' }); saveDB(); renderHistory(); }
     
-    // ВЗАЄМОДІЯ З ІСТОРІЄЮ
+    // ВЗАИМОДЕЙСТВИЕ С ИСТОРИЕЙ
     function renderHistory() { 
         const user = getState(); const container = document.getElementById('history-container'); container.innerHTML = ''; 
-        if(!user || !user.history || user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас ще немає операцій.</div>'; return; } 
+        if(!user || !user.history || user.history.length === 0) { container.innerHTML = '<div class="empty-history">У вас еще нет операций.</div>'; return; } 
         user.history.slice(0, 15).forEach((t, i) => { 
-            const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} ₴` : `- ${Math.abs(t.amount).toFixed(2)} ₴`; 
+            const amountStr = t.type === 'plus' ? `+ ${t.amount.toFixed(2)} $` : `- ${Math.abs(t.amount).toFixed(2)} $`; 
             container.innerHTML += `<div class="transaction" onclick="openHistoryMenu(${i})"><div class="t-left"><div class="t-icon">${t.icon}</div><div><div class="t-title">${t.title}</div><div class="t-date">${t.date}</div></div></div><div class="t-amount ${t.type}">${amountStr}</div></div>`; 
         }); 
     }
@@ -1503,13 +1508,13 @@ function sendVerificationCode() {
         const actionsDiv = document.getElementById('history-menu-actions');
         let html = '';
         
-        if (item.title.startsWith('Переказ від ')) {
-            html += `<button class="btn-main" style="background:var(--primary);" onclick="prepareReplyTransfer()">Відповісти переказом</button>`;
-        } else if (item.title.startsWith('Переказ ')) {
-            html += `<button class="btn-main" style="background:var(--primary);" onclick="prepareReplyTransfer()">Повторити переказ</button>`;
+        if (item.title.startsWith('Перевод от ') || item.title.startsWith('Переказ від ')) {
+            html += `<button class="btn-main" style="background:var(--primary);" onclick="prepareReplyTransfer()">Ответить переводом</button>`;
+        } else if (item.title.startsWith('Перевод ') || item.title.startsWith('Переказ ')) {
+            html += `<button class="btn-main" style="background:var(--primary);" onclick="prepareReplyTransfer()">Повторить перевод</button>`;
         }
         
-        html += `<button class="btn-main btn-danger" onclick="deleteHistoryItem(${index})">Видалити запис</button>`;
+        html += `<button class="btn-main btn-danger" onclick="deleteHistoryItem(${index})">Удалить запись</button>`;
         actionsDiv.innerHTML = html;
         document.getElementById('history-menu-modal').classList.add('active');
     };
@@ -1519,7 +1524,7 @@ function sendVerificationCode() {
         user.history.splice(index, 1);
         saveDB(); renderHistory();
         document.getElementById('history-menu-modal').classList.remove('active');
-        showToast("Запис видалено", "success");
+        showToast("Запись удалена", "success");
     };
 
     window.prepareReplyTransfer = function() {
@@ -1527,26 +1532,26 @@ function sendVerificationCode() {
         openTransfer();
     };
 
-    function openTransfer() { if(getState().isLocked) { showToast("Зніміть щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
+    function openTransfer() { if(getState().isLocked) { showToast("Снимите щит!", "error"); return; } switchTab('screen-payments', document.querySelectorAll('.nav-item')[1]); }
     function formatCard(input) { input.value = input.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim(); checkTransferForm(); }
     function checkTransferForm() { const card = document.getElementById('transfer-card').value; const amount = parseFloat(document.getElementById('transfer-amount').value); document.getElementById('btn-transfer').disabled = !(card.length === 19 && amount > 0 && amount <= getState().balance && !getState().isLocked); }
     
     function executeTransfer() { 
         const sender = getState(); const cardInput = document.getElementById('transfer-card').value.replace(/\s/g, ''); const amount = parseFloat(document.getElementById('transfer-amount').value); const btn = document.getElementById('btn-transfer');
-        if(cardInput === sender.cardNumber) { showToast("Самому собі переказувати не можна.", "error"); return; } 
-        btn.innerText = "⏳ Обробка..."; btn.disabled = true;
+        if(cardInput === sender.cardNumber) { showToast("Самому себе переводить нельзя.", "error"); return; } 
+        btn.innerText = "⏳ Обработка..."; btn.disabled = true;
         database.ref('users').orderByChild('cardNumber').equalTo(cardInput).once('value').then(snapshot => {
             if(snapshot.exists()) {
                 let receiverKey = Object.keys(snapshot.val())[0]; let receiverData = snapshot.val()[receiverKey];
                 database.ref('users/' + receiverKey + '/incoming_transfers').push({ amount: amount, senderName: sender.name, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}) }).then(() => { 
-                    sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
-                    document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ доставлено", `Отримувач: <b>${receiverData.name}</b>`, "💸"); 
-                }).catch(() => { showToast("Помилка мережі.", "error"); btn.innerText = "Надіслати"; btn.disabled = false; });
+                    sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Перевод ${receiverData.name}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
+                    document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Отправить"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Перевод доставлен", `Получатель: <b>${receiverData.name}</b>`, "💸"); 
+                }).catch(() => { showToast("Ошибка сети.", "error"); btn.innerText = "Отправить"; btn.disabled = false; });
             } else { 
-                sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Переказ *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
-                document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Надіслати"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Переказ надіслано", `Сума: <b>${amount} ₴</b> на зовнішню карту`, "💸"); 
+                sender.balance -= amount; sender.history.unshift({ icon: '💸', title: `Перевод *${cardInput.slice(-4)}`, date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -amount, type: 'minus' }); saveDB(); 
+                document.getElementById('transfer-card').value = ''; document.getElementById('transfer-amount').value = ''; btn.innerText = "Отправить"; btn.disabled = false; updateBalanceDisplayQuiet(); renderHistory(); switchTab('screen-dashboard', document.querySelectorAll('.nav-item')[0]); showPush("Перевод отправлен", `Сумма: <b>${amount} $</b> на внешнюю карту`, "💸"); 
             }
-        }).catch(err => { showToast("Слабкий інтернет. Спробуй ще раз.", "error"); btn.innerText = "Надіслати"; btn.disabled = false; });
+        }).catch(err => { showToast("Слабый интернет. Попробуй еще раз.", "error"); btn.innerText = "Отправить"; btn.disabled = false; });
     }
 
     setInterval(() => {
@@ -1561,35 +1566,35 @@ function sendVerificationCode() {
             if(passive > 0 && !user.isLocked) { user.balance = parseFloat((user.balance + passive).toFixed(2)); needsUpdate = true; }
             
             if(user.deposits && user.deposits.length > 0) {
-                for(let i = user.deposits.length - 1; i >= 0; i--) { let dep = user.deposits[i]; if(now >= dep.endTime) { let payout = parseFloat((dep.amount * 1.05).toFixed(2)); user.balance = parseFloat((user.balance + payout).toFixed(2)); user.history.unshift({ icon: '🌾', title: "Виплата депозиту (5%)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: payout, type: 'plus' }); showPush("Депозит закрито", `Отримано <b>${payout} ₴</b>`, "🌾"); user.deposits.splice(i, 1); needsUpdate = true; } }
+                for(let i = user.deposits.length - 1; i >= 0; i--) { let dep = user.deposits[i]; if(now >= dep.endTime) { let payout = parseFloat((dep.amount * 1.05).toFixed(2)); user.balance = parseFloat((user.balance + payout).toFixed(2)); user.history.unshift({ icon: '🌾', title: "Выплата депозита (5%)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: payout, type: 'plus' }); showPush("Депозит закрыт", `Получено <b>${payout} $</b>`, "🌾"); user.deposits.splice(i, 1); needsUpdate = true; } }
             }
             if(user.credit && user.credit.active) {
-                if(now >= user.credit.dueTime) { showPush("Банкрутство!", "Час кредиту вийшов. У вас забрали все!", "🚨", true); for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; } user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true; user.creditScore = 10; user.miners = 0; user.hasOffshore = false; user.history.unshift({ icon: '🚨', title: "ПОВНЕ БАНКРУТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' }); applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заробити ${cVal} ₴`; if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true; }
+                if(now >= user.credit.dueTime) { showPush("Банкротство!", "Время кредита вышло. У вас забрали все!", "🚨", true); for (let id in user.portfolio) { user.portfolio[id].qty = 0; user.portfolio[id].avgPrice = 0; } user.balance = 0; user.clickTier = 0; user.clickPower = 0.10; user.clickUpgradePrice = 500; user.autoClicker = 0; user.autoUpgradePrice = 5000; user.skin = 'default'; user.deposits = []; user.credit = { active: false }; user.businesses = {}; user.isLocked = true; user.creditScore = 10; user.miners = 0; user.hasOffshore = false; user.history.unshift({ icon: '🚨', title: "ПОЛНОЕ БАНКРОТСТВО", date: new Date().toLocaleString('uk-UA'), amount: 0, type: 'minus' }); applyLockStatusVisually(); applySkin(user.skin); let cVal = (0.10).toFixed(2); document.getElementById('btn-earn').innerText = `+ Заработать ${cVal} $`; if(document.getElementById('upgrades-modal').classList.contains('active')) renderUpgrades(); needsUpdate = true; }
             }
 
-            // Обробка контрабанди
+            // Обработка контрабанды
             if(user.smuggling && user.smuggling.active) {
                 if(now >= user.smuggling.endTime) {
                     let amt = user.smuggling.amount;
                     if(Math.random() < 0.3) {
                         let win = amt * 3;
                         user.balance += win;
-                        user.history.unshift({ icon: '🚚', title: "Контрабанда (Успіх)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: win, type: 'plus' });
-                        showPush("Контрабанда", `Фура доїхала! Прибуток: ${win.toLocaleString('uk-UA')} ₴`, "🚚");
+                        user.history.unshift({ icon: '🚚', title: "Контрабанда (Успех)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: win, type: 'plus' });
+                        showPush("Контрабанда", `Фура доехала! Прибыль: ${win.toLocaleString('ru-RU')} $`, "🚚");
                         showSuccessEffect();
                     } else {
                         user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 2);
                         let fine = Math.floor(amt * 0.5);
                         if(user.balance >= fine) user.balance -= fine; else { fine = user.balance; user.balance = 0; }
                         user.history.unshift({ icon: '🚨', title: "Контрабанда (Провал)", date: new Date().toLocaleString('uk-UA', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}), amount: -fine, type: 'minus' });
-                        showPush("Облава!", `Митниця накрила фуру. Втрачено товар та штраф ${fine.toLocaleString('uk-UA')} ₴. +2 зірки розшуку!`, "🚨", true);
+                        showPush("Облава!", `Таможня накрыла фуру. Потерян товар и штраф ${fine.toLocaleString('ru-RU')} $. +2 звезды розыска!`, "🚨", true);
                     }
                     user.smuggling = { active: false };
                     needsUpdate = true;
                 }
             }
 
-            // Поліцейські облави (за таймером)
+            // Полицейские облавы (по таймеру)
             if(user.wantedLevel > 0) {
                 if(!user.nextRaidTime || user.raidScheduledLevel !== user.wantedLevel) {
                     let maxMins = 10;
@@ -1606,8 +1611,8 @@ function sendVerificationCode() {
                     user.wantedLevel = 0;
                     user.nextRaidTime = null;
                     user.raidScheduledLevel = 0;
-                    addTransaction("Арешт та конфіскація", -raidTax, '🚓');
-                    showPush("Облава поліції!", `Вас заарештували! Конфісковано 30% (${raidTax.toLocaleString('uk-UA')} ₴)`, "🚓", true);
+                    addTransaction("Арест и конфискация", -raidTax, '🚓');
+                    showPush("Облава полиции!", `Вас арестовали! Конфисковано 30% (${raidTax.toLocaleString('ru-RU')} $)`, "🚓", true);
                     needsUpdate = true;
                 }
             } else if (user.nextRaidTime) {
@@ -1618,10 +1623,10 @@ function sendVerificationCode() {
 
             if(needsUpdate) { saveDB(); updateBalanceDisplayQuiet(); if(document.getElementById('screen-dashboard').classList.contains('active')) renderHistory(); if(document.getElementById('screen-useful').classList.contains('active')) { renderUsefulFull(); } } 
             else { if(document.getElementById('screen-useful').classList.contains('active')) renderUsefulTimersOnly(); }
-        } catch (e) { console.error("Помилка основного таймера: ", e); }
+        } catch (e) { console.error("Ошибка основного таймера: ", e); }
     }, 1000);
     
-    // Енергія реген
+    // Энергия реген
     setInterval(() => {
         try {
             const user = getState(); if(!user) return;
@@ -1637,11 +1642,11 @@ function sendVerificationCode() {
             const user = getState(); if(!user || user.isLocked) return; let needsUpdate = false;
             
             if(user.balance > 100000 && !user.hasOffshore) {
-                let tax = Math.floor(user.balance * 0.01); user.balance -= tax; addTransaction("Податок на багатство", -tax, '🏛️'); showPush("Податок", `Списано 1% (${tax} ₴) за ліміт готівки`, "🏛️"); needsUpdate = true;
+                let tax = Math.floor(user.balance * 0.01); user.balance -= tax; addTransaction("Налог на богатство", -tax, '🏛️'); showPush("Налог", `Списано 1% (${tax} $) за лимит наличных`, "🏛️"); needsUpdate = true;
             }
             
             if(user.balance > 50000 && !user.hasOffshore && Math.random() < 0.1) {
-                let raidTax = Math.floor(user.balance * 0.2); user.balance -= raidTax; addTransaction("Податкова облава", -raidTax, '👮'); showPush("Податкова", `Облава! Зняли 20% (${raidTax} ₴). Відкрий офшор!`, "👮", true); needsUpdate = true;
+                let raidTax = Math.floor(user.balance * 0.2); user.balance -= raidTax; addTransaction("Налоговая облава", -raidTax, '👮'); showPush("Налоговая", `Облава! Сняли 20% (${raidTax} $). Открой офшор!`, "👮", true); needsUpdate = true;
             }
 
             if(user.miners && user.miners > 0) {
@@ -1655,19 +1660,19 @@ function sendVerificationCode() {
     setInterval(() => {
         try {
             const user = getState(); if(!user) return; 
-            if(Math.random() < 0.08 && !activeNews) { const allAssets = [...stocksMarket, ...cryptoMarket]; const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; const isGood = Math.random() < 0.5; let title = isGood ? `🚀 Прорив ${asset.name}` : `💥 Падіння ${asset.name}`; let desc = isGood ? `Активи летять у космос!` : `Стрімкий обвал ціни!`; showPush(title, desc, asset.icon, !isGood, true); globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); if(globalNews.length > 10) globalNews.pop(); saveNews(); activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; }
+            if(Math.random() < 0.08 && !activeNews) { const allAssets = [...stocksMarket, ...cryptoMarket]; const asset = allAssets[Math.floor(Math.random() * allAssets.length)]; const isGood = Math.random() < 0.5; let title = isGood ? `🚀 Прорыв ${asset.name}` : `💥 Падение ${asset.name}`; let desc = isGood ? `Активи летят в космос!` : `Стремительный обвал цены!`; showPush(title, desc, asset.icon, !isGood, true); globalNews.unshift({ time: new Date().toLocaleString('uk-UA', {hour: '2-digit', minute:'2-digit'}), title: title, text: desc, icon: asset.icon, isGood: isGood }); if(globalNews.length > 10) globalNews.pop(); saveNews(); activeNews = { id: asset.id, isGood: isGood, ticksLeft: 6 }; }
             const updateAsset = (s, isCrypto) => { let vol = isCrypto ? 0.05 : 0.005; let changePercent = (Math.random() * vol * 2) - vol; if (!isCrypto && Math.random() < 0.25) changePercent = 0; if(activeNews && activeNews.id === s.id) { changePercent = activeNews.isGood ? (Math.random() * 0.1 + 0.05) : -(Math.random() * 0.1 + 0.05); activeNews.ticksLeft--; if(activeNews.ticksLeft <= 0) activeNews = null; } let newPrice = s.hist1H[s.hist1H.length-1] * (1 + changePercent); s.hist1H.push(parseFloat(newPrice.toFixed(2))); if(s.hist1H.length > 15) s.hist1H.shift(); };
             stocksMarket.forEach(s => updateAsset(s, false)); cryptoMarket.forEach(s => updateAsset(s, true));
             if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks();
             if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) openStockModal(currentStockId, false);
-        } catch (e) { console.error("Помилка оновлення ринку: ", e); }
+        } catch (e) { console.error("Ошибка обновления рынка: ", e); }
     }, 5000);
 
-    function openSafe() { const user = getState(); if(user.balance < 10000) { showToast("Треба 10 000 ₴", "error"); return; } user.balance -= 10000; const rand = Math.random(); let win = 0; let msg = ""; let icon = "📦"; if(rand < 0.90) { win = 1; msg = "Тобі випала 1 ₴. Не щастить."; icon = "🗑️"; } else if(rand < 0.98) { win = 15000; msg = "Непогано! 15 000 ₴."; icon = "💵"; } else if(rand < 0.999) { win = 50000; msg = "Крупний куш! 50 000 ₴."; icon = "💰"; showSuccessEffect(); } else { win = 100000; msg = "ДЖЕКПОТ! 100 000 ₴!"; icon = "💎"; showSuccessEffect(); } user.balance += win; addTransaction("Секретний сейф", win - 10000, icon); saveDB(); updateBalanceDisplayQuiet(); showPush("Сейф", msg, icon); }
-    function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Картка під щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Зачекайте`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Термінал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Поповнення", "Успішно <b>100 ₴</b>", "🏧"); }
-    function openHackMiniGame() { const user = getState(); if(user.isLocked) { showToast("Спочатку зніміть щит з картки!", "error"); return; } if(user.energy < 15) { showToast("Мало енергії! Потрібно 15⚡", "error"); return; } if(user.balance < 500) { showToast("Немає 500 ₴ для входу", "error"); return; } user.balance -= 500; user.energy -= 15; saveDB(); updateBalanceDisplayQuiet(); document.getElementById('hack-modal').classList.add('active'); currentHackPin = generateRandomNum(6); document.getElementById('hack-pin-display').innerText = currentHackPin; document.getElementById('hack-input').value = ''; document.getElementById('hack-input').focus(); let timeLeft = 5; document.getElementById('hack-timer').innerText = timeLeft; clearInterval(hackInterval); hackInterval = setInterval(() => { timeLeft--; document.getElementById('hack-timer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(hackInterval); failHack(); } }, 1000); }
-    function submitHack() { if(document.getElementById('hack-input').value === currentHackPin) { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); let win = 500 + Math.floor(Math.random() * 701); const user = getState(); user.balance += win; progressQuest('hack'); saveDB(); addTransaction("Успішний злам", win, '💻'); updateBalanceDisplayQuiet(); showPush("Взлом", `Ти отримав ${win} ₴!`, "💻"); showSuccessEffect(); } else { failHack(); } }
-    function failHack() { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); const user = getState(); user.isLocked = true; let penalty = Math.floor(user.balance * 0.1); user.balance -= penalty; user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 2); saveDB(); applyLockStatusVisually(); updateBalanceDisplayQuiet(); addTransaction("Провал зламу (Штраф)", -penalty, '🚨'); showPush("Провал!", "Вас засікли! Штраф 10%, блок картки та +2 зірки розшуку.", "🚨", true); }
+    function openSafe() { const user = getState(); if(user.balance < 10000) { showToast("Нужно 10 000 $", "error"); return; } user.balance -= 10000; const rand = Math.random(); let win = 0; let msg = ""; let icon = "📦"; if(rand < 0.90) { win = 1; msg = "Тебе выпал 1 $. Не везет."; icon = "🗑️"; } else if(rand < 0.98) { win = 15000; msg = "Неплохо! 15 000 $."; icon = "💵"; } else if(rand < 0.999) { win = 50000; msg = "Крупный куш! 50 000 $."; icon = "💰"; showSuccessEffect(); } else { win = 100000; msg = "ДЖЕКПОТ! 100 000 $!"; icon = "💎"; showSuccessEffect(); } user.balance += win; addTransaction("Секретный Сейф", win - 10000, icon); saveDB(); updateBalanceDisplayQuiet(); showPush("Сейф", msg, icon); }
+    function simulateTopUp() { const user = getState(); if(user.isLocked) { showToast("Карта под щитом!", "error"); return; } const now = Date.now(); const cooldown = 5 * 60 * 60 * 1000; if (now - user.lastTopUpTime < cooldown) { showToast(`Подождите`, "error"); return; } user.balance = parseFloat((user.balance + 100).toFixed(2)); user.lastTopUpTime = now; saveDB(); addTransaction("Терминал", 100, '🏧'); updateBalanceDisplayQuiet(); document.getElementById('topup-modal').classList.remove('active'); showPush("Пополнение", "Успешно <b>100 $</b>", "🏧"); }
+    function openHackMiniGame() { const user = getState(); if(user.isLocked) { showToast("Сначала снимите щит с карты!", "error"); return; } if(user.energy < 15) { showToast("Мало энергии! Нужно 15⚡", "error"); return; } if(user.balance < 500) { showToast("Нет 500 $ для входа", "error"); return; } user.balance -= 500; user.energy -= 15; saveDB(); updateBalanceDisplayQuiet(); document.getElementById('hack-modal').classList.add('active'); currentHackPin = generateRandomNum(6); document.getElementById('hack-pin-display').innerText = currentHackPin; document.getElementById('hack-input').value = ''; document.getElementById('hack-input').focus(); let timeLeft = 5; document.getElementById('hack-timer').innerText = timeLeft; clearInterval(hackInterval); hackInterval = setInterval(() => { timeLeft--; document.getElementById('hack-timer').innerText = timeLeft; if(timeLeft <= 0) { clearInterval(hackInterval); failHack(); } }, 1000); }
+    function submitHack() { if(document.getElementById('hack-input').value === currentHackPin) { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); let win = 500 + Math.floor(Math.random() * 701); const user = getState(); user.balance += win; progressQuest('hack'); saveDB(); addTransaction("Успешный взлом", win, '💻'); updateBalanceDisplayQuiet(); showPush("Взлом", `Ты получил ${win} $!`, "💻"); showSuccessEffect(); } else { failHack(); } }
+    function failHack() { clearInterval(hackInterval); document.getElementById('hack-modal').classList.remove('active'); const user = getState(); user.isLocked = true; let penalty = Math.floor(user.balance * 0.1); user.balance -= penalty; user.wantedLevel = Math.min(5, (user.wantedLevel||0) + 2); saveDB(); applyLockStatusVisually(); updateBalanceDisplayQuiet(); addTransaction("Провал взлома (Штраф)", -penalty, '🚨'); showPush("Провал!", "Вас засекли! Штраф 10%, блок карты и +2 звезды розыска.", "🚨", true); }
 
     window.addEventListener('load', checkAuthState);
 </script>
