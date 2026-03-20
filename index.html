@@ -12,7 +12,13 @@
     <meta name="apple-mobile-web-app-title" content="D-Bank">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("5PrybHl8VLuz3mf5");
+        })();
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root { --bg-main: #161B22; --bg-surface: #232A38; --primary: #0047AB; --text-dark: #FFFFFF; --text-muted: #A0ABBB; --success: #10B981; --danger: #EF4444; --warning: #F59E0B; --border: #333C4D; }
