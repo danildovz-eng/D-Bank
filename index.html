@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>D-Bank</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#161B22">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -186,12 +187,11 @@
         <div class="modal-content" style="text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">📱</div>
             <h3 style="margin-bottom:10px;">Встановіть додаток</h3>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:left;">
-                Щоб гра зберігала дані надійно, додайте її на головний екран:<br><br>
-                <b>🍎 iOS:</b> Натисніть «Поділитися» ➔ «На екран Домой».<br><br>
-                <b>🤖 Android:</b> Меню браузера ➔ «Встановити додаток».
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
+                Додайте D-Bank на головний екран для зручного доступу та збереження даних!
             </p>
-            <button class="btn-main" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Зрозуміло</button>
+            <button class="btn-main" style="background:var(--success); margin-bottom:10px;" onclick="installPWA()">Встановити</button>
+            <button class="btn-main" style="background:var(--bg-main); border:1px solid var(--border); color:var(--text-muted);" onclick="document.getElementById('pwa-prompt').classList.remove('active')">Пізніше</button>
         </div>
     </div>
 
@@ -659,8 +659,29 @@
     </nav>
 </div>
 <script>
-    function checkPWA() { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; if(!isStandalone) { document.getElementById('pwa-prompt').classList.add('active'); } }
-    window.addEventListener('load', checkPWA);
+    // РЕЄСТРАЦІЯ SERVICE WORKER ТА PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+        });
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('pwa-prompt').classList.add('active');
+    });
+
+    window.installPWA = function() {
+        document.getElementById('pwa-prompt').classList.remove('active');
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                deferredPrompt = null;
+            });
+        }
+    };
 
     const firebaseConfig = { apiKey: "AIzaSyCzpgYdC1Nfx-Az-UT3MPWB5hmNaLT7AsU", authDomain: "dbank-2b218.firebaseapp.com", databaseURL: "https://dbank-2b218-default-rtdb.firebaseio.com", projectId: "dbank-2b218", storageBucket: "dbank-2b218.firebasestorage.app", messagingSenderId: "1092545286683", appId: "1:1092545286683:web:e0ea2eb48d3cf9fe8adebe" };
     firebase.initializeApp(firebaseConfig); const database = firebase.database();
