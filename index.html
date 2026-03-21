@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>D-Bank</title>
+    
+    <meta name="monetag" content="631dd895c2b8c7468a8f43d408b71cdb">
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0E1117">
     <meta name="mobile-web-app-capable" content="yes">
@@ -216,6 +219,16 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="ad-modal" onclick="if(event.target.id==='ad-modal') closeModal(event, 'ad-modal')">
+        <div class="modal-content" style="text-align:center;">
+            <div class="close-modal" onclick="document.getElementById('ad-modal').classList.remove('active')">✕</div>
+            <h3 style="margin-bottom:15px; font-size:18px;">📺 Реклама</h3>
+            <p id="ad-modal-text" style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.4;">Текст</p>
+            <div id="ad-limit-text" style="font-size:12px; color:var(--warning); margin-bottom:15px; display:none;">Осталось просмотров: 3/3</div>
+            <button type="button" class="btn-main btn-primary" id="btn-watch-ad" onclick="watchAd()">Смотреть ролик</button>
+        </div>
+    </div>
+
     <div id="screen-app-pin" class="screen auth-screen">
         <div style="text-align: center; margin-top: 30px;">
             <div class="avatar" style="width:64px; height:64px; font-size:28px; margin:0 auto 15px;" id="pin-avatar">👤</div>
@@ -271,7 +284,10 @@
         <header>
             <div class="greeting"><p>Ваш баланс</p><h1 id="top-balance">0.00 $</h1></div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <div style="text-align:right; font-size:12px; color:var(--warning); font-weight:600;">⚡ <span id="energy-display">100</span></div>
+                <div style="text-align:right; font-size:12px; color:var(--warning); font-weight:600; display:flex; align-items:center; gap:5px;">
+                    <span>⚡ <span id="energy-display">100</span></span>
+                    <button class="btn-main btn-success" style="width:22px; height:22px; padding:0; font-size:14px; border-radius:4px; line-height:1;" onclick="openAdModal('energy')">+</button>
+                </div>
                 <div class="avatar" onclick="switchTab('screen-profile', document.getElementById('nav-item-profile'))" id="dashboard-avatar">👤</div>
             </div>
         </header>
@@ -421,6 +437,7 @@
             </div>
         </div>
 
+        <button type="button" class="btn-main btn-success" style="margin-bottom: 10px;" onclick="openAdModal('money')">📺 Заработать 500 $ (Реклама)</button>
         <button type="button" class="btn-main" style="margin-bottom: 20px;" onclick="openLeaderboard()">🏆 Рейтинг игроков</button>
 
         <div style="background: var(--bg-surface); border-radius: 12px; padding: 15px; margin-bottom: 25px; border:1px solid var(--border);">
@@ -529,7 +546,7 @@
             <div id="deposit-timer-area" style="margin-top:15px; display:none;"></div>
         </div>
 
-        <div style="background:var(--bg-surface); padding:20px; border-radius:12px; border:1px solid var(--border);">
+        <div style="background:var(--bg-surface); padding:20px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div style="display:flex; align-items:center; gap:12px;"><div style="font-size:24px;">💳</div><div style="font-weight:600; font-size:15px;">Кредит наличными</div></div>
                 <div style="font-size:12px; font-weight:600;" id="credit-rate-label">Ставка: --%</div>
@@ -716,8 +733,96 @@
 </div>
 
 <script>
+    // --- РЕКЛАМНАЯ ЛОГИКА ---
+    let currentAdType = '';
+
+    window.openAdModal = function(type) {
+        const user = getState();
+        if (!user) return;
+        
+        if(!user.ads) user.ads = { moneyWatches: 0, lastWatchDate: "" };
+
+        currentAdType = type;
+        const modalText = document.getElementById('ad-modal-text');
+        const limitText = document.getElementById('ad-limit-text');
+        const btnWatch = document.getElementById('btn-watch-ad');
+        
+        if(type === 'energy') {
+            if (user.energy >= 100) {
+                showToast("Энергия уже полная!", "info");
+                return;
+            }
+            modalText.innerText = "Посмотреть короткий рекламный ролик для восполнения энергии до 100⚡?";
+            limitText.style.display = 'none';
+            btnWatch.disabled = false;
+            btnWatch.innerText = "Смотреть ролик";
+        } else if(type === 'money') {
+            const today = new Date().toLocaleDateString('ru-RU');
+            if (user.ads.lastWatchDate !== today) {
+                user.ads.moneyWatches = 0;
+                user.ads.lastWatchDate = today;
+            }
+            
+            modalText.innerText = "Посмотреть короткий рекламный ролик для пополнения баланса на 500 $?";
+            limitText.style.display = 'block';
+            let viewsLeft = 3 - user.ads.moneyWatches;
+            limitText.innerText = `Осталось просмотров сегодня: ${viewsLeft}/3`;
+            
+            if(viewsLeft <= 0) {
+                btnWatch.disabled = true;
+                btnWatch.innerText = "Лимит исчерпан";
+            } else {
+                btnWatch.disabled = false;
+                btnWatch.innerText = "Смотреть ролик";
+            }
+        }
+        
+        document.getElementById('ad-modal').classList.add('active');
+    };
+
+    window.watchAd = function() {
+        const btnWatch = document.getElementById('btn-watch-ad');
+        btnWatch.disabled = true;
+        btnWatch.innerText = "Смотрим ролик...";
+        
+        // Симуляция просмотра рекламы (3 секунды)
+        // В будущем сюда вставляется вызов функции показа от рекламной сети
+        setTimeout(() => {
+            const user = getState();
+            if(!user) return;
+
+            if(currentAdType === 'energy') {
+                user.energy = 100;
+                saveDB();
+                updateBalanceDisplayQuiet();
+                showToast("Энергия восстановлена!", "success");
+                showPush("Энергия", "Энергия восполнена до 100⚡", "⚡");
+            } else if(currentAdType === 'money') {
+                const today = new Date().toLocaleDateString('ru-RU');
+                if (user.ads.lastWatchDate !== today) {
+                    user.ads.moneyWatches = 0;
+                    user.ads.lastWatchDate = today;
+                }
+                
+                if (user.ads.moneyWatches < 3) {
+                    user.ads.moneyWatches++;
+                    user.balance += 500;
+                    saveDB();
+                    updateBalanceDisplayQuiet();
+                    addTransaction("Награда за просмотр", 500, '📺');
+                    showToast("Баланс пополнен!", "success");
+                    showPush("Награда", "Получено 500 $ за рекламу", "📺");
+                    showSuccessEffect();
+                }
+            }
+            
+            document.getElementById('ad-modal').classList.remove('active');
+        }, 3000);
+    };
+
+
     // --- БАЗОВАЯ ИНИЦИАЛИЗАЦИЯ И FIREBASE ---
-    function sendVerificationCode() { 
+    window.sendVerificationCode = function() { 
         tempRegEmail = document.getElementById('reg-email').value.trim().toLowerCase(); 
         if(!tempRegEmail.includes('@')) { showToast("Указан некорректный email", "error"); return; }
         const emailKey = tempRegEmail.replace(/\./g, ',');
@@ -816,6 +921,7 @@
         u.ownedSkins = u.ownedSkins || ['default'];
         u.skin = u.skin || 'default';
         u.cardNumber = u.cardNumber || "0000000000000000";
+        if(!u.ads) u.ads = { moneyWatches: 0, lastWatchDate: "" };
         
         return u;
     }
@@ -912,17 +1018,17 @@
     ];
 
     // АВТОРИЗАЦИЯ
-    function switchAuthScreen(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+    window.switchAuthScreen = function(screenId) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     
-    function verifyCode() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Неверный код", "error"); }
+    window.verifyCode = function() { if(document.getElementById('reg-code').value === tempRegCode) switchAuthScreen('screen-setup'); else showToast("Неверный код", "error"); }
     
-    function completeRegistration() {
+    window.completeRegistration = function() {
         const name = document.getElementById('reg-name').value.trim(); const pass = document.getElementById('reg-pass').value; const appPin = document.getElementById('reg-app-pin').value; const emailKey = tempRegEmail.replace(/\./g, ',');
-        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null };
+        const newUser = { name: name, password: pass, appPin: appPin, balance: 0.00, energy: 100, cardNumber: generateRandomNum(16), pin: generateRandomNum(4), cvv: generateRandomNum(3), isLocked: false, lastTopUpTime: 0, history: [], portfolio: {}, clickTier: 0, clickPower: 0.10, clickUpgradePrice: 500, autoClicker: 0, autoUpgradePrice: 5000, skin: 'default', ownedSkins: ['default'], deposits: [], credit: {active: false}, creditScore: 100, creditLimit: calculateCreditLimit(), settings: { sounds: true, notifications: true, newsNotifications: true }, businesses: {}, quests: {}, miners: 0, hasOffshore: false, smuggling: {active: false}, wantedLevel: 0, raidScheduledLevel: 0, nextRaidTime: null, ads: { moneyWatches: 0, lastWatchDate: "" } };
         database.ref('users/' + emailKey).set(newUser).then(() => { db.users[emailKey] = newUser; currentUserKey = emailKey; try { localStorage.setItem('DBank_User_Key', currentUserKey); } catch(e) {} showToast("Аккаунт создан!", "success"); startApp(); });
     }
 
-    function processLogin() {
+    window.processLogin = function() {
         const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value; const emailKey = email.replace(/\./g, ',');
         database.ref('users/' + emailKey).once('value').then((snapshot) => {
             if(snapshot.exists() && snapshot.val().password === pass) {
@@ -949,19 +1055,19 @@
         } else { switchAuthScreen('screen-login'); }
     }
     
-    function logout() { if(currentUserKey) database.ref('users/' + currentUserKey).off('value'); window.dbListenerAttached = false; currentUserKey = null; try { localStorage.removeItem('DBank_User_Key'); } catch(e) {} document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
+    window.logout = function() { if(currentUserKey) database.ref('users/' + currentUserKey).off('value'); window.dbListenerAttached = false; currentUserKey = null; try { localStorage.removeItem('DBank_User_Key'); } catch(e) {} document.getElementById('main-nav').classList.remove('active'); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); switchAuthScreen('screen-login'); }
     
-    function deleteAccount() { if(!deleteConfirm) { showToast("Нажмите еще раз для подтверждения удаления", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
+    window.deleteAccount = function() { if(!deleteConfirm) { showToast("Нажмите еще раз для подтверждения удаления", "error"); deleteConfirm = true; setTimeout(() => deleteConfirm = false, 3000); return; } database.ref('users/' + currentUserKey).remove(); delete db.users[currentUserKey]; logout(); deleteConfirm = false; }
 
-    function showAppPinScreen() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); document.getElementById('pin-name').innerText = getState()?.name || "Профиль"; }
-    function enterPin(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
-    function deletePin() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
+    window.showAppPinScreen = function() { document.querySelectorAll('.auth-screen, .screen').forEach(s => s.classList.remove('active')); currentPinInput = ""; updatePinDots(); document.getElementById('screen-app-pin').classList.add('active'); document.getElementById('pin-name').innerText = getState()?.name || "Профиль"; }
+    window.enterPin = function(num) { if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); if(currentPinInput.length === 4) setTimeout(checkAppPin, 150); } }
+    window.deletePin = function() { if(currentPinInput.length > 0) { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); } }
     function updatePinDots() { const dots = document.querySelectorAll('#pin-dots .pin-dot'); dots.forEach((dot, index) => { if(index < currentPinInput.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); }
     function checkAppPin() { if(currentPinInput === (getState().appPin || "0000")) startApp(); else { showToast("Неверный PIN", "error"); currentPinInput = ""; updatePinDots(); } }
 
     function getCreditData() { const user = getState(); let score = user.creditScore || 100; let limit = 1000 + (score * 50); let interestRate = Math.max(0.05, 0.25 - (score * 0.001)); let cReturn = Math.floor(limit * (1 + interestRate)); return { limit, cReturn, rate: (interestRate * 100).toFixed(1), score }; }
 
-    function changeProfileName() {
+    window.changeProfileName = function() {
         const user = getState();
         let newName = prompt("Введите новое имя:", user.name);
         if(newName && newName.trim() !== "") {
@@ -1024,8 +1130,8 @@
         document.getElementById('nav-item-home').classList.add('active');
     }
 
-    function switchScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
-    function switchTab(screenId, navElement = null) { switchScreen(screenId); if(navElement) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navElement.classList.add('active'); } }
+    window.switchScreen = function(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+    window.switchTab = function(screenId, navElement = null) { switchScreen(screenId); if(navElement) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); navElement.classList.add('active'); } }
     window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
     window.closeModal = function(event, id) { if(event.target.id === id) document.getElementById(id).classList.remove('active'); }
 
@@ -1410,7 +1516,7 @@
     window.kickMember = function(cId, uid) { if(confirm("Подтвердите исключение пользователя")) { database.ref(`clans/${cId}/members/${uid}`).remove().then(() => { showToast("Пользователь исключен", "success"); refreshClanData(); }); } }
 
     function checkQuests() { 
-        const user = getState(); const today = new Date().toLocaleDateString(); 
+        const user = getState(); const today = new Date().toLocaleDateString('ru-RU'); 
         if(!user.quests || user.quests.date !== today || !user.quests.list) { 
             let shuffled = [...questTemplates].sort(() => 0.5 - Math.random()).slice(0, 3);
             let activeList = shuffled.map(q => ({id: q.id, icon: q.icon, desc: q.desc, target: q.target, progress: 0}));
@@ -1737,6 +1843,7 @@
             stocksMarket.forEach(s => updateAsset(s, false)); cryptoMarket.forEach(s => updateAsset(s, true));
             if(document.getElementById('screen-stocks').classList.contains('active')) renderStocks();
             
+            // ОБНОВЛЯЕМ ТОЛЬКО ЦЕНУ И ГРАФИК, ЧТОБЫ НЕ СБРАСЫВАТЬ ПОЛЕ ВВОДА
             if(document.getElementById('stock-modal').classList.contains('active') && currentStockId) {
                 const stock = [...stocksMarket, ...cryptoMarket].find(s => s.id === currentStockId);
                 document.getElementById('modal-stock-price').innerText = stock.hist1H[stock.hist1H.length-1].toFixed(2) + ' $';
