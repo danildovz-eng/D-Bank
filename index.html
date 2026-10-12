@@ -10,43 +10,44 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; user-select: none; }
-        body { background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; padding-bottom: 90px; }
-        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
+        body { background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; padding-bottom: 90px; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
         .hidden { display: none !important; }
 
         .header { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 5px; }
         .user-badge { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; }
-        .lvl-tag { background: linear-gradient(135deg, #e3b341, #f78166); color: #000; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+        .lvl-tag { background: #30363d; color: #58a6ff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid #484f58; }
 
         .card-container { perspective: 1000px; width: 100%; height: 210px; cursor: pointer; margin: 5px 0; }
-        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 18px; box-shadow: 0 12px 30px rgba(0,0,0,0.6); }
+        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
         .card.flipped { transform: rotateY(180deg); }
         .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; color: white; border: 1px solid rgba(255,255,255,0.1); }
         
-        .skin-default { background: linear-gradient(135deg, #1f6feb, #8957e5); }
-        .skin-neon { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; }
-        .skin-gold { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); color: #222; }
-        .skin-cyber { background: linear-gradient(135deg, #ff007f, #7928ca); }
-        .skin-dark { background: linear-gradient(135deg, #161b22, #30363d); border: 1px solid #58a6ff; }
+        .skin-default { background: #1f242c; border: 1px solid #30363d; }
+        .skin-neon { background: #0d1f1e; border: 1px solid #00f2fe; color: #00f2fe; }
+        .skin-gold { background: #262115; border: 1px solid #e3b341; color: #fcf6ba; }
+        .skin-cyber { background: #210d1b; border: 1px solid #ff007f; color: #ff007f; }
 
-        .card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #161b22, #21262d); }
+        .card-back { transform: rotateY(180deg); background: #161b22; }
 
-        .panel { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn { background: linear-gradient(135deg, #238636, #2ea043); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 15px; transition: 0.2s; text-align: center; box-shadow: 0 3px 10px rgba(35,134,54,0.3); }
-        .btn:active { transform: scale(0.97); }
-        .btn-secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; box-shadow: none; }
-        .btn-danger { background: linear-gradient(135deg, #da3633, #f85149); box-shadow: 0 3px 10px rgba(218,54,51,0.3); }
+        .panel { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; font-size: 15px; transition: 0.15s; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn:active { background: #30363d; transform: scale(0.98); }
+        .btn-primary { background: #238636; color: white; border: 1px solid rgba(240,246,252,0.1); }
+        .btn-primary:active { background: #2ea043; }
+        .btn-danger { background: #da3633; color: white; border: 1px solid rgba(240,246,252,0.1); }
+        
         .input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 15px; margin-bottom: 12px; outline: none; }
         .input:focus { border-color: #58a6ff; }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-box { background: #161b22; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; padding: 22px; position: relative; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-box { background: #161b22; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; padding: 22px; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
         .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #8b949e; font-size: 20px; cursor: pointer; }
 
-        .receipt { background: #fff; color: #111; padding: 20px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .receipt { background: #fff; color: #111; padding: 20px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; position: relative; }
         .receipt-header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 15px; }
         .receipt-stamp { border: 3px double #d32f2f; color: #d32f2f; font-weight: 900; font-size: 14px; padding: 5px; display: inline-block; transform: rotate(-12deg); position: absolute; bottom: 15px; right: 15px; opacity: 0.85; text-transform: uppercase; }
 
@@ -58,45 +59,59 @@
         .history-item:hover { background: #21262d; border-radius: 8px; }
         .tx-plus { color: #3fb950; font-weight: bold; }
         .tx-minus { color: #f85149; font-weight: bold; }
-
         .leader-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #21262d; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="container" id="app">
-        <!-- АВТОРИЗАЦИЯ -->
         <div id="auth-screen" class="panel">
-            <h2 style="text-align: center; margin-bottom: 10px;">D-BANK</h2>
-            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;">Создай аккаунт для старта в системе</p>
-            <input type="text" id="username" class="input" placeholder="Введите имя игрока">
-            <div style="margin-bottom: 15px;">
-                <label id="captcha-label" style="font-size: 13px; display: block; margin-bottom: 5px; color: #58a6ff;"></label>
-                <input type="number" id="captcha-input" class="input" placeholder="Ответ на капчу">
+            <h2 style="text-align: center; margin-bottom: 8px;">D-BANK</h2>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;">Мобильный банк и симулятор</p>
+            
+            <div id="reg-step-1">
+                <input type="text" id="username" class="input" placeholder="Введите имя аккаунта">
+                <button class="btn btn-primary" onclick="goToRegStep2()">Далее</button>
             </div>
-            <button class="btn" onclick="registerAccount()">Создать аккаунт</button>
+
+            <div id="reg-step-2" class="hidden">
+                <label id="captcha-label" style="font-size: 13px; display: block; margin-bottom: 8px; color: #58a6ff; font-weight: 600;"></label>
+                <input type="number" id="captcha-input" class="input" placeholder="Ответ">
+                <button class="btn btn-primary" onclick="goToRegStep3()">Подтвердить</button>
+            </div>
+
+            <div id="reg-step-3" class="hidden">
+                <p style="font-size: 13px; color: #8b949e; margin-bottom: 8px;">Придумайте 4-значный PIN-код для входа</p>
+                <input type="password" id="reg-pin-input" class="input" maxlength="4" placeholder="PIN (4 цифры)">
+                <button class="btn btn-primary" onclick="finishRegistration()">Создать аккаунт</button>
+            </div>
         </div>
 
-        <!-- ГЛАВНЫЙ ЭКРАН -->
+        <div id="login-screen" class="panel hidden">
+            <h2 style="text-align: center; margin-bottom: 8px;">Вход в D-BANK</h2>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;" id="login-user-name">Приветствуем!</p>
+            <input type="password" id="login-pin-input" class="input" maxlength="4" placeholder="Введите ваш PIN-код">
+            <button class="btn btn-primary" onclick="verifyPinLogin()">Войти</button>
+        </div>
+
         <div id="main-screen" class="hidden">
             <div class="header">
                 <div class="user-badge">
                     <span id="user-display-name">---</span>
                     <span class="lvl-tag" id="user-lvl-tag">LVL 1</span>
                 </div>
-                <button onclick="toggleBalance()" style="background:none; border:none; color:#58a6ff; font-weight:bold; cursor:pointer;">👁 Глаз</button>
+                <button class="btn" style="width: auto; padding: 6px 12px; font-size: 13px;" onclick="toggleBalance()">👁 Баланс</button>
             </div>
 
-            <!-- 3D КАРТА -->
             <div class="card-container" onclick="handleCardClick()">
                 <div class="card skin-default" id="bank-card">
                     <div class="card-face">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 800; tracking: 1px;">D-BANK PLATINUM</span>
-                            <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 6px;">SIMULATOR</span>
+                            <span style="font-weight: 800; letter-spacing: 1px;">D-BANK PLATINUM</span>
+                            <span style="font-size: 11px; background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px;">PWA</span>
                         </div>
                         <div>
-                            <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase;">Баланс карты</div>
+                            <div style="font-size: 11px; opacity: 0.7; text-transform: uppercase;">Доступный баланс</div>
                             <h2 id="card-balance" style="font-size: 26px; font-weight: 800;">0.00 $</h2>
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 13px; font-family: monospace;">
@@ -105,84 +120,77 @@
                         </div>
                     </div>
                     <div class="card-face card-back">
-                        <div style="background: #000; height: 35px; margin: -22px -22px 10px -22px;"></div>
-                        <div style="font-size: 11px; color: #8b949e;">Секретные данные</div>
-                        <div style="display: flex; justify-content: space-between; background: #fff; color: #000; padding: 8px 12px; border-radius: 6px; font-family: monospace;">
+                        <div style="background: #0d1117; height: 35px; margin: -22px -22px 10px -22px; border-bottom: 1px solid #30363d;"></div>
+                        <div style="font-size: 11px; color: #8b949e;">Реквизиты карты</div>
+                        <div style="display: flex; justify-content: space-between; background: #0d1117; color: #fff; padding: 10px 12px; border-radius: 8px; font-family: monospace; border: 1px solid #30363d;">
                             <span>PIN: <b id="card-pin">****</b></span>
                             <span>CVC: <b id="card-cvc">***</b></span>
                         </div>
-                        <div style="font-size: 9px; color: #8b949e; text-align: center;">Не передавайте PIN третьим лицам</div>
+                        <div style="font-size: 9px; color: #8b949e; text-align: center;">Никому не сообщайте эти данные</div>
                     </div>
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ДЕЙСТВИЯ -->
-            <div class="grid-2" style="margin-top: 15px;">
-                <button class="btn" onclick="openTransferModal()">💸 Перевести</button>
-                <button class="btn btn-secondary" onclick="openSkinsModal()">🎨 Скины карты</button>
+            <div class="grid-2" style="margin-top: 10px;">
+                <button class="btn btn-primary" onclick="openTransferModal()">💸 Перевод</button>
+                <button class="btn" onclick="openSkinsModal()">🎨 Скины</button>
             </div>
 
-            <!-- СПОСОБЫ ЗАРАБОТКА -->
             <div class="panel" style="margin-top: 15px;">
-                <h4 style="margin-bottom: 12px;">Способы заработка</h4>
+                <h4 style="margin-bottom: 12px; font-size: 14px;">Способы заработка</h4>
                 <div class="grid-3">
-                    <button class="btn btn-secondary" style="font-size: 12px; padding: 10px;" onclick="workTap()">🖱 Кликер<br><small>+$5</small></button>
-                    <button class="btn btn-secondary" style="font-size: 12px; padding: 10px;" onclick="workBusiness()">🏢 Бизнес<br><small>Пассив</small></button>
-                    <button class="btn btn-secondary" style="font-size: 12px; padding: 10px;" onclick="workFreelance()">💻 Фриланс<br><small>Заказ</small></button>
+                    <button class="btn" style="font-size: 12px; padding: 10px;" onclick="workTap()">🖱 Клик<br><small style="color:#3fb950">+$5</small></button>
+                    <button class="btn" style="font-size: 12px; padding: 10px;" onclick="workBusiness()">🏢 Бизнес<br><small style="color:#58a6ff">Пассив</small></button>
+                    <button class="btn" style="font-size: 12px; padding: 10px;" onclick="workFreelance()">💻 Фриланс<br><small style="color:#e3b341">Заказ</small></button>
                 </div>
             </div>
 
-            <!-- ИСТОРИЯ ОПЕРАЦИЙ -->
             <div class="panel" style="margin-top: 15px;">
-                <h4 style="margin-bottom: 10px;">История транзакций</h4>
+                <h4 style="margin-bottom: 10px; font-size: 14px;">История операций</h4>
                 <div id="history-list">
                     <div style="text-align: center; color: #8b949e; font-size: 13px; padding: 10px;">История пуста</div>
                 </div>
             </div>
         </div>
 
-        <!-- РАЗДЕЛ БИРЖА -->
         <div id="tab-market" class="panel hidden">
-            <h3>📈 Биржа Акций и Крипты</h3>
-            <p style="font-size: 12px; color: #8b949e; margin-bottom: 15px;">Курсы обновляются в реальном времени</p>
+            <h3 style="margin-bottom: 5px;">📈 Биржа и Крипта</h3>
+            <p style="font-size: 12px; color: #8b949e; margin-bottom: 15px;">Инвестируйте и приумножайте капитал</p>
             <div id="market-assets-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
         </div>
 
-        <!-- РАЗДЕЛ НАСТРОЙКИИ И ЛИДЕРБОРД -->
         <div id="tab-settings" class="panel hidden">
-            <h3 style="margin-bottom: 15px;">⚙️ Настройки и Лидерборд</h3>
+            <h3 style="margin-bottom: 15px;">⚙️ Настройки и Топ</h3>
             <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span>Вибрация</span>
-                    <input type="checkbox" id="setting-vibrate" checked onchange="saveSettings()">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px;">
+                    <span>Вибрация устройства</span>
+                    <input type="checkbox" id="setting-vibrate" checked>
                 </div>
             </div>
 
-            <h4 style="margin-bottom: 10px; color: #e3b341;">🏆 Топ Игроков (Лидерборд)</h4>
-            <div id="leaderboard-list" style="background: #0d1117; border-radius: 10px; padding: 5px; max-height: 200px; overflow-y: auto;"></div>
+            <h4 style="margin-bottom: 10px; color: #e3b341; font-size: 14px;">🏆 Таблица лидеров</h4>
+            <div id="leaderboard-list" style="background: #0d1117; border-radius: 10px; padding: 5px; max-height: 200px; overflow-y: auto; border: 1px solid #30363d;"></div>
 
             <button class="btn btn-danger" style="margin-top: 20px;" onclick="confirmDeleteAccount()">🗑 Удалить аккаунт</button>
         </div>
     </div>
 
-    <!-- МОДАЛКА КАЗИНО -->
     <div id="modal-casino" class="modal-overlay hidden">
         <div class="modal-box">
             <button class="close-btn" onclick="closeModals()">✕</button>
             <h3 style="margin-bottom: 15px;">🎲 Казино D-Bank</h3>
             <div class="grid-2" style="margin-bottom: 15px;">
-                <button class="btn" onclick="playRoulette()">Рулетка (x2)</button>
-                <button class="btn btn-secondary" onclick="playSlots()">Слоты 777</button>
+                <button class="btn btn-primary" onclick="playRoulette()">Рулетка (x2)</button>
+                <button class="btn" onclick="playSlots()">Слоты 777</button>
             </div>
             <div class="panel" style="background: #0d1117;">
-                <h4>🌐 Онлайн Матч (PvP)</h4>
-                <p style="font-size: 12px; color: #8b949e; margin: 5px 0 10px 0;">Игра против случайного соперника</p>
-                <button class="btn" style="background: linear-gradient(135deg, #8957e5, #6132b4);" onclick="startOnlinePvp()">Найти соперника ($100)</button>
+                <h4 style="font-size: 14px;">🌐 PvP Матч</h4>
+                <p style="font-size: 12px; color: #8b949e; margin: 5px 0 10px 0;">Дуэль со случайным игроком</p>
+                <button class="btn btn-primary" onclick="startOnlinePvp()">Найти соперника ($100)</button>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛКА СКИНОК -->
     <div id="modal-skins" class="modal-overlay hidden">
         <div class="modal-box">
             <button class="close-btn" onclick="closeModals()">✕</button>
@@ -191,41 +199,39 @@
         </div>
     </div>
 
-    <!-- МОДАЛКА ПЕРЕВОДА -->
     <div id="modal-transfer" class="modal-overlay hidden">
         <div class="modal-box">
             <button class="close-btn" onclick="closeModals()">✕</button>
             <h3 style="margin-bottom: 15px;">💸 Перевод средств</h3>
             
             <div id="transfer-step-1">
-                <input type="text" id="transfer-card-input" class="input" placeholder="Номер карты или имя">
-                <button class="btn" onclick="checkTransferRecipient()">Далее</button>
+                <input type="text" id="transfer-card-input" class="input" placeholder="Номер карты или имя игрока">
+                <button class="btn btn-primary" onclick="checkTransferRecipient()">Далее</button>
             </div>
 
             <div id="transfer-step-2" class="hidden">
                 <p style="font-size: 14px; margin-bottom: 10px;">Получатель: <b id="transfer-target-name" style="color: #58a6ff;">---</b></p>
                 <input type="number" id="transfer-amount-input" class="input" placeholder="Сумма (макс $100,000)">
-                <p style="font-size: 11px; color: #8b949e; margin-bottom: 10px;">Динамическая комиссия: <span id="transfer-calc-fee">4.68%</span></p>
-                <button class="btn" onclick="executeTransfer()">Перевести</button>
+                <p style="font-size: 11px; color: #8b949e; margin-bottom: 10px;">Комиссия: <span id="transfer-calc-fee">4.68%</span></p>
+                <button class="btn btn-primary" onclick="executeTransfer()">Перевести</button>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛКА ЧЕКА -->
     <div id="modal-receipt" class="modal-overlay hidden">
         <div class="modal-box" style="background: transparent; border: none; padding: 0;">
             <button class="close-btn" style="color: #000; z-index: 10;" onclick="closeModals()">✕</button>
             <div class="receipt">
                 <div class="receipt-header">
                     <h2>D-BANK</h2>
-                    <p style="font-size: 10px;">ОФИЦИАЛЬНЫЙ ЧЕК ОПЕРАЦИИ</p>
+                    <p style="font-size: 10px;">ОФИЦИАЛЬНЫЙ ЧЕК</p>
                 </div>
                 <div style="font-size: 12px; display: flex; flex-direction: column; gap: 6px;">
                     <div><b>Отправитель:</b> <span id="rec-sender">---</span></div>
-                    <div><b>Карта списания:</b> <span id="rec-sender-card">---</span></div>
+                    <div><b>Карта:</b> <span id="rec-sender-card">---</span></div>
                     <hr style="border: 0.5px dashed #ccc;">
                     <div><b>Получатель:</b> <span id="rec-receiver">---</span></div>
-                    <div><b>Карта зачисления:</b> <span id="rec-receiver-card">---</span></div>
+                    <div><b>Карта:</b> <span id="rec-receiver-card">---</span></div>
                     <hr style="border: 0.5px dashed #ccc;">
                     <div><b>Сумма:</b> <span id="rec-amount">$0.00</span></div>
                     <div><b>Комиссия:</b> <span id="rec-fee">$0.00</span></div>
@@ -236,10 +242,409 @@
         </div>
     </div>
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
     <div class="nav-bar hidden" id="nav-bar">
         <button class="nav-item active" id="nav-main" onclick="switchNav('main')">💳 Главная</button>
         <button class="nav-item" id="nav-market" onclick="switchNav('market')">📈 Биржа</button>
         <button class="nav-item" id="nav-casino" onclick="openCasinoModal()">🎲 Казино</button>
         <button class="nav-item" id="nav-settings" onclick="switchNav('settings')">⚙️ Настройки</button>
     </div>
+
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://battle-royale-b5084-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let user = {
+            name: "",
+            pin: "",
+            balance: 1000,
+            cardNum: "4921 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000),
+            pinCode: Math.floor(1000 + Math.random() * 9000),
+            cvc: Math.floor(100 + Math.random() * 900),
+            level: 1,
+            skin: "skin-default",
+            unlockedSkins: ["skin-default"],
+            history: []
+        };
+
+        const SKINS = [
+            { id: "skin-default", name: "Классический Матовый", price: 0, level: 1 },
+            { id: "skin-neon", name: "Неоновый Кибер", price: 1000, level: 2 },
+            { id: "skin-cyber", name: "Темный Пурпур", price: 5000, level: 3 },
+            { id: "skin-gold", name: "Элитное Золото", price: 15000, level: 5 }
+        ];
+
+        let marketAssets = [
+            { id: "btc", name: "Bitcoin (BTC)", price: 45000 },
+            { id: "eth", name: "Ethereum (ETH)", price: 3000 },
+            { id: "aapl", name: "Apple Inc. (AAPL)", price: 180 },
+            { id: "tsla", name: "Tesla (TSLA)", price: 240 }
+        ];
+
+        let numA = Math.floor(Math.random() * 10) + 1;
+        let numB = Math.floor(Math.random() * 10) + 1;
+
+        window.onload = function() {
+            let savedReg = localStorage.getItem('dbank_registered');
+            let savedName = localStorage.getItem('dbank_name');
+            let savedPin = localStorage.getItem('dbank_pin');
+
+            if (savedReg === 'true' && savedName && savedPin) {
+                user.name = savedName;
+                user.pin = savedPin;
+                document.getElementById('login-user-name').innerText = `Добро пожаловать, ${user.name}!`;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('captcha-label').innerText = `Сколько будет ${numA} + ${numB}?`;
+            }
+        };
+
+        function goToRegStep2() {
+            let nameInput = document.getElementById('username').value.trim();
+            if (!nameInput) return alert('Введите имя аккаунта!');
+            user.name = nameInput;
+            document.getElementById('reg-step-1').classList.add('hidden');
+            document.getElementById('reg-step-2').classList.remove('hidden');
+        }
+
+        function goToRegStep3() {
+            let captchaInput = parseInt(document.getElementById('captcha-input').value);
+            if (captchaInput !== (numA + numB)) return alert('Неверный ответ на капчу!');
+            document.getElementById('reg-step-2').classList.add('hidden');
+            document.getElementById('reg-step-3').classList.remove('hidden');
+        }
+
+        function finishRegistration() {
+            let pinInput = document.getElementById('reg-pin-input').value.trim();
+            if (pinInput.length !== 4 || isNaN(pinInput)) return alert('PIN-код должен состоять из 4 цифр!');
+
+            user.pin = pinInput;
+            localStorage.setItem('dbank_registered', 'true');
+            localStorage.setItem('dbank_name', user.name);
+            localStorage.setItem('dbank_pin', user.pin);
+
+            saveUserData();
+            showMainScreen();
+        }
+
+        function verifyPinLogin() {
+            let enteredPin = document.getElementById('login-pin-input').value.trim();
+            if (enteredPin !== user.pin) return alert('Неверный PIN-код!');
+            loadUserData();
+        }
+
+        function loadUserData() {
+            db.ref('users/' + user.name.replace(/\s+/g, '_')).on('value', (snapshot) => {
+                let data = snapshot.val();
+                if (data) {
+                    user = Object.assign(user, data);
+                    if (!user.history) user.history = [];
+                    updateUI();
+                }
+            });
+            showMainScreen();
+        }
+
+        function saveUserData() {
+            db.ref('users/' + user.name.replace(/\s+/g, '_')).set(user);
+        }
+
+        function showMainScreen() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('nav-bar').classList.remove('hidden');
+            updateUI();
+            renderMarket();
+            loadLeaderboard();
+        }
+
+        function updateUI() {
+            document.getElementById('user-display-name').innerText = user.name;
+            document.getElementById('user-lvl-tag').innerText = `LVL ${user.level}`;
+            document.getElementById('card-balance').innerText = user.balance.toFixed(2) + ' $';
+            document.getElementById('card-number').innerText = user.cardNum;
+            document.getElementById('card-pin').innerText = user.pinCode;
+            document.getElementById('card-cvc').innerText = user.cvc;
+
+            let cardEl = document.getElementById('bank-card');
+            cardEl.className = 'card ' + user.skin;
+
+            renderHistory();
+        }
+
+        function handleCardClick() {
+            document.getElementById('bank-card').classList.toggle('flipped');
+        }
+
+        let hiddenBal = false;
+        function toggleBalance() {
+            hiddenBal = !hiddenBal;
+            document.getElementById('card-balance').innerText = hiddenBal ? '••••••' : user.balance.toFixed(2) + ' $';
+        }
+
+        function switchNav(tab) {
+            ['main-screen', 'tab-market', 'tab-settings'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['nav-main', 'nav-market', 'nav-settings'].forEach(id => document.getElementById(id).classList.remove('active'));
+
+            if (tab === 'main') {
+                document.getElementById('main-screen').classList.remove('hidden');
+                document.getElementById('nav-main').classList.add('active');
+            } else if (tab === 'market') {
+                document.getElementById('tab-market').classList.remove('hidden');
+                document.getElementById('nav-market').classList.add('active');
+            } else if (tab === 'settings') {
+                document.getElementById('tab-settings').classList.remove('hidden');
+                document.getElementById('nav-settings').classList.add('active');
+                loadLeaderboard();
+            }
+        }
+
+        function openCasinoModal() { document.getElementById('modal-casino').classList.remove('hidden'); }
+        function openSkinsModal() { renderSkins(); document.getElementById('modal-skins').classList.remove('hidden'); }
+        function openTransferModal() { document.getElementById('modal-transfer').classList.remove('hidden'); }
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.add('hidden'));
+            document.getElementById('transfer-step-1').classList.remove('hidden');
+            document.getElementById('transfer-step-2').classList.add('hidden');
+        }
+
+        function workTap() {
+            user.balance += 5;
+            checkLevelUp();
+            saveUserData();
+        }
+        function workFreelance() {
+            let gain = Math.floor(Math.random() * 50) + 20;
+            user.balance += gain;
+            alert(`Заказ выполнен! Получено $${gain}`);
+            checkLevelUp();
+            saveUserData();
+        }
+        function workBusiness() {
+            if (user.balance < 500) return alert('Нужно минимум $500!');
+            user.balance -= 500;
+            setInterval(() => {
+                user.balance += 25;
+                saveUserData();
+            }, 10000);
+            alert('Бизнес успешно приобретен!');
+        }
+
+        function checkLevelUp() {
+            let newLvl = Math.floor(user.balance / 2000) + 1;
+            if (newLvl > user.level) {
+                user.level = newLvl;
+                alert(`Уровень повышен: LVL ${user.level}`);
+            }
+        }
+
+        function renderSkins() {
+            let container = document.getElementById('skins-list');
+            container.innerHTML = '';
+            SKINS.forEach(s => {
+                let unlocked = user.unlockedSkins.includes(s.id);
+                let btnText = unlocked ? (user.skin === s.id ? 'Активен' : 'Выбрать') : `Купить ($${s.price})`;
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#0d1117; padding:12px; border-radius:10px; border:1px solid #30363d;">
+                        <div>
+                            <b>${s.name}</b><br>
+                            <small style="color:#8b949e">Требует LVL ${s.level}</small>
+                        </div>
+                        <button class="btn" style="width:auto; padding:8px 15px;" onclick="selectSkin('${s.id}', ${s.price}, ${s.level})">${btnText}</button>
+                    </div>
+                `;
+            });
+        }
+
+        function selectSkin(id, price, reqLvl) {
+            if (!user.unlockedSkins.includes(id)) {
+                if (user.level < reqLvl) return alert(`Нужен уровень ${reqLvl}`);
+                if (user.balance < price) return alert('Недостаточно средств!');
+                user.balance -= price;
+                user.unlockedSkins.push(id);
+            }
+            user.skin = id;
+            saveUserData();
+            renderSkins();
+            closeModals();
+        }
+
+        let recipientData = null;
+        function checkTransferRecipient() {
+            let target = document.getElementById('transfer-card-input').value.trim();
+            if (!target) return alert('Введите данные получателя!');
+
+            db.ref('users').once('value', (snap) => {
+                let users = snap.val();
+                recipientData = null;
+                for (let k in users) {
+                    if (users[k].name === target || users[k].cardNum === target) {
+                        recipientData = users[k];
+                        break;
+                    }
+                }
+                if (!recipientData) return alert('Игрок не найден!');
+                document.getElementById('transfer-target-name').innerText = recipientData.name;
+                document.getElementById('transfer-step-1').classList.add('hidden');
+                document.getElementById('transfer-step-2').classList.remove('hidden');
+            });
+        }
+
+        function executeTransfer() {
+            let amount = parseFloat(document.getElementById('transfer-amount-input').value);
+            if (isNaN(amount) || amount <= 0 || amount > 100000) return alert('Неверная сумма!');
+
+            let feePercent = amount > 50000 ? 2.5 : (amount > 10000 ? 3.5 : 4.68);
+            let fee = (amount * feePercent) / 100;
+            let total = amount + fee;
+
+            if (user.balance < total) return alert('Недостаточно средств с учетом комиссии!');
+
+            user.balance -= total;
+            recipientData.balance += amount;
+
+            let txRecord = {
+                sender: user.name,
+                senderCard: user.cardNum,
+                receiver: recipientData.name,
+                receiverCard: recipientData.cardNum,
+                amount: amount,
+                fee: fee,
+                date: new Date().toLocaleDateString()
+            };
+
+            if (!user.history) user.history = [];
+            user.history.unshift(txRecord);
+
+            saveUserData();
+            db.ref('users/' + recipientData.name.replace(/\s+/g, '_')).set(recipientData);
+
+            closeModals();
+            showReceipt(txRecord);
+        }
+
+        function renderHistory() {
+            let box = document.getElementById('history-list');
+            if (!user.history || user.history.length === 0) {
+                box.innerHTML = '<div style="text-align:center; color:#8b949e; padding:10px;">История пуста</div>';
+                return;
+            }
+            box.innerHTML = '';
+            user.history.forEach((tx) => {
+                let isOut = tx.sender === user.name;
+                box.innerHTML += `
+                    <div class="history-item" onclick='showReceipt(${JSON.stringify(tx)})'>
+                        <div>
+                            <b>${isOut ? 'Перевод к ' + tx.receiver : 'Перевод от ' + tx.sender}</b><br>
+                            <small style="color:#8b949e">${tx.date}</small>
+                        </div>
+                        <span class="${isOut ? 'tx-minus' : 'tx-plus'}">${isOut ? '-' : '+'}$${tx.amount.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function showReceipt(tx) {
+            document.getElementById('rec-sender').innerText = tx.sender;
+            document.getElementById('rec-sender-card').innerText = tx.senderCard;
+            document.getElementById('rec-receiver').innerText = tx.receiver;
+            document.getElementById('rec-receiver-card').innerText = tx.receiverCard;
+            document.getElementById('rec-amount').innerText = '$' + tx.amount.toFixed(2);
+            document.getElementById('rec-fee').innerText = '$' + tx.fee.toFixed(2);
+            document.getElementById('rec-date').innerText = tx.date;
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        }
+
+        function renderMarket() {
+            let box = document.getElementById('market-assets-list');
+            box.innerHTML = '';
+            marketAssets.forEach(a => {
+                box.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#0d1117; padding:12px; border-radius:10px; border:1px solid #30363d;">
+                        <div>
+                            <b>${a.name}</b><br>
+                            <span style="color:#3fb950; font-weight:bold;">$${a.price}</span>
+                        </div>
+                        <button class="btn btn-primary" style="width:auto; padding:8px 15px;" onclick="buyStock(${a.price})">Купить</button>
+                    </div>
+                `;
+            });
+        }
+
+        function buyStock(price) {
+            if (user.balance < price) return alert('Недостаточно средств!');
+            user.balance -= price;
+            saveUserData();
+            alert('Актив успешно приобретен!');
+        }
+
+        function loadLeaderboard() {
+            db.ref('users').once('value', (snap) => {
+                let users = snap.val();
+                let list = [];
+                for (let k in users) list.push(users[k]);
+                list.sort((a,b) => b.balance - a.balance);
+
+                let box = document.getElementById('leaderboard-list');
+                box.innerHTML = '';
+                list.forEach((u, index) => {
+                    box.innerHTML += `
+                        <div class="leader-item">
+                            <span>${index + 1}. <b>${u.name}</b></span>
+                            <span style="color:#3fb950;">$${u.balance.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function playRoulette() {
+            let bet = 100;
+            if (user.balance < bet) return alert('Нужно минимум $100!');
+            user.balance -= bet;
+            if (Math.random() > 0.5) {
+                user.balance += bet * 2;
+                alert('Выигрыш в рулетку: +$200');
+            } else alert('Проигрыш!');
+            saveUserData();
+        }
+
+        function playSlots() {
+            let bet = 50;
+            if (user.balance < bet) return alert('Нужно минимум $50!');
+            user.balance -= bet;
+            if (Math.random() > 0.7) {
+                user.balance += bet * 5;
+                alert('ДЖЕКПОТ: +$250');
+            } else alert('Не повезло!');
+            saveUserData();
+        }
+
+        function startOnlinePvp() {
+            alert('Поиск соперника...');
+            setTimeout(() => {
+                if (Math.random() > 0.4) {
+                    user.balance += 200;
+                    alert('Победа в дуэли! +$200');
+                } else {
+                    user.balance -= 100;
+                    alert('Поражение в дуэли.');
+                }
+                saveUserData();
+            }, 1500);
+        }
+
+        function confirmDeleteAccount() {
+            if (confirm('Сбросить аккаунт?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
