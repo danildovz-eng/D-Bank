@@ -14,9 +14,15 @@
         .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
         .hidden { display: none !important; }
 
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 380px; pointer-events: none; }
+        .toast { background: #21262d; color: #f0f6fc; padding: 14px 18px; border-radius: 12px; border: 1px solid #30363d; box-shadow: 0 8px 24px rgba(0,0,0,0.5); font-size: 14px; pointer-events: auto; animation: fadeInOut 3s ease forwards; display: flex; align-items: center; justify-content: space-between; }
+        .toast.error { border-color: #da3633; background: #2b1d1d; }
+        .toast.success { border-color: #238636; background: #1a2e1b; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-10px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+
         .header { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 5px; }
         .user-badge { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; }
-        .lvl-tag { background: #30363d; color: #58a6ff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid #484f58; }
+        .lvl-tag { background: #21262d; color: #58a6ff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid #30363d; }
 
         .card-container { perspective: 1000px; width: 100%; height: 210px; cursor: pointer; margin: 5px 0; }
         .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
@@ -33,12 +39,16 @@
         .panel { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .btn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; font-size: 15px; transition: 0.15s; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .btn:active { background: #30363d; transform: scale(0.98); }
-        .btn-primary { background: #238636; color: white; border: 1px solid rgba(240,246,252,0.1); }
+        .btn-primary { background: #238636; color: white; border: 1px solid #2ea043; }
         .btn-primary:active { background: #2ea043; }
-        .btn-danger { background: #da3633; color: white; border: 1px solid rgba(240,246,252,0.1); }
+        .btn-danger { background: #da3633; color: white; border: 1px solid #f85149; }
         
         .input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 15px; margin-bottom: 12px; outline: none; }
         .input:focus { border-color: #58a6ff; }
+
+        .pin-dots-container { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #58a6ff; background: transparent; transition: 0.2s; }
+        .pin-dot.filled { background: #58a6ff; }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
@@ -64,34 +74,52 @@
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div class="container" id="app">
-        <div id="auth-screen" class="panel">
+        <div id="login-screen" class="panel">
             <h2 style="text-align: center; margin-bottom: 8px;">D-BANK</h2>
-            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;">Мобильный банк и симулятор</p>
-            
-            <div id="reg-step-1">
-                <input type="text" id="username" class="input" placeholder="Введите имя аккаунта">
-                <button class="btn btn-primary" onclick="goToRegStep2()">Далее</button>
-            </div>
-
-            <div id="reg-step-2" class="hidden">
-                <label id="captcha-label" style="font-size: 13px; display: block; margin-bottom: 8px; color: #58a6ff; font-weight: 600;"></label>
-                <input type="number" id="captcha-input" class="input" placeholder="Ответ">
-                <button class="btn btn-primary" onclick="goToRegStep3()">Подтвердить</button>
-            </div>
-
-            <div id="reg-step-3" class="hidden">
-                <p style="font-size: 13px; color: #8b949e; margin-bottom: 8px;">Придумайте 4-значный PIN-код для входа</p>
-                <input type="password" id="reg-pin-input" class="input" maxlength="4" placeholder="PIN (4 цифры)">
-                <button class="btn btn-primary" onclick="finishRegistration()">Создать аккаунт</button>
-            </div>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;">Авторизация в системе</p>
+            <input type="text" id="login-username" class="input" placeholder="Никнейм">
+            <input type="password" id="login-password" class="input" placeholder="Пароль">
+            <button class="btn btn-primary" onclick="handleLogin()" style="margin-bottom: 12px;">Войти</button>
+            <button class="btn" onclick="showRegisterScreen()">Создать аккаунт</button>
         </div>
 
-        <div id="login-screen" class="panel hidden">
-            <h2 style="text-align: center; margin-bottom: 8px;">Вход в D-BANK</h2>
-            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;" id="login-user-name">Приветствуем!</p>
-            <input type="password" id="login-pin-input" class="input" maxlength="4" placeholder="Введите ваш PIN-код">
-            <button class="btn btn-primary" onclick="verifyPinLogin()">Войти</button>
+        <div id="register-screen" class="panel hidden">
+            <h2 style="text-align: center; margin-bottom: 8px;">Регистрация</h2>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 20px;">Только латиница и цифры</p>
+            <input type="text" id="reg-username" class="input" placeholder="Никнейм (латиница)">
+            <input type="password" id="reg-password" class="input" placeholder="Пароль">
+            <input type="password" id="reg-password-confirm" class="input" placeholder="Подтвердите пароль">
+            <button class="btn btn-primary" onclick="handleRegisterStep()" style="margin-bottom: 12px;">Далее (Создание PIN)</button>
+            <button class="btn" onclick="showLoginScreen()">Назад ко входу</button>
+        </div>
+
+        <div id="pin-setup-screen" class="panel hidden">
+            <h2 style="text-align: center; margin-bottom: 8px;">Защита PIN-кодом</h2>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 10px;">Введите 4 цифры</p>
+            <div class="pin-dots-container">
+                <div class="pin-dot" id="pset-dot-0"></div>
+                <div class="pin-dot" id="pset-dot-1"></div>
+                <div class="pin-dot" id="pset-dot-2"></div>
+                <div class="pin-dot" id="pset-dot-3"></div>
+            </div>
+            <input type="password" id="pset-pin-input" class="input" maxlength="4" style="text-align: center; letter-spacing: 10px;" oninput="updatePinDots('pset')">
+            <button class="btn btn-primary" onclick="finalizeRegistration()">Завершить регистрацию</button>
+        </div>
+
+        <div id="pin-enter-screen" class="panel hidden">
+            <h2 style="text-align: center; margin-bottom: 8px;" id="greeting-title">Вход</h2>
+            <p style="font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 10px;">Введите ваш PIN-код</p>
+            <div class="pin-dots-container">
+                <div class="pin-dot" id="pent-dot-0"></div>
+                <div class="pin-dot" id="pent-dot-1"></div>
+                <div class="pin-dot" id="pent-dot-2"></div>
+                <div class="pin-dot" id="pent-dot-3"></div>
+            </div>
+            <input type="password" id="pent-pin-input" class="input" maxlength="4" style="text-align: center; letter-spacing: 10px;" oninput="updatePinDots('pent')">
+            <button class="btn btn-primary" onclick="verifyPinCode()">Разблокировать</button>
         </div>
 
         <div id="main-screen" class="hidden">
@@ -256,8 +284,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let tempRegData = { name: "", pass: "" };
         let user = {
             name: "",
+            pass: "",
             pin: "",
             balance: 1000,
             cardNum: "4921 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000),
@@ -283,66 +313,169 @@
             { id: "tsla", name: "Tesla (TSLA)", price: 240 }
         ];
 
-        let numA = Math.floor(Math.random() * 10) + 1;
-        let numB = Math.floor(Math.random() * 10) + 1;
+        function showToast(message, type = 'error') {
+            let container = document.getElementById('toast-container');
+            let toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3000);
+        }
 
         window.onload = function() {
-            let savedReg = localStorage.getItem('dbank_registered');
             let savedName = localStorage.getItem('dbank_name');
+            let savedPass = localStorage.getItem('dbank_pass');
             let savedPin = localStorage.getItem('dbank_pin');
 
-            if (savedReg === 'true' && savedName && savedPin) {
+            if (savedName && savedPass && savedPin) {
                 user.name = savedName;
+                user.pass = savedPass;
                 user.pin = savedPin;
-                document.getElementById('login-user-name').innerText = `Добро пожаловать, ${user.name}!`;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('login-screen').classList.remove('hidden');
+                
+                let hour = new Date().getHours();
+                let greeting = "Доброго дня";
+                if (hour >= 5 && hour < 12) greeting = "Доброго утра";
+                else if (hour >= 17 && hour < 23) greeting = "Доброго вечера";
+                else if (hour >= 23 || hour < 5) greeting = "Доброй ночи";
+
+                document.getElementById('greeting-title').innerText = `${greeting}, ${user.name}!`;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('pin-enter-screen').classList.remove('hidden');
             } else {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('captcha-label').innerText = `Сколько будет ${numA} + ${numB}?`;
+                showLoginScreen();
             }
         };
 
-        function goToRegStep2() {
-            let nameInput = document.getElementById('username').value.trim();
-            if (!nameInput) return alert('Введите имя аккаунта!');
-            user.name = nameInput;
-            document.getElementById('reg-step-1').classList.add('hidden');
-            document.getElementById('reg-step-2').classList.remove('hidden');
+        function showLoginScreen() {
+            document.getElementById('register-screen').classList.add('hidden');
+            document.getElementById('pin-setup-screen').classList.add('hidden');
+            document.getElementById('pin-enter-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
         }
 
-        function goToRegStep3() {
-            let captchaInput = parseInt(document.getElementById('captcha-input').value);
-            if (captchaInput !== (numA + numB)) return alert('Неверный ответ на капчу!');
-            document.getElementById('reg-step-2').classList.add('hidden');
-            document.getElementById('reg-step-3').classList.remove('hidden');
+        function showRegisterScreen() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('register-screen').classList.remove('hidden');
         }
 
-        function finishRegistration() {
-            let pinInput = document.getElementById('reg-pin-input').value.trim();
-            if (pinInput.length !== 4 || isNaN(pinInput)) return alert('PIN-код должен состоять из 4 цифр!');
+        function updatePinDots(prefix) {
+            let val = document.getElementById(prefix + '-pin-input').value;
+            for (let i = 0; i < 4; i++) {
+                let dot = document.getElementById(prefix + '-dot-' + i);
+                if (i < val.length) dot.classList.add('filled');
+                else dot.classList.remove('filled');
+            }
+        }
 
+        function handleLogin() {
+            let name = document.getElementById('login-username').value.trim();
+            let pass = document.getElementById('login-password').value.trim();
+
+            if (!name || !pass) {
+                showToast('Заполните все поля!', 'error');
+                return;
+            }
+
+            db.ref('users/' + name).once('value', (snap) => {
+                let data = snap.val();
+                if (!data) {
+                    showToast('Пользователь не найден!', 'error');
+                    return;
+                }
+                if (data.pass !== pass) {
+                    showToast('Неверный пароль!', 'error');
+                    return;
+                }
+                user = Object.assign(user, data);
+                localStorage.setItem('dbank_name', user.name);
+                localStorage.setItem('dbank_pass', user.pass);
+                localStorage.setItem('dbank_pin', user.pin);
+                
+                let hour = new Date().getHours();
+                let greeting = "Доброго дня";
+                if (hour >= 5 && hour < 12) greeting = "Доброго утра";
+                else if (hour >= 17 && hour < 23) greeting = "Доброго вечера";
+                else if (hour >= 23 || hour < 5) greeting = "Доброй ночи";
+
+                document.getElementById('greeting-title').innerText = `${greeting}, ${user.name}!`;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('pin-enter-screen').classList.remove('hidden');
+                showToast('Успешный вход!', 'success');
+            });
+        }
+
+        function handleRegisterStep() {
+            let name = document.getElementById('reg-username').value.trim();
+            let pass = document.getElementById('reg-password').value.trim();
+            let confirmPass = document.getElementById('reg-password-confirm').value.trim();
+
+            let latinRegex = /^[a-zA-Z0-9_]+$/;
+            if (!latinRegex.test(name)) {
+                showToast('Никнейм должен содержать только латиницу, цифры и подчеркивание!', 'error');
+                return;
+            }
+            if (!pass || pass.length < 4) {
+                showToast('Пароль должен быть не менее 4 символов!', 'error');
+                return;
+            }
+            if (pass !== confirmPass) {
+                showToast('Пароли не совпадают!', 'error');
+                return;
+            }
+
+            db.ref('users/' + name).once('value', (snap) => {
+                if (snap.exists()) {
+                    showToast('Имя пользователя уже занято!', 'error');
+                    return;
+                }
+                tempRegData.name = name;
+                tempRegData.pass = pass;
+                document.getElementById('register-screen').classList.add('hidden');
+                document.getElementById('pin-setup-screen').classList.remove('hidden');
+            });
+        }
+
+        function finalizeRegistration() {
+            let pinInput = document.getElementById('pset-pin-input').value.trim();
+            if (pinInput.length !== 4 || isNaN(pinInput)) {
+                showToast('PIN-код должен состоять ровно из 4 цифр!', 'error');
+                return;
+            }
+
+            user.name = tempRegData.name;
+            user.pass = tempRegData.pass;
             user.pin = pinInput;
-            localStorage.setItem('dbank_registered', 'true');
+
             localStorage.setItem('dbank_name', user.name);
+            localStorage.setItem('dbank_pass', user.pass);
             localStorage.setItem('dbank_pin', user.pin);
 
             saveUserData();
             showMainScreen();
+            showToast('Аккаунт успешно создан!', 'success');
         }
 
-        function verifyPinLogin() {
-            let enteredPin = document.getElementById('login-pin-input').value.trim();
-            if (enteredPin !== user.pin) return alert('Неверный PIN-код!');
+        function verifyPinCode() {
+            let enteredPin = document.getElementById('pent-pin-input').value.trim();
+            if (enteredPin !== user.pin) {
+                showToast('Неверный PIN-код!', 'error');
+                return;
+            }
             loadUserData();
         }
 
         function loadUserData() {
-            db.ref('users/' + user.name.replace(/\s+/g, '_')).on('value', (snapshot) => {
+            db.ref('users/' + user.name).on('value', (snapshot) => {
                 let data = snapshot.val();
                 if (data) {
+                    let oldBalance = user.balance;
                     user = Object.assign(user, data);
                     if (!user.history) user.history = [];
+                    
+                    if (oldBalance !== undefined && user.balance > oldBalance) {
+                        let diff = user.balance - oldBalance;
+                        showToast(`Зачисление средств: +$${diff.toFixed(2)}`, 'success');
+                    }
                     updateUI();
                 }
             });
@@ -350,12 +483,14 @@
         }
 
         function saveUserData() {
-            db.ref('users/' + user.name.replace(/\s+/g, '_')).set(user);
+            db.ref('users/' + user.name).set(user);
         }
 
         function showMainScreen() {
-            document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('register-screen').classList.add('hidden');
+            document.getElementById('pin-setup-screen').classList.add('hidden');
+            document.getElementById('pin-enter-screen').classList.add('hidden');
             document.getElementById('main-screen').classList.remove('hidden');
             document.getElementById('nav-bar').classList.remove('hidden');
             updateUI();
@@ -417,29 +552,33 @@
             user.balance += 5;
             checkLevelUp();
             saveUserData();
+            showToast('Заработок за клик: +$5', 'success');
         }
         function workFreelance() {
             let gain = Math.floor(Math.random() * 50) + 20;
             user.balance += gain;
-            alert(`Заказ выполнен! Получено $${gain}`);
+            showToast(`Заказ выполнен! Получено $${gain}`, 'success');
             checkLevelUp();
             saveUserData();
         }
         function workBusiness() {
-            if (user.balance < 500) return alert('Нужно минимум $500!');
+            if (user.balance < 500) {
+                showToast('Нужно минимум $500 для бизнеса!', 'error');
+                return;
+            }
             user.balance -= 500;
             setInterval(() => {
                 user.balance += 25;
                 saveUserData();
             }, 10000);
-            alert('Бизнес успешно приобретен!');
+            showToast('Бизнес успешно приобретен!', 'success');
         }
 
         function checkLevelUp() {
             let newLvl = Math.floor(user.balance / 2000) + 1;
             if (newLvl > user.level) {
                 user.level = newLvl;
-                alert(`Уровень повышен: LVL ${user.level}`);
+                showToast(`Повышен уровень: LVL ${user.level}`, 'success');
             }
         }
 
@@ -463,8 +602,14 @@
 
         function selectSkin(id, price, reqLvl) {
             if (!user.unlockedSkins.includes(id)) {
-                if (user.level < reqLvl) return alert(`Нужен уровень ${reqLvl}`);
-                if (user.balance < price) return alert('Недостаточно средств!');
+                if (user.level < reqLvl) {
+                    showToast(`Требуется уровень ${reqLvl}`, 'error');
+                    return;
+                }
+                if (user.balance < price) {
+                    showToast('Недостаточно средств!', 'error');
+                    return;
+                }
                 user.balance -= price;
                 user.unlockedSkins.push(id);
             }
@@ -472,23 +617,30 @@
             saveUserData();
             renderSkins();
             closeModals();
+            showToast('Скин успешно изменен!', 'success');
         }
 
         let recipientData = null;
         function checkTransferRecipient() {
             let target = document.getElementById('transfer-card-input').value.trim();
-            if (!target) return alert('Введите данные получателя!');
+            if (!target) {
+                showToast('Введите данные получателя!', 'error');
+                return;
+            }
 
             db.ref('users').once('value', (snap) => {
                 let users = snap.val();
                 recipientData = null;
                 for (let k in users) {
-                    if (users[k].name === target || users[k].cardNum === target) {
+                    if (k === target || users[k].cardNum === target) {
                         recipientData = users[k];
                         break;
                     }
                 }
-                if (!recipientData) return alert('Игрок не найден!');
+                if (!recipientData) {
+                    showToast('Игрок не найден!', 'error');
+                    return;
+                }
                 document.getElementById('transfer-target-name').innerText = recipientData.name;
                 document.getElementById('transfer-step-1').classList.add('hidden');
                 document.getElementById('transfer-step-2').classList.remove('hidden');
@@ -497,13 +649,19 @@
 
         function executeTransfer() {
             let amount = parseFloat(document.getElementById('transfer-amount-input').value);
-            if (isNaN(amount) || amount <= 0 || amount > 100000) return alert('Неверная сумма!');
+            if (isNaN(amount) || amount <= 0 || amount > 100000) {
+                showToast('Неверная сумма перевода!', 'error');
+                return;
+            }
 
             let feePercent = amount > 50000 ? 2.5 : (amount > 10000 ? 3.5 : 4.68);
             let fee = (amount * feePercent) / 100;
             let total = amount + fee;
 
-            if (user.balance < total) return alert('Недостаточно средств с учетом комиссии!');
+            if (user.balance < total) {
+                showToast('Недостаточно средств с учетом комиссии!', 'error');
+                return;
+            }
 
             user.balance -= total;
             recipientData.balance += amount;
@@ -522,10 +680,11 @@
             user.history.unshift(txRecord);
 
             saveUserData();
-            db.ref('users/' + recipientData.name.replace(/\s+/g, '_')).set(recipientData);
+            db.ref('users/' + recipientData.name).set(recipientData);
 
             closeModals();
             showReceipt(txRecord);
+            showToast(`Перевод успешно отправлен игроку ${recipientData.name}`, 'success');
         }
 
         function renderHistory() {
@@ -577,10 +736,13 @@
         }
 
         function buyStock(price) {
-            if (user.balance < price) return alert('Недостаточно средств!');
+            if (user.balance < price) {
+                showToast('Недостаточно средств для покупки!', 'error');
+                return;
+            }
             user.balance -= price;
             saveUserData();
-            alert('Актив успешно приобретен!');
+            showToast('Актив успешно приобретен!', 'success');
         }
 
         function loadLeaderboard() {
@@ -605,35 +767,45 @@
 
         function playRoulette() {
             let bet = 100;
-            if (user.balance < bet) return alert('Нужно минимум $100!');
+            if (user.balance < bet) {
+                showToast('Нужно минимум $100!', 'error');
+                return;
+            }
             user.balance -= bet;
             if (Math.random() > 0.5) {
                 user.balance += bet * 2;
-                alert('Выигрыш в рулетку: +$200');
-            } else alert('Проигрыш!');
+                showToast('Выигрыш в рулетку: +$200', 'success');
+            } else {
+                showToast('Проигрыш в рулетку.', 'error');
+            }
             saveUserData();
         }
 
         function playSlots() {
             let bet = 50;
-            if (user.balance < bet) return alert('Нужно минимум $50!');
+            if (user.balance < bet) {
+                showToast('Нужно минимум $50!', 'error');
+                return;
+            }
             user.balance -= bet;
             if (Math.random() > 0.7) {
                 user.balance += bet * 5;
-                alert('ДЖЕКПОТ: +$250');
-            } else alert('Не повезло!');
+                showToast('ДЖЕКПОТ: +$250', 'success');
+            } else {
+                showToast('Слоты ничего не принесли.', 'error');
+            }
             saveUserData();
         }
 
         function startOnlinePvp() {
-            alert('Поиск соперника...');
+            showToast('Поиск соперника...', 'success');
             setTimeout(() => {
                 if (Math.random() > 0.4) {
                     user.balance += 200;
-                    alert('Победа в дуэли! +$200');
+                    showToast('Победа в дуэли! +$200', 'success');
                 } else {
                     user.balance -= 100;
-                    alert('Поражение в дуэли.');
+                    showToast('Поражение в дуэли (-$100).', 'error');
                 }
                 saveUserData();
             }, 1500);
