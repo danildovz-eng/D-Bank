@@ -617,7 +617,7 @@
                     <div style="font-size:12px; color:var(--success); font-weight:600;">Активно</div>
                 </div>
                 <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Пассивный сбор виртуальной криптовалюты.</p>
-                <button type="button" class="btn-gold" onclick="collectMiningProfit()">Собрать добытое (+$1,500)</button>
+                <button type="button" class="btn-gold" onclick="collectMiningProfit()">Собрать добытое (<span id="mining-collected-text">$0.00</span>)</button>
             </div>
 
             <!-- Теневой рынок / DDoS (С Замком) -->
@@ -799,7 +799,7 @@
 
     function loadUserDataFromFirebase(userKey, tgUser, startParam) {
         const userRef = database.ref(`users/${userKey}`);
-
+        
         userRef.once('value').then(snapshot => {
             if (!snapshot.exists()) {
                 // Создание нового профиля Telegram
@@ -825,6 +825,7 @@
                     ownedSkins: ['default'],
                     adsWatchedToday: 0,
                     lastAdResetDate: new Date().toLocaleDateString('ru-RU'),
+                    miningAccumulated: 0,
                     history: []
                 };
 
@@ -884,9 +885,17 @@
     }
 
     function shareRefLink() {
-        const botUsername = "DBankGameBot"; // Замените на юзернейм вашего бота
+        const botUsername = "DBankPrivate_bot"; // Замените на реальный юзернейм вашего бота (без @)
         const refLink = `https://t.me/${botUsername}?start=ref_${userData.telegramId}`;
-        const shareText = "💎 Присоединяйся к D-Bank Private и зарабатывай Telegram Stars!";
+        
+        // Автоматическое копирование в буфер обмена
+        navigator.clipboard.writeText(refLink).then(() => {
+            showToast("Реферальная ссылка скопирована в буфер!", "success");
+        }).catch(() => {
+            showToast("Не удалось скопировать ссылку", "error");
+        });
+
+        const shareText = "💎 Присоединяйся к D-Bank Private, качай элитную карту и зарабатывай вместе со мной!";
         window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
     }
 
@@ -1294,18 +1303,28 @@
         showToast("Улучшение успешно приобретено!", "success");
     }
 
-    // --- ПАССИВНЫЙ ИГРОВОЙ ЦИКЛ ---
+    // --- ПАССИВНЫЙ ИГРОВОЙ ЦИКЛ И АФК МАЙНИНГ ---
     function startPassiveIncomeLoop() {
         setInterval(() => {
             if (!userData) return;
 
-            let passiveGain = 0;
+            let updated = false;
+
+            // 1. Обычный авто-майнер (если куплен апгрейд)
             if (userData.autoTier !== undefined && userData.autoTier >= 0) {
-                passiveGain += AUTO_TIERS[userData.autoTier];
+                const passiveGain = AUTO_TIERS[userData.autoTier];
+                userData.balance = (userData.balance || 0) + passiveGain;
+                updated = true;
             }
 
-            if (passiveGain > 0) {
-                userData.balance = (userData.balance || 0) + passiveGain;
+            // 2. ASIC Майнинг в АФК ($68.64 в час = $68.64 / 3600 сек ≈ $0.019067 в секунду)
+            if (userData.unlockedMethods && userData.unlockedMethods.mining) {
+                const miningPerSecond = 68.64 / 3600;
+                userData.miningAccumulated = (userData.miningAccumulated || 0) + miningPerSecond;
+                updated = true;
+            }
+
+            if (updated) {
                 saveUserData();
                 updateUI();
             }
@@ -1321,19 +1340,25 @@
         }, 12000);
     }
 
-    // --- ЛОГИКА ОПЕРАЦИЙ В ТЕНЕВОМ СЕРВИСЕ И МАЙНИНГЕ ---
     function collectMiningProfit() {
         if (!userData.unlockedMethods || !userData.unlockedMethods.mining) {
-            showToast("Сначала разблокируйте доступ!", "error");
+            showToast("Сначала разблокируйте майнинг-ферму!", "error");
             return;
         }
 
-        const profit = 1500.00;
+        const profit = userData.miningAccumulated || 0;
+        if (profit <= 0.01) {
+            showToast("Майнер еще ничего не накопил в АФК!", "warning");
+            return;
+        }
+
         userData.balance = (userData.balance || 0) + profit;
         addHistoryEntry("⛏️ Сбор с ASIC майнера", profit, "plus");
+        userData.miningAccumulated = 0; // Сбрасываем накопитель после сбора
+        
         saveUserData();
         updateUI();
-        showToast(`Собрано +$${profit.toLocaleString('ru-RU')}!`, "success");
+        showToast(`Успешно собрано +$${profit.toFixed(2)}!`, "success");
     }
 
     function runDarknetAttack() {
@@ -1369,9 +1394,13 @@
         updateUI();
     }
 
-    // --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА (UI) ---
     function updateUI() {
         if (!userData) return;
+
+        const miningBtnText = document.getElementById('mining-collected-text');
+        if (miningBtnText) {
+            miningBtnText.innerText = `$${(userData.miningAccumulated || 0).toFixed(2)}`;
+        }
 
         const formattedBalance = `$ ${(userData.balance || 0).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         document.getElementById('top-balance').innerText = formattedBalance;
