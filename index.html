@@ -885,19 +885,33 @@
     }
 
     function shareRefLink() {
-        const botUsername = "DBankPrivate_bot"; // Замените на реальный юзернейм вашего бота (без @)
-        const refLink = `https://t.me/${botUsername}?start=ref_${userData.telegramId}`;
-        
-        // Автоматическое копирование в буфер обмена
-        navigator.clipboard.writeText(refLink).then(() => {
-            showToast("Реферальная ссылка скопирована в буфер!", "success");
-        }).catch(() => {
-            showToast("Не удалось скопировать ссылку", "error");
-        });
-
-        const shareText = "💎 Присоединяйся к D-Bank Private, качай элитную карту и зарабатывай вместе со мной!";
-        window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
+    // ВПИШИТЕ СЮДА ТОЧНЫЙ ЮЗЕРНЕЙМ ВАШЕГО БОТА (например: "DBankPrivate_bot")
+    const botUsername = "DBankPrivate_bot"; 
+    
+    if (!userData.telegramId) {
+        showToast("Ошибка: Telegram ID не найден", "error");
+        return;
     }
+
+    const refLink = `https://t.me/${botUsername}?start=ref_${userData.telegramId}`;
+    
+    // Копируем ссылку в буфер обмена
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(refLink).then(() => {
+            showToast("Реферальная ссылка скопирована!", "success");
+        }).catch(() => {});
+    }
+
+    // Открываем диалог отправки в Telegram
+    const shareText = "💎 Присоединяйся к D-Bank Private и зарабатывай вместе со мной!";
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+    
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink(tgUrl);
+    } else {
+        window.open(tgUrl, '_blank');
+    }
+}
 
     function requestWithdrawal() {
         if ((userData.balance || 0) < 1000000) {
@@ -1341,25 +1355,32 @@
     }
 
     function collectMiningProfit() {
-        if (!userData.unlockedMethods || !userData.unlockedMethods.mining) {
-            showToast("Сначала разблокируйте майнинг-ферму!", "error");
-            return;
-        }
-
-        const profit = userData.miningAccumulated || 0;
-        if (profit <= 0.01) {
-            showToast("Майнер еще ничего не накопил в АФК!", "warning");
-            return;
-        }
-
-        userData.balance = (userData.balance || 0) + profit;
-        addHistoryEntry("⛏️ Сбор с ASIC майнера", profit, "plus");
-        userData.miningAccumulated = 0; // Сбрасываем накопитель после сбора
-        
-        saveUserData();
-        updateUI();
-        showToast(`Успешно собрано +$${profit.toFixed(2)}!`, "success");
+    // Проверяем, разблокирован ли майнинг или куплен ли уровень
+    const isUnlocked = (userData.unlockedMethods && userData.unlockedMethods.mining) || (userData.ASIC_Level && userData.ASIC_Level > 0);
+    
+    if (!isUnlocked) {
+        showToast("Сначала разблокируйте майнинг-ферму!", "error");
+        return;
     }
+
+    const profit = userData.miningAccumulated || 0;
+    
+    if (profit < 0.01) {
+        showToast("Майнер еще не накопил даже $0.01", "warning");
+        return;
+    }
+
+    // Начисляем ТОЛЬКО то, что накопилось в АФК (из расчета $68.64/час)
+    userData.balance = (userData.balance || 0) + profit;
+    addHistoryEntry("⛏️ Сбор с ASIC майнера", profit, "plus");
+    
+    // Обнуляем накопитель
+    userData.miningAccumulated = 0;
+    
+    saveUserData();
+    updateUI();
+    showToast(`Собрано +$${profit.toFixed(2)} на баланс!`, "success");
+}
 
     function runDarknetAttack() {
         if (!userData.unlockedMethods || !userData.unlockedMethods.darknet) {
